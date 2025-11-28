@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukaan - Shopkeeper Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        :root {
+            --primary: #0F2C59; --primary-dark: #0A1F3D; --secondary: #FFFFFF; --accent: #3A8EF6; 
+            --accent-hover: #2D7AE6; --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
+            --neutral: #F8FAFC; --text-dark: #1E293B; --text-light: #64748B; --border: #E2E8F0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--neutral); color: var(--text-dark); line-height: 1.6; }
+        .app-header { background: var(--primary); color: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.4rem; text-decoration: none; color: white; }
+        .brand-logo { width: 40px; height: 40px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+        .container-main { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+        
+        /* Auth Styles */
+        .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 20px; }
+        .auth-card { background: white; border-radius: 20px; padding: 40px; box-shadow: var(--shadow-lg); width: 100%; max-width: 450px; }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-logo { width: 60px; height: 60px; background: var(--accent); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem; color: white; margin: 0 auto 15px; }
+        .auth-title { font-size: 1.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+        .auth-subtitle { color: var(--text-light); font-size: 1rem; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { font-weight: 600; margin-bottom: 8px; color: var(--text-dark); display: block; }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; transition: all 0.2s; }
+        .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58, 142, 246, 0.1); }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-outline:hover { background: var(--accent); color: white; }
+        .auth-footer { text-align: center; margin-top: 25px; color: var(--text-light); }
+        .auth-link { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .auth-link:hover { text-decoration: underline; }
+        
+        /* Dashboard Styles */
+        .dashboard-page { display: none; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: var(--shadow); border-left: 5px solid var(--accent); }
+        .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--text-dark); line-height: 1; margin-bottom: 8px; }
+        .stat-label { color: var(--text-light); font-size: 14px; font-weight: 600; }
+        .stat-change { font-size: 12px; font-weight: 600; margin-top: 5px; }
+        .change-positive { color: var(--success); }
+        .change-negative { color: var(--danger); }
+        
+        /* Navigation */
+        .shopkeeper-nav { background: white; border-radius: 12px; padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow); }
+        .nav-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-tab { padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; background: transparent; color: var(--text-light); }
+        .nav-tab.active { background: var(--accent); color: white; }
+        .nav-tab:hover:not(.active) { background: var(--neutral); color: var(--text-dark); }
+        
+        /* Content Pages */
+        .content-page { display: none; }
+        .content-page.active { display: block; }
+        
+        /* Products Page */
+        .products-header { display: flex; justify-content: between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .search-box { flex: 1; min-width: 300px; position: relative; }
+        .search-input { width: 100%; padding: 12px 45px 12px 16px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); }
+        
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow); transition: all 0.3s ease; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .product-badge { position: absolute; top: 12px; left: 12px; background: var(--success); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .product-image { height: 160px; border-radius: 12px; object-fit: cover; width: 100%; background: var(--neutral); margin-bottom: 12px; }
+        .product-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; color: var(--text-dark); }
+        .product-category { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+        .product-price { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+        .current-price { font-weight: 800; font-size: 18px; color: var(--accent); }
+        .stock-info { font-size: 14px; color: var(--text-light); margin-top: 8px; }
+        .stock-low { color: var(--danger); font-weight: 600; }
+        .product-actions { display: flex; gap: 8px; margin-top: 15px; }
+        .btn-action { flex: 1; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-edit { background: var(--accent); color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+        
+        /* Orders Page */
+        .orders-list { display: flex; flex-direction: column; gap: 16px; }
+        .order-card { background: white; border-radius: 12px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .order-id { font-weight: 700; color: var(--text-dark); font-size: 18px; }
+        .order-status { padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .status-pending { background: var(--warning); color: white; }
+        .status-confirmed { background: var(--accent); color: white; }
+        .status-preparing { background: #8B5CF6; color: white; }
+        .status-dispatched { background: #F59E0B; color: white; }
+        .status-delivered { background: var(--success); color: white; }
+        .status-cancelled { background: var(--danger); color: white; }
+        .order-customer { margin-bottom: 12px; }
+        .customer-name { font-weight: 600; margin-bottom: 4px; }
+        .customer-phone { color: var(--text-light); font-size: 14px; }
+        .order-items { margin-bottom: 16px; }
+        .order-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .order-item:last-child { border-bottom: none; }
+        .order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+        .order-total { font-weight: 700; font-size: 18px; color: var(--text-dark); }
+        .order-actions { display: flex; gap: 8px; }
+        
+        /* Analytics Page */
+        .analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .chart-container { background: white; border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+        .chart-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--text-dark); }
+        
+        /* Profile Page */
+        .profile-section { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
+        .profile-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-full { grid-column: 1 / -1; }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+        .modal-header { display: flex; justify-content: between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .modal-title { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        .modal-close { background: none; border: none; font-size: 24px; color: var(--text-light); cursor: pointer; }
+        
+        /* Toast Styles */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 1100; }
+        .toast { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: var(--shadow-lg); margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--success); max-width: 350px; }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast-icon { font-size: 20px; }
+        .toast-success { color: var(--success); }
+        .toast-error { color: var(--danger); }
+        .toast-warning { color: var(--warning); }
+        .toast-message { flex: 1; font-weight: 500; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+            .profile-form { grid-template-columns: 1fr; }
+            .products-header { flex-direction: column; align-items: stretch; }
+            .search-box { min-width: 100%; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="authScreen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">D</div>
+                    <h1 class="auth-title">Shopkeeper Portal</h1>
+                    <p class="auth-subtitle">Manage your shop on Dukaan</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-100" style="padding: 12px;">Sign In</button>
+                    <button type="button" class="btn-outline w-100 mt-3" onclick="demoLogin()">
+                        <i class="fas fa-rocket"></i> Try Demo Account
+                    </button>
+                    <!-- Emergency Login Button -->
+                    <button type="button" class="btn-primary w-100 mt-2" style="background: var(--warning);" onclick="emergencyLogin()">
+                        <i class="fas fa-bolt"></i> Emergency Demo Login
+                    </button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have a shopkeeper account? <a href="#" class="auth-link" onclick="showSignupForm()">Contact Admin</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="appScreen" style="display: none;">
+        <header class="app-header">
+            <div class="header-container">
+                <a href="#" class="brand">
+                    <div class="brand-logo">D</div>
+                    <span>Dukaan Shopkeeper</span>
+                </a>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span id="shopNameDisplay">My Shop</span>
+                    <button class="btn-outline" onclick="logout()" style="color: white; border-color: white;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container-main">
+            <!-- Navigation -->
+            <div class="shopkeeper-nav">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-page="dashboard">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </button>
+                    <button class="nav-tab" data-page="products">
+                        <i class="fas fa-box"></i> Products
+                    </button>
+                    <button class="nav-tab" data-page="orders">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </button>
+                    <button class="nav-tab" data-page="analytics">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
+                    <button class="nav-tab" data-page="profile">
+                        <i class="fas fa-store"></i> Shop Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="content-page active">
+                <h2 class="section-title">Dashboard Overview</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayOrders">0</div>
+                        <div class="stat-label">Today's Orders</div>
+                        <div class="stat-change change-positive" id="ordersChange">+0% from yesterday</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayRevenue">₹0</div>
+                        <div class="stat-label">Today's Revenue</div>
+                        <div class="stat-change change-positive" id="revenueChange">+0% from yesterday</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                        <div class="stat-change">Active in your shop</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="lowStockCount">0</div>
+                        <div class="stat-label">Low Stock Items</div>
+                        <div class="stat-change change-negative">Need attention</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Recent Orders</h3>
+                            <div id="recentOrdersList">
+                                <!-- Recent orders will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Quick Actions</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <button class="btn-primary" onclick="navigateToPage('products'); showAddProductModal()">
+                                    <i class="fas fa-plus"></i> Add New Product
+                                </button>
+                                <button class="btn-outline" onclick="navigateToPage('orders')">
+                                    <i class="fas fa-eye"></i> View All Orders
+                                </button>
+                                <button class="btn-outline" onclick="navigateToPage('analytics')">
+                                    <i class="fas fa-chart-pie"></i> View Analytics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div id="productsPage" class="content-page">
+                <div class="products-header">
+                    <h2 class="section-title">Product Management</h2>
+                    <div class="search-box">
+                        <input type="text" id="productSearch" class="search-input" placeholder="Search products...">
+                        <div class="search-icon"><i class="fas fa-search"></i></div>
+                    </div>
+                    <button class="btn-primary" onclick="showAddProductModal()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </div>
+
+                <div class="product-grid" id="productsList">
+                    <!-- Products will be populated here -->
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div id="ordersPage" class="content-page">
+                <h2 class="section-title">Order Management</h2>
+                
+                <div class="orders-list" id="ordersList">
+                    <!-- Orders will be populated here -->
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="content-page">
+                <h2 class="section-title">Sales Analytics</h2>
+                
+                <div class="analytics-grid">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Revenue Overview</h3>
+                        <canvas id="revenueChart" height="300"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Top Products</h3>
+                        <div id="topProductsList">
+                            <!-- Top products will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="content-page">
+                <h2 class="section-title">Shop Profile</h2>
+                
+                <div class="profile-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-store"></i>
+                        Shop Information
+                    </h3>
+                    <form id="shopProfileForm" class="profile-form">
+                        <div class="form-group">
+                            <label class="form-label">Shop Name</label>
+                            <input type="text" class="form-control" id="shopName" placeholder="Enter shop name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" id="shopCategory" required>
+                                <option value="groceries">Groceries</option>
+                                <option value="cosmetics">Cosmetics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="vegetables">Vegetables</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="bakery">Bakery</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="shopDescription" placeholder="Describe your shop" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" id="shopAddress" placeholder="Shop address" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="shopPhone" placeholder="Contact number" required>
+                        </div>
+                        <div class="form-group form-full">
+                            <button type="submit" class="btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="productModalTitle">Add New Product</h3>
+                <button class="modal-close" onclick="closeProductModal()">&times;</button>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-control" id="productCategory" required>
+                        <option value="dairy">Dairy</option>
+                        <option value="bakery">Bakery</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="cosmetics">Cosmetics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="vegetables">Vegetables</option>
+                        <option value="electronics">Electronics</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (₹)</label>
+                    <input type="number" class="form-control" id="productPrice" placeholder="Enter price" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MRP (₹)</label>
+                    <input type="number" class="form-control" id="productMrp" placeholder="Enter MRP" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock Quantity</label>
+                    <input type="number" class="form-control" id="productStock" placeholder="Enter stock quantity" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="productDescription" placeholder="Product description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Product Image URL</label>
+                    <input type="text" class="form-control" id="productImage" placeholder="Enter image URL">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn-primary w-100">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2-yz4xwYD5S_oXs6ryhNP8XIC94jzda4",
+            authDomain: "dukaan-platform.firebaseapp.com",
+            projectId: "dukaan-platform", 
+            storageBucket: "dukaan-platform.firebasestorage.app",
+            messagingSenderId: "75765851780",
+            appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.log('Firebase already initialized');
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // App State
+        let currentUser = null;
+        let currentShop = null;
+        let products = [];
+        let orders = [];
+        let shopData = null;
+
+        // Demo Shop Data
+        const DEMO_SHOPS = {
+            'freshmart@dukaan.com': {
+                name: "FreshMart",
+                category: "groceries",
+                description: "Your daily groceries delivered fresh",
+                address: "123 Grocery Street, Food City",
+                phone: "+91 9876543210"
+            },
+            'cosmeticstore@dukaan.com': {
+                name: "CosmeticStore", 
+                category: "cosmetics",
+                description: "Premium beauty products",
+                address: "456 Beauty Avenue, Style City",
+                phone: "+91 9876543211"
+            },
+            'fashionhub@dukaan.com': {
+                name: "FashionHub",
+                category: "clothing", 
+                description: "Trendy fashion for everyone",
+                address: "789 Fashion Road, Trend City",
+                phone: "+91 9876543212"
+            },
+            'veggieking@dukaan.com': {
+                name: "VeggieKing",
+                category: "vegetables",
+                description: "Fresh vegetables daily",
+                address: "321 Green Street, Health City", 
+                phone: "+91 9876543213"
+            },
+            'gadgetzone@dukaan.com': {
+                name: "GadgetZone",
+                category: "electronics",
+                description: "Latest gadgets and electronics",
+                address: "654 Tech Park, Innovation City",
+                phone: "+91 9876543214"
+            },
+            'shopkeeper@dukaan.com': {
+                name: "Demo Shop",
+                category: "groceries", 
+                description: "Demo shop for testing",
+                address: "Demo Address, Demo City",
+                phone: "+91 9876543200"
+            }
+        };
+
+        // Initialize App
+        function initApp() {
+            setupEventListeners();
+            setupFirebaseAuth();
+            setupDemoLogin();
+            checkAuthState();
+        }
+
+        // Firebase Authentication
+        function setupFirebaseAuth() {
+            auth.onAuthStateChanged(async (user) => {
+                console.log('Auth state changed:', user);
+                if (user) {
+                    currentUser = user;
+                    await loadShopData();
+                    showAppScreen();
+                    loadDashboardData();
+                    showToast('Welcome to your shop dashboard!');
+                } else {
+                    currentUser = null;
+                    currentShop = null;
+                    showAuthScreen();
+                }
+            });
+        }
+
+        // Check initial auth state
+        function checkAuthState() {
+            const user = auth.currentUser;
+            if (user) {
+                currentUser = user;
+                loadShopData().then(() => {
+                    showAppScreen();
+                    loadDashboardData();
+                });
+            }
+        }
+
+        // Load Shop Data
+        async function loadShopData() {
+            try {
+                if (!currentUser) return;
+                
+                console.log('Loading shop data for:', currentUser.email);
+                
+                // Check if user has a shop
+                const shopSnapshot = await db.collection('shops')
+                    .where('owner', '==', currentUser.email)
+                    .get();
+                
+                if (shopSnapshot.empty) {
+                    console.log('No shop found, creating demo shop...');
+                    await createDemoShop();
+                } else {
+                    shopSnapshot.forEach(doc => {
+                        currentShop = { id: doc.id, ...doc.data() };
+                        console.log('Shop loaded:', currentShop);
+                    });
+                }
+                
+                // Update UI with shop name
+                document.getElementById('shopNameDisplay').textContent = currentShop?.name || 'My Shop';
+                
+                // Load shop-specific data
+                await loadProducts();
+                await loadOrders();
+                loadAnalytics();
+                
+            } catch (error) {
+                console.error('Error loading shop data:', error);
+                showToast('Error loading shop data: ' + error.message, 'error');
+            }
+        }
+
+        // Create Demo Shop (for testing)
+        async function createDemoShop() {
+            const demoShopData = DEMO_SHOPS[currentUser.email] || {
+                name: "My Demo Shop",
+                category: "groceries",
+                description: "Welcome to my shop on Dukaan!",
+                address: "123 Shop Street, Business City",
+                phone: "+91 9876543210"
+            };
+            
+            const demoShop = {
+                ...demoShopData,
+                owner: currentUser.email,
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const docRef = await db.collection('shops').add(demoShop);
+                currentShop = { id: docRef.id, ...demoShop };
+                console.log('Demo shop created:', currentShop);
+                showToast('Shop created successfully!');
+            } catch (error) {
+                console.error('Error creating demo shop:', error);
+                showToast('Error creating shop: ' + error.message, 'error');
+            }
+        }
+
+        // Auth Functions
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('appScreen').style.display = 'none';
+        }
+
+        function showAppScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showToast('Please enter both email and password', 'error');
+                return;
+            }
+
+            try {
+                showToast('Signing in...', 'warning');
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('Login successful:', userCredential.user);
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // More specific error messages
+                if (error.code === 'auth/user-not-found') {
+                    showToast('Account not found. Please check your email or contact admin.', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    showToast('Incorrect password. Please try again.', 'error');
+                } else if (error.code === 'auth/invalid-email') {
+                    showToast('Invalid email address.', 'error');
+                } else {
+                    showToast('Login failed: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function demoLogin() {
+            // Use the demo account
+            document.getElementById('loginEmail').value = 'shopkeeper@dukaan.com';
+            document.getElementById('loginPassword').value = 'shop123';
+            showToast('Demo credentials filled! Click Sign In to continue.');
+        }
+
+        // EMERGENCY LOGIN - Bypasses Firebase auth for testing
+        async function emergencyLogin() {
+            showToast('Emergency demo login activated!', 'warning');
+            
+            // Create a mock user object
+            currentUser = { 
+                uid: 'emergency-user-' + Date.now(), 
+                email: 'emergency@dukaan.com',
+                displayName: 'Emergency Demo User'
+            };
+            
+            // Create emergency shop
+            const emergencyShop = {
+                name: "Emergency Demo Shop",
+                owner: currentUser.email,
+                category: "groceries",
+                description: "Emergency demo shop for testing",
+                address: "Emergency Address, Demo City",
+                phone: "+91 9876543200",
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                const docRef = await db.collection('shops').add(emergencyShop);
+                currentShop = { id: docRef.id, ...emergencyShop };
+                
+                showAppScreen();
+                loadDashboardData();
+                showToast('Emergency demo login successful!');
+            } catch (error) {
+                console.error('Emergency login error:', error);
+                showToast('Emergency login failed: ' + error.message, 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                showToast('Logged out successfully');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Auth
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const page = tab.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+            
+            // Product Form
+            document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
+            
+            // Shop Profile Form
+            document.getElementById('shopProfileForm').addEventListener('submit', handleShopProfileSubmit);
+            
+            // Product Search
+            document.getElementById('productSearch').addEventListener('input', filterProducts);
+        }
+
+        // Navigation
+        function navigateToPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('data-page') === page) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Show selected page
+            document.getElementById(page + 'Page').classList.add('active');
+            
+            // Load page-specific data
+            switch(page) {
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'orders':
+                    loadOrders();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+                case 'profile':
+                    loadShopProfile();
+                    break;
+            }
+        }
+
+        // Product Management
+        async function loadProducts() {
+            if (!currentShop) return;
+            
+            try {
+                const snapshot = await db.collection('products')
+                    .where('shopId', '==', currentShop.id)
+                    .get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderProducts();
+                updateDashboardStats();
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showToast('Error loading products', 'error');
+            }
+        }
+
+        function renderProducts() {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <i class="fas fa-box-open" style="font-size: 60px; color: var(--text-light); margin-bottom: 15px;"></i>
+                        <h3 style="color: var(--text-light);">No products yet</h3>
+                        <p style="color: var(--text-light);">Add your first product to get started!</p>
+                        <button class="btn-primary mt-3" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Add Your First Product
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const isLowStock = product.stock < 10;
+                const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
+                    <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
+                         alt="${product.name}" class="product-image">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-category">${product.category}</p>
+                    <div class="product-price">
+                        <span class="current-price">₹${product.price}</span>
+                        ${product.mrp > product.price ? `<span style="color: var(--text-light); text-decoration: line-through; font-size: 14px;">₹${product.mrp}</span>` : ''}
+                    </div>
+                    <div class="stock-info ${isLowStock ? 'stock-low' : ''}">
+                        Stock: ${product.stock} ${isLowStock ? '⚠️ Low Stock' : ''}
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                productsList.appendChild(productCard);
+            });
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            
+            // Re-render filtered products
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
+            filteredProducts.forEach(product => {
+                const isLowStock = product.stock < 10;
+                const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
+                    <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
+                         alt="${product.name}" class="product-image">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-category">${product.category}</p>
+                    <div class="product-price">
+                        <span class="current-price">₹${product.price}</span>
+                        ${product.mrp > product.price ? `<span style="color: var(--text-light); text-decoration: line-through; font-size: 14px;">₹${product.mrp}</span>` : ''}
+                    </div>
+                    <div class="stock-info ${isLowStock ? 'stock-low' : ''}">
+                        Stock: ${product.stock} ${isLowStock ? '⚠️ Low Stock' : ''}
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                productsList.appendChild(productCard);
+            });
+        }
+
+        function showAddProductModal() {
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productMrp').value = product.mrp;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productImage').value = product.image || '';
+            
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        async function handleProductSubmit(event) {
+            event.preventDefault();
+            
+            const productId = document.getElementById('editProductId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                mrp: parseFloat(document.getElementById('productMrp').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value,
+                image: document.getElementById('productImage').value,
+                shopId: currentShop.id,
+                isAvailable: true,
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                if (productId) {
+                    // Update existing product
+                    await db.collection('products').doc(productId).update(productData);
+                    showToast('Product updated successfully!');
+                } else {
+                    // Add new product
+                    productData.createdAt = new Date().toISOString();
+                    await db.collection('products').add(productData);
+                    showToast('Product added successfully!');
+                }
+                
+                closeProductModal();
+                loadProducts();
+                
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showToast('Error saving product', 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                await db.collection('products').doc(productId).delete();
+                showToast('Product deleted successfully!');
+                loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Error deleting product', 'error');
+            }
+        }
+
+        // Order Management
+        async function loadOrders() {
+            if (!currentShop) return;
+            
+            try {
+                const snapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                orders = [];
+                snapshot.forEach(doc => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderOrders();
+                updateDashboardStats();
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showToast('Error loading orders', 'error');
+            }
+        }
+
+        function renderOrders() {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-shopping-bag" style="font-size: 60px; color: var(--text-light); margin-bottom: 15px;"></i>
+                        <h3 style="color: var(--text-light);">No orders yet</h3>
+                        <p style="color: var(--text-light);">Orders from customers will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                const statusClass = `status-${order.status}`;
+                const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-id">Order #${order.id.slice(-6)}</div>
+                        <div class="order-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="order-customer">
+                        <div class="customer-name">${order.customerName || 'Customer'}</div>
+                        <div class="customer-phone">${order.customerPhone || 'No phone'}</div>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>₹${item.price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total">₹${order.total}</div>
+                        <div class="order-actions">
+                            ${order.status === 'pending' ? `
+                                <button class="btn-primary" onclick="updateOrderStatus('${order.id}', 'confirmed')">
+                                    Accept Order
+                                </button>
+                                <button class="btn-outline" onclick="updateOrderStatus('${order.id}', 'cancelled')">
+                                    Cancel
+                                </button>
+                            ` : ''}
+                            ${order.status === 'confirmed' ? `
+                                <button class="btn-primary" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                    Start Preparing
+                                </button>
+                            ` : ''}
+                            ${order.status === 'preparing' ? `
+                                <button class="btn-primary" onclick="updateOrderStatus('${order.id}', 'dispatched')">
+                                    Mark Dispatched
+                                </button>
+                            ` : ''}
+                            ${order.status === 'dispatched' ? `
+                                <button class="btn-primary" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                                    Mark Delivered
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                ordersList.appendChild(orderCard);
+            });
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await db.collection('orders').doc(orderId).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                showToast(`Order status updated to ${newStatus}`);
+                loadOrders();
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                showToast('Error updating order status', 'error');
+            }
+        }
+
+        // Analytics
+        function loadAnalytics() {
+            updateRevenueChart();
+            updateTopProducts();
+        }
+
+        function updateRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Sample data - in real app, this would come from Firebase
+            const data = {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: [1200, 1900, 1500, 2200, 1800, 2500, 2000],
+                    backgroundColor: 'rgba(58, 142, 246, 0.2)',
+                    borderColor: 'rgba(58, 142, 246, 1)',
+                    borderWidth: 2,
+                    tension: 0.4
+                }]
+            };
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTopProducts() {
+            const topProductsList = document.getElementById('topProductsList');
+            
+            // Sample data - in real app, this would come from Firebase
+            const topProducts = [
+                { name: 'Fresh Milk', sales: 45, revenue: 2700 },
+                { name: 'Bread', sales: 38, revenue: 1140 },
+                { name: 'Eggs', sales: 32, revenue: 1440 },
+                { name: 'Butter', sales: 28, revenue: 1540 },
+                { name: 'Cheese', sales: 25, revenue: 3000 }
+            ];
+            
+            topProductsList.innerHTML = topProducts.map(product => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <div style="font-weight: 600;">${product.name}</div>
+                        <div style="font-size: 12px; color: var(--text-light);">${product.sales} sales</div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--success);">₹${product.revenue}</div>
+                </div>
+            `).join('');
+        }
+
+        // Shop Profile
+        function loadShopProfile() {
+            if (!currentShop) return;
+            
+            document.getElementById('shopName').value = currentShop.name || '';
+            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
+            document.getElementById('shopDescription').value = currentShop.description || '';
+            document.getElementById('shopAddress').value = currentShop.address || '';
+            document.getElementById('shopPhone').value = currentShop.phone || '';
+        }
+
+        async function handleShopProfileSubmit(event) {
+            event.preventDefault();
+            
+            const shopData = {
+                name: document.getElementById('shopName').value,
+                category: document.getElementById('shopCategory').value,
+                description: document.getElementById('shopDescription').value,
+                address: document.getElementById('shopAddress').value,
+                phone: document.getElementById('shopPhone').value,
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                await db.collection('shops').doc(currentShop.id).update(shopData);
+                currentShop = { ...currentShop, ...shopData };
+                document.getElementById('shopNameDisplay').textContent = currentShop.name;
+                showToast('Shop profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating shop profile:', error);
+                showToast('Error updating shop profile', 'error');
+            }
+        }
+
+        // Dashboard
+        function loadDashboardData() {
+            updateDashboardStats();
+            loadRecentOrders();
+        }
+
+        function updateDashboardStats() {
+            // Today's date for filtering
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Today's orders
+            const todayOrders = orders.filter(order => {
+                const orderDate = new Date(order.timestamp);
+                return orderDate >= today;
+            });
+            
+            // Today's revenue
+            const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+            
+            // Low stock products
+            const lowStockCount = products.filter(product => product.stock < 10).length;
+            
+            // Update UI
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            document.getElementById('todayRevenue').textContent = `₹${todayRevenue}`;
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('lowStockCount').textContent = lowStockCount;
+            
+            // Sample changes (in real app, compare with previous day)
+            document.getElementById('ordersChange').textContent = '+12% from yesterday';
+            document.getElementById('revenueChange').textContent = '+8% from yesterday';
+        }
+
+        function loadRecentOrders() {
+            const recentOrdersList = document.getElementById('recentOrdersList');
+            const recentOrders = orders.slice(0, 5);
+            
+            if (recentOrders.length === 0) {
+                recentOrdersList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--text-light);">
+                        <i class="fas fa-shopping-bag" style="font-size: 40px; margin-bottom: 10px;"></i>
+                        <p>No recent orders</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            recentOrdersList.innerHTML = recentOrders.map(order => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <div style="font-weight: 600;">Order #${order.id.slice(-6)}</div>
+                        <div style="font-size: 12px; color: var(--text-light);">
+                            ${new Date(order.timestamp).toLocaleDateString()} • ₹${order.total}
+                        </div>
+                    </div>
+                    <div class="order-status status-${order.status}" style="font-size: 12px; padding: 4px 12px;">
+                        ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon ${type === 'success' ? 'toast-success' : type === 'error' ? 'toast-error' : 'toast-warning'}">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}"></i>
+                </div>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        function showSignupForm() {
+            showToast('Please contact admin@dukaan.com to create a shopkeeper account', 'warning');
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

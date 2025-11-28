@@ -637,48 +637,11 @@
             }
         }
 
-        function demoLogin() {
-            document.getElementById('loginEmail').value = 'shopkeeper@dukaan.com';
-            document.getElementById('loginPassword').value = 'shop123';
-            showToast('Demo credentials filled! Click Sign In to continue.');
-        }
-
-        // EMERGENCY LOGIN - Works without Firebase Auth
-        async function emergencyLogin() {
-            showToast('Emergency demo login activated!', 'warning');
-            
-            // Create mock user and shop
-            currentUser = { 
-                uid: 'emergency-user-' + Date.now(), 
-                email: 'emergency@dukaan.com',
-                displayName: 'Emergency Demo User'
-            };
-            
-            currentShop = {
-                id: 'emergency-shop',
-                name: "Emergency Demo Shop",
-                owner: currentUser.email,
-                category: "groceries",
-                description: "Emergency demo shop for testing",
-                address: "Emergency Address, Demo City",
-                phone: "+91 9876543200",
-                isActive: true
-            };
-            
-            // Show app screen
-            showAppScreen();
-            loadDashboardData();
-            showToast('Emergency demo login successful! You can now test all features.');
-        }
-
         function logout() {
             if (auth && auth.currentUser) {
                 auth.signOut();
             } else {
-                // For emergency login
-                showAuthScreen();
-                showToast('Logged out successfully');
-            }
+                
         }
 
         // Firebase Auth State Listener

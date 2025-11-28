@@ -1039,14 +1039,10 @@
             document.getElementById('productModal').classList.add('active');
         }
 
-                async function handleProductSubmit(event) {
+                        async function handleProductSubmit(event) {
             event.preventDefault();
             
-            if (!currentShop) {
-                showToast('No shop found. Please login again.', 'error');
-                return;
-            }
-            
+            const productId = document.getElementById('editProductId').value;
             const productData = {
                 name: document.getElementById('productName').value,
                 category: document.getElementById('productCategory').value,
@@ -1057,16 +1053,23 @@
                 image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
                 shopId: currentShop.id,
                 isAvailable: true,
-                createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
             
             try {
-                // Add to Firebase
-                await db.collection('products').add(productData);
-                showToast('Product added successfully!');
+                if (productId) {
+                    // UPDATE existing product
+                    await db.collection('products').doc(productId).update(productData);
+                    showToast('Product updated successfully!');
+                } else {
+                    // ADD new product
+                    productData.createdAt = new Date().toISOString();
+                    await db.collection('products').add(productData);
+                    showToast('Product added successfully!');
+                }
+                
                 closeProductModal();
-                loadProducts(); // Refresh the product list
+                loadProducts(); // Refresh product list
                 
             } catch (error) {
                 console.error('Error saving product:', error);

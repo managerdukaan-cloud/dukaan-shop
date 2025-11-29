@@ -973,6 +973,27 @@
             }
         }
 
+        // Real-time orders listener - ADD THIS FUNCTION
+function setupOrdersListener() {
+    if (!currentShop) return;
+    
+    db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .onSnapshot((snapshot) => {
+            orders = [];
+            snapshot.forEach(doc => {
+                orders.push({ id: doc.id, ...doc.data() });
+            });
+            // Manual sorting since we can't use orderBy during index building
+            orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            renderOrders();
+            loadDashboardData(); // Update dashboard stats
+        });
+}
+
+// Call this in loadShopData function after loading orders
+// setupOrdersListener();
+
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             

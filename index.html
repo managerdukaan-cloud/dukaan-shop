@@ -1007,7 +1007,7 @@
             document.getElementById('productModal').classList.add('active');
         }
 
-                        async function handleProductSubmit(event) {
+                                                async function handleProductSubmit(event) {
             event.preventDefault();
             
             const productId = document.getElementById('editProductId').value;
@@ -1020,20 +1020,22 @@
                 description: document.getElementById('productDescription').value,
                 image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
                 shopId: currentShop.id,
+                shopName: currentShop.name,
                 isAvailable: true,
-                updatedAt: new Date().toISOString()
+                status: 'active',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             try {
                 if (productId) {
                     // UPDATE existing product
                     await db.collection('products').doc(productId).update(productData);
-                    showToast('Product updated successfully!');
+                    showToast('Product updated successfully! Customers will see changes immediately.');
                 } else {
                     // ADD new product
-                    productData.createdAt = new Date().toISOString();
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection('products').add(productData);
-                    showToast('Product added successfully!');
+                    showToast('Product added successfully! Now visible to customers.');
                 }
                 
                 closeProductModal();

@@ -1039,21 +1039,32 @@ function setupOrdersListener() {
         }
 
         async function updateOrderStatus(orderId, newStatus) {
-            try {
-                await db.collection('orderItems').doc(orderId).update({
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showToast(`Order ${newStatus} successfully!`, 'success');
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error updating order:', error);
-                showToast('Error updating order: ' + error.message, 'error');
-            }
+    try {
+        // Update order item for shopkeeper
+        await db.collection('orderItems').doc(orderId).update({
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // ✅ ALSO UPDATE MAIN ORDER FOR CUSTOMER APP
+        const orderItem = await db.collection('orderItems').doc(orderId).get();
+        const orderData = orderItem.data();
+        
+        if (orderData.orderId) {
+            // Update main order document
+            await db.collection('orders').doc(orderData.orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
+        
+        showToast(`Order ${newStatus} successfully!`, 'success');
+        
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast('Error updating order: ' + error.message, 'error');
+    }
+}
 
         // Profile Management
         function updateProfileForm() {

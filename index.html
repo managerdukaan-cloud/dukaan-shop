@@ -825,7 +825,7 @@
             `).join('');
         }
 
-        // Order Management (Simplified)
+                // Order Management (FIXED: Real-time from orderItems)
         async function loadOrders() {
             if (!currentShop) {
                 renderOrders();
@@ -834,15 +834,20 @@
             
             try {
                 if (db) {
-                    const snapshot = await db.collection('orders')
+                    // FIXED: Load from orderItems collection where shopId matches
+                    const snapshot = await db.collection('orderItems')
                         .where('shopId', '==', currentShop.id)
-                        .limit(10)
+                        .orderBy('createdAt', 'desc')
+                        .limit(20)
                         .get();
                     
                     orders = [];
                     snapshot.forEach(doc => {
                         orders.push({ id: doc.id, ...doc.data() });
                     });
+
+                    // FIXED: Setup real-time listener for new orders
+                    setupOrderRealTimeListener();
                 }
                 
                 renderOrders();
@@ -854,6 +859,28 @@
             }
         }
 
+        // FIXED: Real-time order listener
+        function setupOrderRealTimeListener() {
+            if (!currentShop || !db) return;
+            
+            db.collection('orderItems')
+                .where('shopId', '==', currentShop.id)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            // New order received
+                            const newOrder = { id: change.doc.id, ...change.doc.data() };
+                            if (!orders.find(order => order.id === newOrder.id)) {
+                                orders.unshift(newOrder);
+                                renderOrders();
+                                updateDashboardStats();
+                                showToast('New order received!', 'success');
+                            }
+                        }
+                    });
+                });
+        }
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             

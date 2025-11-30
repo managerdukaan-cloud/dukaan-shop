@@ -1060,22 +1060,21 @@ function setupOrdersListener() {
         }
         
         ordersHtml += `
-            <tr>
-                <td>#${order.id.slice(-6)}</td>
-                <td>${order.customerEmail}</td>
-                <td>${order.productName} × ${order.quantity}</td>
-                <td>₹${order.price * order.quantity}</td>
-                <td>
-                    <span class="badge bg-${statusClass}">${order.status}</span>
-                </td>
-                // Add this in ordersHtml += `...` section
-<td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
-                <td>${orderDate}</td>
-                <td>
-                    ${actionButtons}
-                </td>
-            </tr>
-        `;
+    <tr>
+        <td>#${order.id.slice(-6)}</td>
+        <td>${order.customerEmail}</td>
+        <td>${order.productName} × ${order.quantity}</td>
+        <td>₹${order.price * order.quantity}</td>
+        <td>
+            <span class="badge bg-${statusClass}">${order.status}</span>
+        </td>
+        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td> <!-- ✅ COMMENT REMOVED -->
+        <td>${orderDate}</td>
+        <td>
+            ${actionButtons}
+        </td>
+    </tr>
+`;
     });
     
     ordersList.innerHTML = ordersHtml;

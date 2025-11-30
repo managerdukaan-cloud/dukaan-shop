@@ -1012,7 +1012,9 @@ function setupOrdersListener() {
     
     let ordersHtml = '';
     orders.forEach(order => {
-        const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Recently';
+        const orderDate = order.createdAt ? 
+    new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN') : 
+    'Recently';
         const statusClass = order.status === 'pending' ? 'warning' : 
                           order.status === 'confirmed' ? 'primary' :
                           order.status === 'preparing' ? 'info' :

@@ -995,56 +995,86 @@ function setupOrdersListener() {
 // setupOrdersListener();
 
         function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
-            
-            if (orders.length === 0) {
-                ordersList.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Orders Yet</h4>
-                            <p style="color: #999;">Orders from customers will appear here</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let ordersHtml = '';
-            orders.forEach(order => {
-                const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Recently';
-                const statusClass = order.status === 'pending' ? 'warning' : 
-                                  order.status === 'confirmed' ? 'success' : 'secondary';
-                
-                ordersHtml += `
-                    <tr>
-                        <td>#${order.id.slice(-6)}</td>
-                        <td>${order.customerEmail}</td>
-                        <td>${order.productName} × ${order.quantity}</td>
-                        <td>₹${order.price * order.quantity}</td>
-                        <td>
-                            <span class="badge bg-${statusClass}">${order.status}</span>
-                        </td>
-                        <td>${orderDate}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
-                                Accept
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            ordersList.innerHTML = ordersHtml;
+    const ordersList = document.getElementById('ordersList');
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #666;">No Orders Yet</h4>
+                    <p style="color: #999;">Orders from customers will appear here</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let ordersHtml = '';
+    orders.forEach(order => {
+        const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'Recently';
+        const statusClass = order.status === 'pending' ? 'warning' : 
+                          order.status === 'confirmed' ? 'primary' :
+                          order.status === 'preparing' ? 'info' :
+                          order.status === 'dispatched' ? 'warning' :
+                          order.status === 'delivered' ? 'success' : 'secondary';
+        
+        // ✅ STATUS BUTTONS BASED ON CURRENT STATUS
+        let actionButtons = '';
+        
+        if (order.status === 'pending') {
+            actionButtons = `
+                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
+                    Accept Order
+                </button>
+            `;
         }
-
-        async function updateOrderStatus(orderId, newStatus) {
-    try {
-        // Update order item for shopkeeper
-        await db.collection('orderItems').doc(orderId).update({
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        else if (order.status === 'confirmed') {
+            actionButtons = `
+                <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                    Start Preparing
+                </button>
+            `;
+        }
+        else if (order.status === 'preparing') {
+            actionButtons = `
+                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
+                    Dispatch
+                </button>
+            `;
+        }
+        else if (order.status === 'dispatched') {
+            actionButtons = `
+                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                    Mark Delivered
+                </button>
+            `;
+        }
+        else if (order.status === 'delivered') {
+            actionButtons = `
+                <span class="badge bg-success">Completed</span>
+            `;
+        }
+        
+        ordersHtml += `
+            <tr>
+                <td>#${order.id.slice(-6)}</td>
+                <td>${order.customerEmail}</td>
+                <td>${order.productName} × ${order.quantity}</td>
+                <td>₹${order.price * order.quantity}</td>
+                <td>
+                    <span class="badge bg-${statusClass}">${order.status}</span>
+                </td>
+                <td>${orderDate}</td>
+                <td>
+                    ${actionButtons}
+                </td>
+            </tr>
+        `;
+    });
+    
+    ordersList.innerHTML = ordersHtml;
+}
 
         // ✅ ALSO UPDATE MAIN ORDER FOR CUSTOMER APP
         const orderItem = await db.collection('orderItems').doc(orderId).get();

@@ -489,6 +489,9 @@
                                 <input type="password" id="loginPassword" required>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                            <div class="text-center mt-3">
+                              <a href="#" onclick="showForgotPassword()" class="text-muted">Forgot Password?</a>
+                            </div>
                         </form>
                         <div style="text-align: center; margin-top: 1rem;">
                             <small>Don't have an account? Contact admin</small>
@@ -738,6 +741,21 @@
                 console.error("Login error:", error);
                 showToast('Login failed: ' + error.message, 'error');
             }
+        }
+
+        function showForgotPassword() {
+    const email = prompt('Enter your email address to reset password:');
+    if (email && email.includes('@')) {
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                alert('📧 Password reset email sent! Check your inbox and spam folder.');
+            })
+            .catch(error => {
+                alert('❌ Error: ' + error.message);
+            });
+    } else if (email) {
+        alert('⚠️ Please enter a valid email address.');
+    }
         }
 
         function showAppScreen() {

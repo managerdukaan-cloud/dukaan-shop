@@ -888,6 +888,37 @@
             productsList.innerHTML = productsHtml;
         }
 
+        // ✅ ADD THIS FUNCTION TO SHOPKEEPER APP
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        console.log("🔄 Updating order status:", orderId, newStatus);
+        
+        // Update order item for shopkeeper
+        await db.collection('orderItems').doc(orderId).update({
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // ✅ ALSO UPDATE MAIN ORDER FOR CUSTOMER APP
+        const orderItem = await db.collection('orderItems').doc(orderId).get();
+        const orderData = orderItem.data();
+        
+        if (orderData && orderData.orderId) {
+            // Update main order document
+            await db.collection('orders').doc(orderData.orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        showToast(`Order ${newStatus} successfully!`, 'success');
+        
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast('Error updating order: ' + error.message, 'error');
+    }
+}
+
         // Product Modal Functions
         function showAddProductModal() {
             document.getElementById('productModalTitle').textContent = 'Add New Product';

@@ -562,6 +562,7 @@
                                     <th>Items</th>
                                     <th>Total</th>
                                     <th>Status</th>
+                                    <th>Payment</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -1067,6 +1068,8 @@ function setupOrdersListener() {
                 <td>
                     <span class="badge bg-${statusClass}">${order.status}</span>
                 </td>
+                // Add this in ordersHtml += `...` section
+<td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
                 <td>${orderDate}</td>
                 <td>
                     ${actionButtons}

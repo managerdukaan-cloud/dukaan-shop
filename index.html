@@ -939,17 +939,23 @@
         }
 
         function showAppScreen() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
-            loadDashboardData();
-            
-            // Initialize notifications after a short delay
-            setTimeout(() => { 
-                if (typeof initializeShopkeeperNotifications === 'function') {
-                    initializeShopkeeperNotifications(); 
-                }
-            }, 2000);
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    
+    // ✅ INITIALIZE REAL-TIME ORDERS
+    if (currentShop) {
+        initializeOrders();
+    } else {
+        loadDashboardData();
+    }
+    
+    // Initialize notifications after a short delay
+    setTimeout(() => { 
+        if (typeof initializeShopkeeperNotifications === 'function') {
+            initializeShopkeeperNotifications(); 
         }
+    }, 2000);
+}
 
         function logout() {
             auth.signOut();
@@ -1219,27 +1225,70 @@
             }
         }
 
-        // Order Management
-        async function loadOrders() {
-            if (!currentShop) return;
+        // Order Management - REAL-TIME VERSION
+function setupRealTimeOrdersListener() {
+    if (!currentShop) return;
+    
+    console.log("🔔 Setting up real-time orders listener for shop:", currentShop.id);
+    
+    // Remove previous listener if exists
+    if (window.ordersListener) {
+        window.ordersListener();
+    }
+    
+    // Setup real-time listener
+    window.ordersListener = db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snapshot) => {
+            console.log("🔄 Real-time order update received");
             
-            try {
-                const snapshot = await db.collection('orderItems')
-                    .where('shopId', '==', currentShop.id)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                orders = [];
-                snapshot.forEach(doc => {
-                    orders.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderOrders();
-                
-            } catch (error) {
-                console.error("Error loading orders:", error);
-            }
-        }
+            orders = [];
+            snapshot.forEach(doc => {
+                orders.push({ id: doc.id, ...doc.data() });
+            });
+            
+            renderOrders();
+            loadDashboardData(); // Update dashboard stats
+        }, (error) => {
+            console.error("❌ Real-time listener error:", error);
+            // Fallback to manual load
+            loadOrdersManual();
+        });
+}
+
+// Manual load as fallback
+async function loadOrdersManual() {
+    if (!currentShop) return;
+    
+    try {
+        const snapshot = await db.collection('orderItems')
+            .where('shopId', '==', currentShop.id)
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        orders = [];
+        snapshot.forEach(doc => {
+            orders.push({ id: doc.id, ...doc.data() });
+        });
+        
+        renderOrders();
+        
+    } catch (error) {
+        console.error("Error loading orders:", error);
+    }
+}
+
+// Initialize - CALL THIS INSTEAD OF loadOrders()
+function initializeOrders() {
+    if (!currentShop) return;
+    
+    // Try real-time first
+    setupRealTimeOrdersListener();
+    
+    // Also update dashboard
+    loadDashboardData();
+}
 
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');

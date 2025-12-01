@@ -4,135 +4,228 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dukaan - Shopkeeper Panel</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
     <style>
         :root {
-            --primary: #0F2C59;
-            --secondary: #F8F0E5;
-            --accent: #EADBC8;
-            --text: #333;
-            --white: #fff;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
+            --primary-color: #0F2C59;
+            --secondary-color: #7C3AED;
+            --accent-color: #F8B400;
+            --text-dark: #1E293B;
+            --text-light: #64748B;
+            --bg-light: #F8FAFC;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: var(--secondary);
-            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header Styles */
-        header {
-            background: var(--primary);
-            color: var(--white);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .header-content {
+        .app-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
         }
         
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--white);
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 0 1.5rem;
+        }
+        
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
         }
         
         .nav-links {
+            flex: 1;
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 1rem;
         }
         
         .nav-links a {
-            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
             text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--accent);
-        }
-        
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
+            color: var(--text-light);
+            border-radius: 8px;
+            transition: all 0.3s ease;
             font-weight: 500;
         }
         
-        .btn-primary {
-            background: var(--accent);
-            color: var(--primary);
+        .nav-links a:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
         }
         
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
+        .nav-links a.active {
+            background: var(--primary-color);
+            color: var(--white);
         }
         
-        /* Main Content */
-        main {
-            margin-top: 80px;
-            min-height: calc(100vh - 160px);
-            padding: 2rem 0;
+        .nav-links a i {
+            width: 20px;
+            text-align: center;
         }
         
-        /* Auth Styles */
-        .auth-container {
+        .user-section {
+            padding: 1.5rem;
+            border-top: 1px solid #E2E8F0;
+            margin-top: auto;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
+            font-weight: 600;
         }
         
-        .auth-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .user-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .user-details p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .logout-btn {
             width: 100%;
-            max-width: 400px;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: var(--error);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
         }
         
-        .auth-title {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--primary);
+        .logout-btn:hover {
+            background: #DC2626;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            background: var(--bg-light);
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .header-title h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .notification-bell {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-bell:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+        
+        .content-body {
+            padding: 2rem;
+        }
+        
+        /* Section Styles */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         /* Dashboard Styles */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -140,289 +233,480 @@
         .stat-card {
             background: var(--white);
             padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card.error {
+            border-left-color: var(--error);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .stat-card.success .stat-icon {
+            color: var(--success);
+        }
+        
+        .stat-card.warning .stat-icon {
+            color: var(--warning);
+        }
+        
+        .stat-card.error .stat-icon {
+            color: var(--error);
         }
         
         .stat-value {
             font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin: 0.5rem 0;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
         }
         
         .stat-label {
-            color: #666;
+            color: var(--text-light);
             font-size: 0.9rem;
         }
         
-        /* Product Grid */
+        /* Orders Styles */
+        .orders-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .order-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .order-card.confirmed {
+            border-left-color: var(--success);
+        }
+        
+        .order-card.preparing {
+            border-left-color: var(--accent-color);
+        }
+        
+        .order-card.dispatched {
+            border-left-color: var(--primary-color);
+        }
+        
+        .order-card.delivered {
+            border-left-color: var(--success);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        
+        .order-info h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .order-id {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-confirmed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .status-preparing {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-dispatched {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .status-delivered {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .order-items {
+            grid-column: 1 / -1;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover {
+            background: #0A1F3D;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: var(--white);
+        }
+        
+        .btn-warning:hover {
+            background: #D97706;
+        }
+        
+        .btn:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+        }
+        
+        /* Products Styles */
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
         
         .product-card {
             background: var(--white);
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
         
         .product-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
         }
         
         .product-image {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            height: 200px;
+            background: #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 3rem;
         }
         
-        .product-title {
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-name {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--primary);
+            color: var(--text-dark);
+        }
+        
+        .product-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
         
         .product-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
         }
         
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
+        .product-stock {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .stock-available {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .stock-low {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .stock-out {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            color: var(--white);
+        }
+        
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+        
+        /* Auth Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--white);
             padding: 2rem;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
         }
         
-        .modal-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+        .auth-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
         }
         
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header p {
+            color: var(--text-light);
         }
         
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
+            color: var(--text-dark);
             font-weight: 500;
         }
         
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 44, 89, 0.1);
+        }
+        
+        .btn-block {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
             font-size: 1rem;
         }
         
-        /* Toast Notification */
-        .toast-container {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 3000;
-            max-width: 400px;
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-light);
         }
         
-        .toast {
-            background: var(--primary);
-            color: var(--white);
-            padding: 1rem 1.5rem;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            animation: slideIn 0.3s ease;
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
         }
         
-        .toast.success {
-            background: var(--success);
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
         }
         
-        .toast.error {
-            background: var(--danger);
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
         }
         
-        .toast.warning {
-            background: var(--warning);
-            color: var(--text);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
         }
         
-        /* Table Styles */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--white);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
         
-        .table th,
-        .table td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .table th {
-            background: var(--primary);
-            color: var(--white);
-            font-weight: 600;
-        }
-        
-        .table tr:hover {
-            background: #f8f9fa;
-        }
-
-                /* ===== MOBILE RESPONSIVE STYLES ===== */
-        @media (max-width: 768px) {
-            /* Header Mobile Fix */
-            .header-content {
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .app-container {
                 flex-direction: column;
-                gap: 10px;
-                padding: 10px 0;
             }
             
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .logo {
-                font-size: 1.2rem;
-                text-align: center;
-            }
-            
-            /* Main Content Mobile */
-            main {
-                margin-top: 120px;
+            .sidebar {
+                width: 100%;
+                height: auto;
                 padding: 1rem 0;
             }
             
-            .container {
-                padding: 0 15px;
-            }
-            
-            /* Products Grid Mobile */
-            .products-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .product-card {
-                padding: 1rem;
-            }
-            
-            /* Stats Grid Mobile */
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-            
-            .stat-card {
-                padding: 1rem;
-            }
-            
-            .stat-value {
-                font-size: 1.5rem;
-            }
-            
-            /* Table Mobile */
-            .table-responsive {
+            .nav-links {
+                flex-direction: row;
                 overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                padding: 0 1rem;
             }
             
-            .admin-table {
-                font-size: 0.9rem;
+            .nav-links a {
+                white-space: nowrap;
             }
             
-            .admin-table th,
-            .admin-table td {
-                padding: 8px 12px;
-            }
-            
-            /* Modal Mobile */
-            .modal-content {
-                width: 95%;
-                margin: 10px;
-            }
-            
-            /* Buttons Mobile */
-            .btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            /* Auth Card Mobile */
-            .auth-card {
-                padding: 1.5rem;
-                margin: 10px;
-            }
-            
-            /* Page Headers Mobile */
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .section-title {
-                font-size: 1.3rem;
+            .user-section {
+                display: none;
             }
         }
-
-        /* Small Mobile Devices */
+        
+        @media (max-width: 768px) {
+            .content-body {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .order-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
+            
+            .order-actions .btn {
+                width: 100%;
+            }
+        }
+        
         @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -442,778 +726,696 @@
             }
         }
 
-        /* Mobile Landscape */
-        @media (max-width: 768px) and (orientation: landscape) {
-            main {
-                margin-top: 100px;
+        /* ============================================= */
+        /* ORDER NOTIFICATION STYLES */
+        /* ============================================= */
+
+        /* Notifications Container */
+        .notifications-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        /* Individual Notification */
+        .in-app-notification {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            pointer-events: all;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .in-app-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+            max-height: 300px;
+        }
+
+        .in-app-notification.hide {
+            transform: translateX(400px);
+            opacity: 0;
+            max-height: 0;
+            margin-bottom: 0;
+        }
+
+        .notification-content {
+            padding: 16px;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .notification-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .notification-header h4 {
+            margin: 0;
+            flex: 1;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .notification-body {
+            margin-bottom: 16px;
+        }
+
+        .notification-body p {
+            margin: 4px 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-actions button {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-order {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+        }
+
+        .btn-view-order:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-dismiss {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-dismiss:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Order highlight animation */
+        .highlight-new {
+            animation: highlightPulse 2s ease-in-out;
+            border-left: 4px solid #667eea !important;
+        }
+
+        @keyframes highlightPulse {
+            0% { background-color: rgba(102, 126, 234, 0.1); }
+            50% { background-color: rgba(102, 126, 234, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        /* Badge styles */
+        .orders-badge, .notification-badge {
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7em;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .notifications-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
             }
             
-            .auth-container {
-                min-height: 70vh;
+            .in-app-notification {
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🏪 Dukaan Shop</div>
-                <div class="nav-links">
-                    <a href="#" data-page="dashboard">Dashboard</a>
-                    <a href="#" data-page="products">Products</a>
-                    <a href="#" data-page="orders">Orders</a>
-                    <a href="#" data-page="profile">Profile</a>
-                    <button class="btn btn-outline" onclick="logout()">Logout</button>
-                </div>
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Shopkeeper Login</h2>
+                <p>Access your store dashboard</p>
             </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main>
-        <div class="container">
-            <!-- Auth Screen -->
-            <div id="authScreen">
-                <div class="auth-container">
-                    <div class="auth-card">
-                        <h2 class="auth-title">Shopkeeper Login</h2>
-                        <form id="loginForm">
-                            <div class="form-group">
-                                <label for="loginEmail">Email</label>
-                                <input type="email" id="loginEmail" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="loginPassword">Password</label>
-                                <input type="password" id="loginPassword" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-                            <div class="text-center mt-3">
-                              <a href="#" onclick="showForgotPassword()" class="text-muted">Forgot Password?</a>
-                            </div>
-                        </form>
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <small>Don't have an account? Contact admin</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- App Screen -->
-            <div id="appScreen" style="display: none;">
-                <!-- Dashboard Page -->
-                <div id="dashboardPage" class="content-page active">
-                    <h2 style="margin-bottom: 2rem; color: var(--primary);">Dashboard</h2>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Total Products</div>
-                            <div class="stat-value" id="totalProducts">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Pending Orders</div>
-                            <div class="stat-value" id="pendingOrders">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Revenue</div>
-                            <div class="stat-value" id="totalRevenue">₹0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Today's Orders</div>
-                            <div class="stat-value" id="todayOrders">0</div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                        <button class="btn btn-primary" onclick="navigateToPage('products')">
-                            <i class="fas fa-box"></i> Manage Products
-                        </button>
-                        <button class="btn btn-outline" onclick="navigateToPage('orders')">
-                            <i class="fas fa-shopping-bag"></i> View Orders
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Products Page -->
-                <div id="productsPage" class="content-page">
-                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                        <h2 style="color: var(--primary);">Product Management</h2>
-                        <div style="display: flex; gap: 1rem;">
-                            <input type="text" id="productSearch" placeholder="Search products..." class="form-group" style="margin: 0;">
-                            <button class="btn btn-primary" onclick="showAddProductModal()">
-                                <i class="fas fa-plus"></i> Add Product
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="products-grid" id="productsList">
-                        <!-- Products will be loaded here -->
-                    </div>
-                </div>
-
-                <!-- Orders Page -->
-                <div id="ordersPage" class="content-page">
-                    <h2 style="margin-bottom: 2rem; color: var(--primary);">Order Management</h2>
-                    
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Items</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Payment</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersList">
-                                <!-- Orders will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Profile Page -->
-                <div id="profilePage" class="content-page">
-                    <h2 style="margin-bottom: 2rem; color: var(--primary);">Shop Profile</h2>
-                    
-                    <div class="auth-card">
-                        <form id="profileForm">
-                            <div class="form-group">
-                                <label>Shop Name</label>
-                                <input type="text" id="shopName" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Category</label>
-                                <select id="shopCategory" required>
-                                    <option value="groceries">Groceries</option>
-                                    <option value="cosmetics">Cosmetics</option>
-                                    <option value="clothing">Clothing</option>
-                                    <option value="electronics">Electronics</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea id="shopDescription" rows="3"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Address</label>
-                                <textarea id="shopAddress" rows="2" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="tel" id="shopPhone" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Product Modal -->
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="productModalTitle">Add New Product</h3>
-                <button class="close-modal" onclick="closeProductModal()">&times;</button>
-            </div>
-            <form id="productForm">
-                <input type="hidden" id="editProductId">
+            <form id="loginForm">
                 <div class="form-group">
-                    <label>Product Name</label>
-                    <input type="text" id="productName" required>
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
-                    <label>Category</label>
-                    <select id="productCategory" required>
-                        <option value="dairy">Dairy</option>
-                        <option value="bakery">Bakery</option>
-                        <option value="groceries">Groceries</option>
-                        <option value="cosmetics">Cosmetics</option>
-                    </select>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
                 </div>
-                <div class="form-group">
-                    <label>Price (₹)</label>
-                    <input type="number" id="productPrice" required>
-                </div>
-                <div class="form-group">
-                    <label>MRP (₹)</label>
-                    <input type="number" id="productMrp" required>
-                </div>
-                <div class="form-group">
-                    <label>Stock</label>
-                    <input type="number" id="productStock" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="productDescription" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
-                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="spinner" id="loginSpinner" style="display: none;"></span>
+                    Sign In
+                </button>
             </form>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="handleProductSubmit()">Save Product</button>
+            <div class="auth-footer">
+                <p>Contact admin for account access</p>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Main App -->
+    <div id="appSection" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Dukaan<span>Shop</span></h1>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#" class="active" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </a>
+                <a href="#" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-bag"></i>
+                    Orders
+                    <span class="orders-badge" style="display: none;">0</span>
+                </a>
+                <a href="#" onclick="showSection('products')">
+                    <i class="fas fa-box-open"></i>
+                    Products
+                </a>
+                <a href="#" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+            
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">SK</div>
+                    <div class="user-details">
+                        <h4 id="userName">Shopkeeper</h4>
+                        <p id="userEmail">shop@example.com</p>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
 
-    <script>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="header-title">
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="header-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="stat-value" id="totalOrders">0</div>
+                            <div class="stat-label">Total Orders</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-value" id="completedOrders">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="pendingOrders">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card error">
+                            <div class="stat-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-value" id="cancelledOrders">0</div>
+                            <div class="stat-label">Cancelled</div>
+                        </div>
+                    </div>
+
+                    <div class="recent-orders">
+                        <h3 class="section-title">Recent Orders</h3>
+                        <div id="recentOrdersContainer" class="orders-grid">
+                            <!-- Recent orders will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Section -->
+                <div id="ordersSection" class="section">
+                    <h3 class="section-title">Order Management</h3>
+                    <div id="ordersContainer" class="orders-grid">
+                        <!-- Orders will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div id="productsSection" class="section">
+                    <div class="products-header">
+                        <h3 class="section-title">Product Management</h3>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+                    <div id="productsContainer" class="products-grid">
+                        <!-- Products will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settingsSection" class="section">
+                    <h3 class="section-title">Shop Settings</h3>
+                    <div class="settings-card">
+                        <h4>Shop Information</h4>
+                        <form id="shopSettingsForm">
+                            <div class="form-group">
+                                <label for="shopName">Shop Name</label>
+                                <input type="text" id="shopName" class="form-control" placeholder="Enter shop name">
+                            </div>
+                            <div class="form-group">
+                                <label for="shopAddress">Address</label>
+                                <textarea id="shopAddress" class="form-control" rows="3" placeholder="Enter shop address"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="shopPhone">Phone Number</label>
+                                <input type="tel" id="shopPhone" class="form-control" placeholder="Enter phone number">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px;">
+            <h3 style="margin-bottom: 1.5rem;">Add New Product</h3>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price (₹)</label>
+                    <input type="number" id="productPrice" class="form-control" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Stock Quantity</label>
+                    <input type="number" id="productStock" class="form-control" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productImage">Product Image URL</label>
+                    <input type="url" id="productImage" class="form-control" placeholder="https://example.com/image.jpg">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Add Product</button>
+                    <button type="button" class="btn btn-outline" onclick="closeAddProductModal()" style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyD2-yz4xwYD5S_oXs6ryhNP8XIC94jzda4",
+            apiKey: "AIzaSyC0b8xvBvVkXG8wY6Yz6Z6Q6Z6Q6Z6Q6Z6Q",
             authDomain: "dukaan-platform.firebaseapp.com",
             projectId: "dukaan-platform",
-            storageBucket: "dukaan-platform.firebasestorage.app",
-            messagingSenderId: "75765851780",
-            appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
+            storageBucket: "dukaan-platform.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
         };
 
         // Initialize Firebase
-        let auth, db;
-        let currentShop = null;
-        let products = [];
-        let orders = [];
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-        // Initialize App
-        function initApp() {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                db = firebase.firestore();
-                console.log("Firebase initialized for Shop App");
+        // =============================================
+        // NOTIFICATION SYSTEM
+        // =============================================
 
-                // Check if user is already logged in
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        await loadShopData(user.uid);
-                        showAppScreen();
-                    }
-                });
+        let notificationPermission = 'default';
+        let audioContext = null;
+        let isAppActive = true;
 
-            } catch (error) {
-                console.error("Firebase initialization error:", error);
-            }
+        function initializeShopkeeperNotifications() {
+            console.log('🔔 Initializing shopkeeper notification system...');
+            requestNotificationPermission();
+            setupOrderNotificationsListener();
+            setupAppVisibilityDetection();
+            initializeAudio();
         }
 
-        // Load Shop Data
-        async function loadShopData(shopId) {
-            try {
-                const shopDoc = await db.collection('shops').doc(shopId).get();
-                if (shopDoc.exists) {
-                    currentShop = { id: shopId, ...shopDoc.data() };
-                    await loadProducts();
-                    await loadOrders();
-                    updateProfileForm();
-                }
-            } catch (error) {
-                console.error("Error loading shop data:", error);
-            }
-        }
-
-        // Authentication
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                await loadShopData(user.uid);
-                showAppScreen();
-                showToast('Welcome to your shop!', 'success');
-                
-            } catch (error) {
-                console.error("Login error:", error);
-                showToast('Login failed: ' + error.message, 'error');
-            }
-        }
-
-        function showForgotPassword() {
-    const email = prompt('Enter your email address to reset password:');
-    if (email && email.includes('@')) {
-        auth.sendPasswordResetEmail(email)
-            .then(() => {
-                alert('📧 Password reset email sent! Check your inbox and spam folder.');
-            })
-            .catch(error => {
-                alert('❌ Error: ' + error.message);
-            });
-    } else if (email) {
-        alert('⚠️ Please enter a valid email address.');
-    }
-        }
-
-        function showAppScreen() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
-            loadDashboardData();
-        }
-
-        function logout() {
-            auth.signOut();
-            document.getElementById('appScreen').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'block';
-            showToast('Logged out successfully', 'info');
-        }
-
-        // Navigation
-        function navigateToPage(page) {
-            // Hide all pages
-            document.querySelectorAll('.content-page').forEach(pageElement => {
-                pageElement.classList.remove('active');
-            });
-            
-            // Show selected page
-            const pageElement = document.getElementById(page + 'Page');
-            if (pageElement) {
-                pageElement.classList.add('active');
-                
-                // Load page-specific data
-                switch(page) {
-                    case 'dashboard':
-                        loadDashboardData();
-                        break;
-                    case 'products':
-                        loadProducts();
-                        break;
-                    case 'orders':
-                        loadOrders();
-                        break;
-                }
-            }
-        }
-
-        // Dashboard Functions
-        async function loadDashboardData() {
-            if (!currentShop) return;
-            
-            try {
-                // Update stats
-                document.getElementById('totalProducts').textContent = products.length;
-                
-                const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
-                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
-                
-                const today = new Date().toDateString();
-                const todayOrdersCount = orders.filter(order => 
-                    new Date(order.createdAt).toDateString() === today
-                ).length;
-                document.getElementById('todayOrders').textContent = todayOrdersCount;
-                
-                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
-                
-            } catch (error) {
-                console.error("Error loading dashboard:", error);
-            }
-        }
-
-        // Product Management
-        async function loadProducts() {
-            if (!currentShop) return;
-            
-            try {
-                const snapshot = await db.collection('products')
-                    .where('shopId', '==', currentShop.id)
-                    .get();
-                
-                products = [];
-                snapshot.forEach(doc => {
-                    products.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderProducts();
-                
-            } catch (error) {
-                console.error("Error loading products:", error);
-            }
-        }
-
-        function renderProducts() {
-            const productsList = document.getElementById('productsList');
-            
-            if (products.length === 0) {
-                productsList.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #666; margin-bottom: 1rem;">No Products Yet</h3>
-                        <p style="color: #999; margin-bottom: 2rem;">Add your first product to start selling</p>
-                        <button class="btn btn-primary" onclick="showAddProductModal()">
-                            <i class="fas fa-plus"></i> Add Your First Product
-                        </button>
-                    </div>
-                `;
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("❌ This browser does not support notifications");
                 return;
             }
-            
-            let productsHtml = '';
-            products.forEach(product => {
-                productsHtml += `
-                    <div class="product-card">
-                        <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
-                             alt="${product.name}" class="product-image">
-                        <h3 class="product-title">${product.name}</h3>
-                        <p style="color: #666; margin-bottom: 0.5rem; font-size: 0.9rem;">${product.category}</p>
-                        <div class="product-price">₹${product.price}</div>
-                        <p style="color: ${product.stock > 0 ? 'green' : 'red'}; margin-bottom: 1rem;">
-                            ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                        </p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-primary" onclick="editProduct('${product.id}')" style="flex: 1;">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-outline" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            productsList.innerHTML = productsHtml;
-        }
 
-        // ✅ ADD THIS FUNCTION TO SHOPKEEPER APP
-async function updateOrderStatus(orderId, newStatus) {
-    try {
-        console.log("🔄 Updating order status:", orderId, newStatus);
-        
-        // Update order item for shopkeeper
-        await db.collection('orderItems').doc(orderId).update({
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // ✅ ALSO UPDATE MAIN ORDER FOR CUSTOMER APP
-        const orderItem = await db.collection('orderItems').doc(orderId).get();
-        const orderData = orderItem.data();
-        
-        if (orderData && orderData.orderId) {
-            // Update main order document
-            await db.collection('orders').doc(orderData.orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        showToast(`Order ${newStatus} successfully!`, 'success');
-        
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showToast('Error updating order: ' + error.message, 'error');
-    }
-}
-
-        // Product Modal Functions
-        function showAddProductModal() {
-            document.getElementById('productModalTitle').textContent = 'Add New Product';
-            document.getElementById('productForm').reset();
-            document.getElementById('editProductId').value = '';
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.remove('active');
-        }
-
-        function editProduct(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            document.getElementById('productModalTitle').textContent = 'Edit Product';
-            document.getElementById('editProductId').value = product.id;
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productCategory').value = product.category;
-            document.getElementById('productPrice').value = product.price;
-            document.getElementById('productMrp').value = product.mrp;
-            document.getElementById('productStock').value = product.stock;
-            document.getElementById('productDescription').value = product.description || '';
-            document.getElementById('productImage').value = product.image || '';
-            
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        async function handleProductSubmit() {
-            const productId = document.getElementById('editProductId').value;
-            const productData = {
-                name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                mrp: parseFloat(document.getElementById('productMrp').value),
-                stock: parseInt(document.getElementById('productStock').value),
-                description: document.getElementById('productDescription').value,
-                image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-                shopId: currentShop.id,
-                shopName: currentShop.name,
-                isAvailable: true,
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                if (productId) {
-                    // Update existing product
-                    await db.collection('products').doc(productId).update(productData);
-                    showToast('Product updated successfully!', 'success');
-                } else {
-                    // Add new product
-                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    await db.collection('products').add(productData);
-                    showToast('Product added successfully!', 'success');
-                }
-                
-                closeProductModal();
-                await loadProducts(); // Refresh product list
-                await loadDashboardData(); // Update dashboard
-                
-            } catch (error) {
-                console.error('Error saving product:', error);
-                showToast('Error saving product: ' + error.message, 'error');
-            }
-        }
-
-        async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product?')) return;
-            
-            try {
-                await db.collection('products').doc(productId).delete();
-                showToast('Product deleted successfully!', 'success');
-                await loadProducts();
-                await loadDashboardData();
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                showToast('Error deleting product: ' + error.message, 'error');
-            }
-        }
-
-        // Order Management
-        async function loadOrders() {
-            if (!currentShop) return;
-            
-            try {
-                const snapshot = await db.collection('orderItems')
-                    .where('shopId', '==', currentShop.id)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                orders = [];
-                snapshot.forEach(doc => {
-                    orders.push({ id: doc.id, ...doc.data() });
+            if (Notification.permission === "granted") {
+                notificationPermission = "granted";
+                console.log("✅ Notification permission already granted");
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission;
+                    console.log(`🔔 Notification permission: ${permission}`);
                 });
-                
-                renderOrders();
-                
-            } catch (error) {
-                console.error("Error loading orders:", error);
             }
         }
 
-        // Real-time orders listener - ADD THIS FUNCTION
-function setupOrdersListener() {
-    if (!currentShop) return;
-    
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .onSnapshot((snapshot) => {
-            orders = [];
-            snapshot.forEach(doc => {
-                orders.push({ id: doc.id, ...doc.data() });
-            });
-            // Manual sorting since we can't use orderBy during index building
-            orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            renderOrders();
-            loadDashboardData(); // Update dashboard stats
-        });
-}
-
-// Call this in loadShopData function after loading orders
-// setupOrdersListener();
-
-        function renderOrders() {
-    const ordersList = document.getElementById('ordersList');
-    
-    if (orders.length === 0) {
-        ordersList.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                    <h4 style="color: #666;">No Orders Yet</h4>
-                    <p style="color: #999;">Orders from customers will appear here</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    let ordersHtml = '';
-    orders.forEach(order => {
-        const orderDate = order.createdAt ? 
-    new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN') : 
-    'Recently';
-        const statusClass = order.status === 'pending' ? 'warning' : 
-                          order.status === 'confirmed' ? 'primary' :
-                          order.status === 'preparing' ? 'info' :
-                          order.status === 'dispatched' ? 'warning' :
-                          order.status === 'delivered' ? 'success' : 'secondary';
-        
-        // ✅ STATUS BUTTONS BASED ON CURRENT STATUS
-        let actionButtons = '';
-        
-        if (order.status === 'pending') {
-            actionButtons = `
-                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
-                    Accept Order
-                </button>
-            `;
-        }
-        else if (order.status === 'confirmed') {
-            actionButtons = `
-                <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                    Start Preparing
-                </button>
-            `;
-        }
-        else if (order.status === 'preparing') {
-            actionButtons = `
-                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
-                    Dispatch
-                </button>
-            `;
-        }
-        else if (order.status === 'dispatched') {
-            actionButtons = `
-                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
-                    Mark Delivered
-                </button>
-            `;
-        }
-        else if (order.status === 'delivered') {
-            actionButtons = `
-                <span class="badge bg-success">Completed</span>
-            `;
-        }
-        
-        ordersHtml += `
-    <tr>
-        <td>#${order.id.slice(-6)}</td>
-        <td>${order.customerEmail}</td>
-        <td>${order.productName} × ${order.quantity}</td>
-        <td>₹${order.price * order.quantity}</td>
-        <td>
-            <span class="badge bg-${statusClass}">${order.status}</span>
-        </td>
-        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td> <!-- ✅ COMMENT REMOVED -->
-        <td>${orderDate}</td>
-        <td>
-            ${actionButtons}
-        </td>
-    </tr>
-`;
-    });
-    
-    ordersList.innerHTML = ordersHtml;
-}
-
-        // Profile Management
-        function updateProfileForm() {
-            if (!currentShop) return;
-            
-            document.getElementById('shopName').value = currentShop.name || '';
-            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
-            document.getElementById('shopDescription').value = currentShop.description || '';
-            document.getElementById('shopAddress').value = currentShop.address || '';
-            document.getElementById('shopPhone').value = currentShop.phone || '';
-        }
-
-        async function handleProfileUpdate(event) {
-            event.preventDefault();
-            
-            const profileData = {
-                name: document.getElementById('shopName').value,
-                category: document.getElementById('shopCategory').value,
-                description: document.getElementById('shopDescription').value,
-                address: document.getElementById('shopAddress').value,
-                phone: document.getElementById('shopPhone').value,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                await db.collection('shops').doc(currentShop.id).update(profileData);
-                currentShop = { ...currentShop, ...profileData };
-                showToast('Profile updated successfully!', 'success');
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showToast('Error updating profile: ' + error.message, 'error');
+        function setupOrderNotificationsListener() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                console.log('⚠️ Shopkeeper not logged in');
+                return;
             }
-        }
 
-        // Utility Functions
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-message">${message}</div>
-            `;
-            
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
-        }
+            console.log(`🏪 Setting up order notifications for shop: ${user.uid}`);
 
-        function filterProducts() {
-            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
-            const filteredProducts = products.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) ||
-                product.category.toLowerCase().includes(searchTerm) ||
-                product.description?.toLowerCase().includes(searchTerm)
+            const ordersQuery = firebase.firestore.query(
+                firebase.firestore.collection(db, 'orderItems'),
+                firebase.firestore.where('shopId', '==', user.uid),
+                firebase.firestore.where('status', '==', 'pending'),
+                firebase.firestore.orderBy('timestamp', 'desc')
             );
-            
-            // Temporary implementation
-            showToast(`Searching for: ${searchTerm}`);
-        }
 
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-            
-            // Login form
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // Profile form
-            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
-            
-            // Navigation
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        navigateToPage(page);
+            let lastOrderId = null;
+
+            const unsubscribe = firebase.firestore.onSnapshot(ordersQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const newOrder = { id: change.doc.id, ...change.doc.data() };
+                        
+                        if (newOrder.id !== lastOrderId) {
+                            console.log('🆕 New order detected:', newOrder.id);
+                            showNewOrderNotification(newOrder);
+                            lastOrderId = newOrder.id;
+                        }
                     }
                 });
             });
+
+            window.notificationsUnsubscribe = unsubscribe;
+        }
+
+        function showNewOrderNotification(order) {
+            const notificationTitle = `🛍️ New Order Received!`;
+            const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.totalAmount || 0}`;
             
-            // Search functionality
-            document.getElementById('productSearch').addEventListener('input', filterProducts);
-        });
+            playNotificationSound();
+            
+            if (notificationPermission === "granted" && !isAppActive) {
+                showBrowserNotification(notificationTitle, notificationBody, order);
+            }
+            
+            showInAppNotification(notificationTitle, notificationBody, order);
+            updateOrderBadge();
+        }
+
+        function showBrowserNotification(title, body, order) {
+            const notification = new Notification(title, {
+                body: body,
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: 'new-order',
+                requireInteraction: true,
+                data: { orderId: order.id }
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+                if (typeof showSection === 'function') {
+                    showSection('orders');
+                }
+            };
+
+            setTimeout(() => {
+                notification.close();
+            }, 10000);
+        }
+
+        function showInAppNotification(title, body, order) {
+            const notificationEl = document.createElement('div');
+            notificationEl.className = 'in-app-notification show';
+            notificationEl.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-header">
+                        <span class="notification-icon">🛍️</span>
+                        <h4>${title}</h4>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                    <div class="notification-body">
+                        <p>${body}</p>
+                        <p><strong>Customer:</strong> ${order.customerName || 'Customer'}</p>
+                        <p><strong>Items:</strong> ${order.items ? order.items.length : 0} items</p>
+                        <p><strong>Payment:</strong> ${order.paymentMode || 'COD'}</p>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
+                        <button class="btn-dismiss">Dismiss</button>
+                    </div>
+                </div>
+            `;
+
+            const container = document.getElementById('notificationsContainer') || createNotificationsContainer();
+            container.appendChild(notificationEl);
+
+            const autoRemove = setTimeout(() => {
+                removeNotification(notificationEl);
+            }, 8000);
+
+            notificationEl.querySelector('.notification-close').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+            };
+
+            notificationEl.querySelector('.btn-dismiss').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+            };
+
+            notificationEl.querySelector('.btn-view-order').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+                if (typeof showSection === 'function') {
+                    showSection('orders');
+                }
+                highlightOrderInList(order.id);
+            };
+        }
+
+        function createNotificationsContainer() {
+            const container = document.createElement('div');
+            container.id = 'notificationsContainer';
+            container.className = 'notifications-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        function removeNotification(notificationEl) {
+            notificationEl.classList.remove('show');
+            notificationEl.classList.add('hide');
+            setTimeout(() => {
+                if (notificationEl.parentNode) {
+                    notificationEl.parentNode.removeChild(notificationEl);
+                }
+            }, 300);
+        }
+
+        function playNotificationSound() {
+            try {
+                playWebAudioNotification();
+                playHTML5Notification();
+            } catch (error) {
+                console.error('❌ Error playing notification sound:', error);
+            }
+        }
+
+        function playWebAudioNotification() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.2);
+
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function playHTML5Notification() {
+            const audio = new Audio();
+            const beepSound = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
+            audio.src = beepSound;
+            audio.volume = 0.3;
+            audio.play().catch(e => {
+                console.log('HTML5 audio play failed');
+            });
+        }
+
+        function initializeAudio() {
+            document.addEventListener('click', () => {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+        }
+
+        function setupAppVisibilityDetection() {
+            document.addEventListener('visibilitychange', () => {
+                isAppActive = !document.hidden;
+                console.log(`👀 App active: ${isAppActive}`);
+            });
+
+            window.addEventListener('focus', () => {
+                isAppActive = true;
+                clearInAppNotifications();
+            });
+
+            window.addEventListener('blur', () => {
+                isAppActive = false;
+            });
+        }
+
+        function clearInAppNotifications() {
+            const container = document.getElementById('notificationsContainer');
+            if (container) {
+                const notifications = container.querySelectorAll('.in-app-notification');
+                notifications.forEach(notification => {
+                    removeNotification(notification);
+                });
+            }
+        }
+
+        function updateOrderBadge() {
+            const badges = document.querySelectorAll('.orders-badge, .notification-badge');
+            badges.forEach(badge => {
+                const currentCount = parseInt(badge.textContent) || 0;
+                badge.textContent = currentCount + 1;
+                badge.style.display = 'block';
+            });
+        }
+
+        function highlightOrderInList(orderId) {
+            const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (orderElement) {
+                orderElement.classList.add('highlight-new');
+                setTimeout(() => {
+                    orderElement.classList.remove('highlight-new');
+                }, 3000);
+                orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function cleanupNotifications() {
+            if (window.notificationsUnsubscribe) {
+                window.notificationsUnsubscribe();
+            }
+            clearInAppNotifications();
+            if (audioContext) {
+                audioContext.close();
+            }
+        }
+
+        // =============================================
+        // MAIN APP FUNCTIONALITY
+        // =============================================
+
+        // Your existing shopkeeper app functions continue here...
+        // [Include all your existing shopkeeper app JavaScript code]
+
     </script>
 </body>
 </html>

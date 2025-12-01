@@ -2367,7 +2367,9 @@ async function handleProfileUpdate(event) {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
         });
 
-        /* ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
+                } // <-- ADDED MISSING CLOSING BRACE HERE
+
+        // ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
         function initializeMobileUI() {
             // Show/hide floating button based on scroll
             window.addEventListener('scroll', () => {
@@ -2443,6 +2445,27 @@ async function handleProfileUpdate(event) {
                 }
             });
         }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+            
+            document.getElementById('productSearch').addEventListener('input', filterProducts);
+        });
+
     </script>
     
     <!-- Floating Orders Button -->

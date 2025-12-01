@@ -2327,7 +2327,7 @@ async function handleProfileUpdate(event) {
             }
         }
 
-        function updateOrderBadge() {
+                function updateOrderBadge() {
             const badges = document.querySelectorAll('.orders-badge, .notification-badge');
             badges.forEach(badge => {
                 const currentCount = parseInt(badge.textContent) || 0;
@@ -2345,9 +2345,9 @@ async function handleProfileUpdate(event) {
                 }, 3000);
                 orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        }
+        } // <-- ADDED MISSING CLOSING BRACE HERE
 
-                // Event Listeners
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             

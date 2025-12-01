@@ -1149,6 +1149,25 @@
     }
 }
 
+        // ✅ ADD THIS FUNCTION TO CLEAR NOTIFICATIONS
+function clearOrderNotification(orderId) {
+    // Remove in-app notification if exists
+    const notification = document.querySelector(`[data-order-id="${orderId}"]`);
+    if (notification) {
+        notification.remove();
+    }
+    
+    // Mark as processed in localStorage
+    const processedOrders = JSON.parse(localStorage.getItem('processedOrders') || '[]');
+    if (!processedOrders.includes(orderId)) {
+        processedOrders.push(orderId);
+        localStorage.setItem('processedOrders', JSON.stringify(processedOrders));
+    }
+    
+    console.log('🔕 Notification cleared for order:', orderId);
+}
+
+
         // Product Modal Functions
         function showAddProductModal() {
             document.getElementById('productModalTitle').textContent = 'Add New Product';
@@ -1485,31 +1504,63 @@ function initializeOrders() {
         }
 
         function setupOrderNotificationsListener() {
-    if (!currentShop) return;
+    if (!currentShop) {
+        console.log('⚠️ Shopkeeper not logged in');
+        return;
+    }
 
-    console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
-
-    // Listen for ALL order changes, not just pending
+    console.log(`🏪 Setting up SMART order notifications for shop: ${currentShop.id}`);
+    
+    // ✅ STORE LAST NOTIFICATION TIME TO AVOID DUPLICATES
+    const lastNotificationTime = localStorage.getItem(`lastNotification_${currentShop.id}`) || 0;
+    const now = Date.now();
+    
+    // Listen for NEW pending orders (only those created after we logged in)
+    db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .where('status', '==', 'pending')
+        .where('createdAt', '>', new Date(lastNotificationTime))
+        .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const newOrder = { id: change.doc.id, ...change.doc.data() };
+                    
+                    // ✅ CHECK IF ORDER IS REALLY NEW (within last 5 minutes)
+                    const orderTime = newOrder.createdAt?.toDate?.() || new Date();
+                    const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
+                    
+                    if (orderTime > fiveMinutesAgo) {
+                        console.log('🆕 NEW order detected:', newOrder.id);
+                        showNewOrderNotification(newOrder);
+                        
+                        // ✅ UPDATE LAST NOTIFICATION TIME
+                        localStorage.setItem(`lastNotification_${currentShop.id}`, now.toString());
+                    } else {
+                        console.log('⏰ Old order ignored:', newOrder.id);
+                    }
+                }
+            });
+        }, (error) => {
+            console.error('❌ Notification listener error:', error);
+        });
+    
+    // ✅ ALSO LISTEN FOR STATUS CHANGES TO CLEAR NOTIFICATIONS
     db.collection('orderItems')
         .where('shopId', '==', currentShop.id)
         .onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added' && change.doc.data().status === 'pending') {
-                    const newOrder = { id: change.doc.id, ...change.doc.data() };
-                    console.log('🆕 New order detected:', newOrder.id);
-                    showNewOrderNotification(newOrder);
-                }
-                else if (change.type === 'modified') {
+                if (change.type === 'modified') {
                     const updatedOrder = { id: change.doc.id, ...change.doc.data() };
-                    if (updatedOrder.status === 'cancelled') {
-                        console.log('❌ Order cancelled:', updatedOrder.id);
-                        showToast(`Order #${updatedOrder.orderId?.slice(-6)} cancelled by customer`, 'error');
+                    
+                    // If order status changed from pending, clear any notification
+                    if (updatedOrder.status !== 'pending') {
+                        console.log('✅ Order processed:', updatedOrder.id, 'Status:', updatedOrder.status);
+                        // You could add logic to remove/clear the notification
                     }
                 }
             });
         });
 }
-
                 function showNewOrderNotification(order) {
             const notificationTitle = `🛍️ New Order Received!`;
             const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;

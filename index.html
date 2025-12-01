@@ -1410,11 +1410,11 @@
             updateOrderBadge();
         }
         
-        function showBrowserNotification(title, body, order) {
+                function showBrowserNotification(title, body, order) {
             const notification = new Notification(title, {
                 body: body,
-                icon: '/favicon.ico',
-                badge: '/favicon.ico',
+                icon: 'https://cdn-icons-png.flaticon.com/512/891/891419.png', // ✅ Simple shopping icon
+                badge: 'https://cdn-icons-png.flaticon.com/512/891/891419.png', // ✅ Same icon
                 tag: 'new-order',
                 requireInteraction: true,
                 data: { orderId: order.id }
@@ -1424,11 +1424,14 @@
                 window.focus();
                 notification.close();
                 navigateToPage('orders');
+                // ✅ Order ko highlight bhi kare
+                highlightOrderInList(order.id);
             };
 
+            // Auto close after 15 seconds (instead of 10)
             setTimeout(() => {
                 notification.close();
-            }, 10000);
+            }, 15000);
         }
 
         function showInAppNotification(title, body, order) {

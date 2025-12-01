@@ -894,7 +894,7 @@
                 if (shopDoc.exists) {
                     currentShop = { id: shopId, ...shopDoc.data() };
                     await loadProducts();
-                    await loadOrders();
+                    await loadOrdersManual(); // ✅ USE CORRECT FUNCTION NAME
                     updateProfileForm();
                 }
             } catch (error) {
@@ -1137,7 +1137,8 @@
         showToast(`Order ${newStatus} successfully!`, 'success');
         
         // Refresh orders list
-        loadOrders();
+        // Refresh orders list
+        loadOrdersManual();
         
     } catch (error) {
         console.error('Error updating order:', error);
@@ -1175,21 +1176,37 @@
         }
 
         async function handleProductSubmit() {
-            const productId = document.getElementById('editProductId').value;
-            const productData = {
-                name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                mrp: parseFloat(document.getElementById('productMrp').value),
-                stock: parseInt(document.getElementById('productStock').value),
-                description: document.getElementById('productDescription').value,
-                image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-                shopId: currentShop.id,
-                shopName: currentShop.name,
-                isAvailable: true,
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
+    // ✅ DEBUG: CHECK currentShop
+    console.log('🔍 DEBUG currentShop:', currentShop);
+    console.log('🔍 Shop Name:', currentShop?.name);
+    console.log('🔍 Shop ID:', currentShop?.id);
+    
+    if (!currentShop || !currentShop.name) {
+        showToast('❌ Shop information not loaded. Please refresh page.', 'error');
+        return;
+    }
+    
+    const productId = document.getElementById('editProductId').value;
+    const productData = {
+        name: document.getElementById('productName').value,
+        category: document.getElementById('productCategory').value,
+        price: parseFloat(document.getElementById('productPrice').value),
+        mrp: parseFloat(document.getElementById('productMrp').value),
+        stock: parseInt(document.getElementById('productStock').value),
+        description: document.getElementById('productDescription').value,
+        image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+        shopId: currentShop.id,
+        shopName: currentShop.name, // ✅ YEH LINE
+        isAvailable: true,
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // ✅ DEBUG: CHECK FINAL DATA
+    console.log('📦 Product Data to save:', productData);
+    
+    // ... rest of code
+}
             
             try {
                 if (productId) {
@@ -1509,9 +1526,6 @@ function initializeOrders() {
     const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
     
     playNotificationSound();
-    
-    // ✅ ADD MOBILE NOTIFICATION
-    showMobileNotification(order);
     
     if (notificationPermission === "granted") {
         showBrowserNotification(notificationTitle, notificationBody, order);

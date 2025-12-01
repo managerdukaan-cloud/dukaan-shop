@@ -787,6 +787,32 @@
                                 <label>Address</label>
                                 <textarea id="shopAddress" rows="2" required></textarea>
                             </div>
+                            <!-- In shopkeeper profile form -->
+                            <div class="form-group">
+                                <label>Shop Timings</label>
+                                <div style="display:flex;gap:10px;align-items:center">
+                                    <input type="time" id="shopOpenTime" value="09:00">
+                                    <span>to</span>
+                                    <input type="time" id="shopCloseTime" value="21:00">
+                                </div>
+                            <div class="form-group">
+                            <label>Service Type</label>
+                            <select id="deliveryType" required>
+                                <option value="both">Both Delivery & Pickup</option>
+                                <option value="delivery_only">Delivery Only</option>
+                                <option value="pickup_only">Pickup Only</option>
+                            </select>
+                                </div>                                  
+                            
+                            <div class="form-group">
+                                <label>Shop Status</label>
+                                <select id="shopStatus">
+                                    <option value="open">Open</option>
+                                    <option value="closed">Closed</option>
+                                    <option value="busy">Busy (Accepting orders)</option>
+                                    <option value="holiday">On Holiday</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label>Phone</label>
                                 <input type="tel" id="shopPhone" required>
@@ -1080,13 +1106,12 @@
             productsList.innerHTML = productsHtml;
         }
 
-        async function updateOrderStatus(orderId, newStatus) {
+        async function updateOrderStatus(orderId, newStatus, itemId = null) {
     try {
-        console.log("🔄 Updating order status:", orderId, newStatus);
+        console.log("🔄 Updating order status:", orderId, newStatus, itemId);
         
-        // ✅ FIRST GET THE ORDERITEM
+        // Get order item
         const orderItemDoc = await db.collection('orderItems').doc(orderId).get();
-        
         if (!orderItemDoc.exists) {
             showToast('Order not found', 'error');
             return;
@@ -1094,59 +1119,139 @@
         
         const orderItem = orderItemDoc.data();
         
-        // ✅ CHECK IF ORDER IS ALREADY CANCELLED IN ORDERITEMS
+        // Check if cancelled
         if (orderItem.status === 'cancelled' && newStatus !== 'cancelled') {
-            showToast('❌ This order has been cancelled by customer', 'error');
+            showToast('❌ Order cancelled by customer', 'error');
             return;
         }
         
-        // ✅ CHECK MAIN ORDERS COLLECTION FOR CANCELLATION
-        if (orderItem.orderId) {
-            try {
-                const mainOrderDoc = await db.collection('orders').doc(orderItem.orderId).get();
-                if (mainOrderDoc.exists) {
-                    const mainOrder = mainOrderDoc.data();
-                    if (mainOrder.status === 'cancelled' && newStatus !== 'cancelled') {
-                        showToast('❌ Customer has cancelled this order', 'error');
-                        return;
+        // ✅ PARTIAL ACCEPTANCE LOGIC
+        if (newStatus === 'partial_accepted') {
+            const unavailableItems = [];
+            
+            // Check each item in order
+            if (orderItem.items && Array.isArray(orderItem.items)) {
+                for (const item of orderItem.items) {
+                    const productDoc = await db.collection('products').doc(item.id).get();
+                    if (productDoc.exists) {
+                        const product = productDoc.data();
+                        if ((product.stock || 0) < (item.quantity || 1)) {
+                            unavailableItems.push({
+                                name: item.name,
+                                requested: item.quantity,
+                                available: product.stock || 0
+                            });
+                        }
                     }
                 }
-            } catch (error) {
-                console.log('⚠️ Could not check main order:', error);
-                // Continue anyway
+            }
+            
+            if (unavailableItems.length > 0) {
+                // Show modal with unavailable items
+                showPartialAcceptanceModal(orderId, orderItem, unavailableItems);
+                return;
             }
         }
         
-        // ✅ UPDATE ORDERITEMS COLLECTION
+        // Update status
         await db.collection('orderItems').doc(orderId).update({
             status: newStatus,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // ✅ ALSO UPDATE MAIN ORDERS COLLECTION IF POSSIBLE
+        // Update main order
         if (orderItem.orderId) {
-            try {
-                await db.collection('orders').doc(orderItem.orderId).update({
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ Updated main order:', orderItem.orderId);
-            } catch (error) {
-                console.log('⚠️ Could not update main order:', error);
-                // Continue anyway
-            }
+            await db.collection('orders').doc(orderItem.orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
         
-        showToast(`Order ${newStatus} successfully!`, 'success');
-        
-        // Refresh orders list
-        // Refresh orders list
+        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
         loadOrdersManual();
         
     } catch (error) {
         console.error('Error updating order:', error);
-        showToast('Error updating order: ' + error.message, 'error');
+        showToast('Error: ' + error.message, 'error');
     }
+}
+
+// ✅ MODAL FOR PARTIAL ACCEPTANCE
+function showPartialAcceptanceModal(orderId, orderItem, unavailableItems) {
+    const modalHtml = `
+        <div class="modal" id="partialAcceptModal" style="display:block">
+            <div class="modal-content" style="max-width:500px">
+                <div class="modal-header">
+                    <h3>⚠️ Some Items Unavailable</h3>
+                    <button onclick="closeModal('partialAcceptModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>The following items are out of stock or insufficient:</p>
+                    <ul style="margin:15px 0">
+                        ${unavailableItems.map(item => `
+                            <li><strong>${item.name}</strong>: 
+                                Requested: ${item.requested}, Available: ${item.available}
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <p>What would you like to do?</p>
+                </div>
+                <div class="modal-footer" style="display:flex;gap:10px;margin-top:20px">
+                    <button class="btn btn-danger" onclick="rejectOrder('${orderId}')">
+                        ❌ Reject Entire Order
+                    </button>
+                    <button class="btn btn-warning" onclick="acceptPartialOrder('${orderId}', '${JSON.stringify(unavailableItems)}')">
+                        ✅ Accept Available Items Only
+                    </button>
+                    <button class="btn btn-primary" onclick="closeModal('partialAcceptModal')">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to body
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+    
+    // Add styles if needed
+    if (!document.getElementById('modal-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'modal-styles';
+        styles.textContent = `
+            .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; }
+            .modal-content { background:white; margin:50px auto; padding:20px; border-radius:10px; }
+            .modal-header { display:flex; justify-content:space-between; margin-bottom:15px; }
+            .modal-footer { display:flex; justify-content:flex-end; gap:10px; }
+        `;
+        document.head.appendChild(styles);
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+}
+
+async function rejectOrder(orderId) {
+    await updateOrderStatus(orderId, 'rejected');
+    closeModal('partialAcceptModal');
+}
+
+async function acceptPartialOrder(orderId, unavailableItemsJson) {
+    const unavailableItems = JSON.parse(unavailableItemsJson);
+    
+    // Here you can update quantities or create a partial order
+    // For now, just accept as partial
+    await updateOrderStatus(orderId, 'partial_accepted');
+    
+    // You can also update quantities in the order document
+    // This would require more complex logic
+    
+    closeModal('partialAcceptModal');
+    showToast('Order partially accepted. Customer notified.', 'success');
 }
 
         // ✅ ADD THIS FUNCTION TO CLEAR NOTIFICATIONS
@@ -1335,121 +1440,348 @@ function initializeOrders() {
 }
 
         function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
+    const ordersList = document.getElementById('ordersList');
+    
+    if (!ordersList) {
+        console.error('Orders list container not found');
+        return;
+    }
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #666;">No Orders Yet</h4>
+                    <p style="color: #999;">Orders from customers will appear here</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let ordersHtml = '';
+    
+    orders.forEach(order => {
+        try {
+            const orderDate = order.createdAt ? 
+                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 
+                'Recently';
             
-            if (orders.length === 0) {
-                ordersList.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Orders Yet</h4>
-                                <p style="color: #999;">Orders from customers will appear here</p>
-                        </td>
-                    </tr>
+            const statusClass = order.status === 'pending' ? 'warning' : 
+                              order.status === 'confirmed' ? 'primary' :
+                              order.status === 'partial_accepted' ? 'warning' :
+                              order.status === 'rejected' ? 'danger' :
+                              order.status === 'preparing' ? 'info' :
+                              order.status === 'dispatched' ? 'warning' :
+                              order.status === 'delivered' ? 'success' :
+                              order.status === 'ready_for_pickup' ? 'info' :
+                              order.status === 'picked_up' ? 'success' :
+                              order.status === 'cancelled' ? 'secondary' : 'secondary';
+            
+            const statusText = order.status === 'pending' ? 'Pending' :
+                             order.status === 'confirmed' ? 'Confirmed' :
+                             order.status === 'partial_accepted' ? 'Partially Accepted' :
+                             order.status === 'rejected' ? 'Rejected' :
+                             order.status === 'preparing' ? 'Preparing' :
+                             order.status === 'dispatched' ? 'Dispatched' :
+                             order.status === 'delivered' ? 'Delivered' :
+                             order.status === 'ready_for_pickup' ? 'Ready for Pickup' :
+                             order.status === 'picked_up' ? 'Picked Up' :
+                             order.status === 'cancelled' ? 'Cancelled' : order.status;
+            
+            // ✅ DYNAMIC ACTION BUTTONS BASED ON STATUS
+            let actionButtons = '';
+            
+            if (order.status === 'pending') {
+                actionButtons = `
+                    <div class="btn-group" role="group" style="display: flex; gap: 5px;">
+                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')" title="Accept Order">
+                            <i class="fas fa-check"></i> Accept
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')" title="Reject Order">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'partial_accepted')" title="Partial Accept">
+                            <i class="fas fa-exclamation-triangle"></i> Partial
+                        </button>
+                    </div>
                 `;
-                return;
             }
-            
-            let ordersHtml = '';
-            orders.forEach(order => {
-                const orderDate = order.createdAt ? 
-                    new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN') : 
-                    'Recently';
-                const statusClass = order.status === 'pending' ? 'warning' : 
-                                  order.status === 'confirmed' ? 'primary' :
-                                  order.status === 'preparing' ? 'info' :
-                                  order.status === 'dispatched' ? 'warning' :
-                                  order.status === 'delivered' ? 'success' : 'secondary';
+            else if (order.status === 'confirmed') {
+                actionButtons = `
+                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                        <i class="fas fa-utensils"></i> Start Preparing
+                    </button>
+                `;
+            }
+            else if (order.status === 'preparing') {
+                // Check if shop offers delivery or pickup
+                const isPickupOnly = false; // You would check from shop data
                 
-                let actionButtons = '';
-                
-                if (order.status === 'pending') {
+                if (isPickupOnly) {
                     actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
-                            Accept Order
+                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'ready_for_pickup')">
+                            <i class="fas fa-box"></i> Ready for Pickup
                         </button>
                     `;
-                }
-                else if (order.status === 'confirmed') {
-                    actionButtons = `
-                        <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                            Start Preparing
-                        </button>
-                    `;
-                }
-                else if (order.status === 'preparing') {
+                } else {
                     actionButtons = `
                         <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
-                            Dispatch
+                            <i class="fas fa-shipping-fast"></i> Dispatch
                         </button>
                     `;
                 }
-                else if (order.status === 'dispatched') {
-                    actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
-                            Mark Delivered
-                        </button>
-                    `;
-                }
-                else if (order.status === 'delivered') {
-                    actionButtons = `
-                        <span class="badge bg-success">Completed</span>
-                    `;
-                }
-                
-                ordersHtml += `
-    <tr>
-        <td>#${order.orderId ? order.orderId.slice(-6) : order.id.slice(-6)}</td>  <!-- ✅ ORDER ID SHOW KARO -->
-        <td>${order.customerEmail}</td>
-        <td>${order.productName} × ${order.quantity}</td>
-        <td>₹${order.price * order.quantity}</td>
-        <td>
-            <span class="badge bg-${statusClass}">${order.status}</span>
-        </td>
-        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
-        <td>${orderDate}</td>
-        <td>
-            ${actionButtons}
-        </td>
-    </tr>
-`;
-            });
+            }
+            else if (order.status === 'dispatched') {
+                actionButtons = `
+                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                        <i class="fas fa-check-circle"></i> Mark Delivered
+                    </button>
+                `;
+            }
+            else if (order.status === 'ready_for_pickup') {
+                actionButtons = `
+                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'picked_up')">
+                        <i class="fas fa-user-check"></i> Mark Picked Up
+                    </button>
+                `;
+            }
+            else if (order.status === 'delivered' || order.status === 'picked_up') {
+                actionButtons = `
+                    <span class="badge bg-success">Completed</span>
+                `;
+            }
+            else if (order.status === 'rejected') {
+                actionButtons = `
+                    <span class="badge bg-danger">Rejected</span>
+                `;
+            }
+            else if (order.status === 'cancelled') {
+                actionButtons = `
+                    <span class="badge bg-secondary">Cancelled by Customer</span>
+                `;
+            }
+            else if (order.status === 'partial_accepted') {
+                actionButtons = `
+                    <span class="badge bg-warning text-dark">Partially Accepted</span>
+                    <button class="btn btn-info btn-sm mt-1" onclick="showPartialOrderDetails('${order.id}')">
+                        <i class="fas fa-info-circle"></i> Details
+                    </button>
+                `;
+            }
             
-            ordersList.innerHTML = ordersHtml;
+            // ✅ ORDER ITEMS DISPLAY
+            let itemsDisplay = '';
+            if (order.items && Array.isArray(order.items)) {
+                itemsDisplay = order.items.map(item => 
+                    `${item.quantity || 1}x ${item.name || 'Item'}`
+                ).join(', ');
+            } else if (order.productName) {
+                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
+            } else {
+                itemsDisplay = 'No items';
+            }
+            
+            // ✅ CUSTOMER INFO
+            const customerInfo = order.customerName ? 
+                `${order.customerName} (${order.customerEmail})` : 
+                order.customerEmail || 'Customer';
+            
+            // ✅ PAYMENT METHOD
+            const paymentText = order.paymentMethod === 'cod' ? 
+                '<span class="badge bg-info">Cash on Delivery</span>' : 
+                '<span class="badge bg-success">QR Paid</span>';
+            
+            // ✅ ORDER AMOUNT
+            const orderAmount = order.totalAmount || (order.price * order.quantity) || 0;
+            
+            ordersHtml += `
+                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                    <td>
+                        <strong>#${order.orderId ? order.orderId.slice(-6) : order.id.slice(-6)}</strong>
+                        ${order.status === 'pending' ? '<div class="badge bg-danger blink">NEW</div>' : ''}
+                    </td>
+                    <td>
+                        <div class="customer-info">
+                            <div><strong>${customerInfo}</strong></div>
+                            <small>${order.customerPhone || ''}</small>
+                        </div>
+                    </td>
+                    <td title="${itemsDisplay}">
+                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                    </td>
+                    <td><strong>₹${orderAmount}</strong></td>
+                    <td>
+                        <span class="badge bg-${statusClass}">${statusText}</span>
+                        ${order.status === 'partial_accepted' ? '<br><small class="text-muted">Some items unavailable</small>' : ''}
+                    </td>
+                    <td>${paymentText}</td>
+                    <td>${orderDate}</td>
+                    <td style="min-width: 200px;">
+                        ${actionButtons}
+                        <button class="btn btn-outline-secondary btn-sm mt-1" onclick="viewOrderDetails('${order.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+        } catch (error) {
+            console.error('Error rendering order:', order, error);
         }
+    });
+    
+    ordersList.innerHTML = ordersHtml;
+    
+    // Add blinking animation for new orders
+    if (!document.getElementById('blink-style')) {
+        const style = document.createElement('style');
+        style.id = 'blink-style';
+        style.textContent = `
+            .blink {
+                animation: blink 1s infinite;
+                font-size: 0.7em;
+                margin-left: 5px;
+            }
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.3; }
+                100% { opacity: 1; }
+            }
+            .customer-info small {
+                color: #666;
+                font-size: 0.8em;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// ✅ HELPER FUNCTIONS
+function viewOrderDetails(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    let itemsHtml = '';
+    if (order.items && Array.isArray(order.items)) {
+        itemsHtml = order.items.map(item => `
+            <tr>
+                <td>${item.name || 'Item'}</td>
+                <td>${item.quantity || 1}</td>
+                <td>₹${item.price || 0}</td>
+                <td>₹${(item.price || 0) * (item.quantity || 1)}</td>
+            </tr>
+        `).join('');
+    }
+    
+    const modalHtml = `
+        <div class="modal" id="orderDetailsModal" style="display:block">
+            <div class="modal-content" style="max-width:600px">
+                <div class="modal-header">
+                    <h3>Order Details #${order.id.slice(-6)}</h3>
+                    <button onclick="closeModal('orderDetailsModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <tr><th>Customer:</th><td>${order.customerName || ''} (${order.customerEmail || ''})</td></tr>
+                        <tr><th>Phone:</th><td>${order.customerPhone || 'Not provided'}</td></tr>
+                        <tr><th>Address:</th><td>${order.customerAddress || order.address || 'Not provided'}</td></tr>
+                        <tr><th>Payment:</th><td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td></tr>
+                        <tr><th>Status:</th><td><span class="badge">${order.status}</span></td></tr>
+                    </table>
+                    
+                    <h5>Items:</h5>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                        <tfoot>
+                            <tr><th colspan="3">Total:</th><th>₹${order.totalAmount || (order.price * order.quantity) || 0}</th></tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeModal('orderDetailsModal')">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+}
+
+function showPartialOrderDetails(orderId) {
+    // Similar to viewOrderDetails but show which items were accepted/rejected
+    alert('Partial order details would show which items were available/unavailable');
+}
 
         // Profile Management
         function updateProfileForm() {
-            if (!currentShop) return;
-            
-            document.getElementById('shopName').value = currentShop.name || '';
-            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
-            document.getElementById('shopDescription').value = currentShop.description || '';
-            document.getElementById('shopAddress').value = currentShop.address || '';
-            document.getElementById('shopPhone').value = currentShop.phone || '';
-        }
+    if (!currentShop) return;
+    
+    document.getElementById('shopName').value = currentShop.name || '';
+    document.getElementById('shopCategory').value = currentShop.category || 'groceries';
+    document.getElementById('shopDescription').value = currentShop.description || '';
+    document.getElementById('shopAddress').value = currentShop.address || '';
+    document.getElementById('shopPhone').value = currentShop.phone || '';
+    
+    // ✅ NEW FIELDS
+    document.getElementById('shopOpenTime').value = currentShop.openTime || '09:00';
+    document.getElementById('shopCloseTime').value = currentShop.closeTime || '21:00';
+    document.getElementById('shopStatus').value = currentShop.status || 'open';
+    document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
+}
 
-        async function handleProfileUpdate(event) {
-            event.preventDefault();
-            
-            const profileData = {
-                name: document.getElementById('shopName').value,
-                category: document.getElementById('shopCategory').value,
-                description: document.getElementById('shopDescription').value,
-                address: document.getElementById('shopAddress').value,
-                phone: document.getElementById('shopPhone').value,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                await db.collection('shops').doc(currentShop.id).update(profileData);
-                currentShop = { ...currentShop, ...profileData };
-                showToast('Profile updated successfully!', 'success');
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showToast('Error updating profile: ' + error.message, 'error');
-            }
-        }
+async function handleProfileUpdate(event) {
+    event.preventDefault();
+    
+    const profileData = {
+        name: document.getElementById('shopName').value,
+        category: document.getElementById('shopCategory').value,
+        description: document.getElementById('shopDescription').value,
+        address: document.getElementById('shopAddress').value,
+        phone: document.getElementById('shopPhone').value,
+        
+        // ✅ NEW FIELDS
+        openTime: document.getElementById('shopOpenTime').value,
+        closeTime: document.getElementById('shopCloseTime').value,
+        status: document.getElementById('shopStatus').value,
+        deliveryType: document.getElementById('deliveryType').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // Check if shop is currently open
+    const now = new Date();
+    const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                       now.getMinutes().toString().padStart(2, '0');
+    
+    const isOpenByTime = currentTime >= profileData.openTime && 
+                        currentTime <= profileData.closeTime;
+    
+    // Auto-update status based on time
+    if (profileData.status === 'open' && !isOpenByTime) {
+        profileData.autoStatus = 'closed_by_time';
+    }
+    
+    try {
+        await db.collection('shops').doc(currentShop.id).update(profileData);
+        currentShop = { ...currentShop, ...profileData };
+        showToast('Profile updated successfully!', 'success');
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showToast('Error updating profile: ' + error.message, 'error');
+    }
+}
 
         // Utility Functions
         function showToast(message, type = 'success') {

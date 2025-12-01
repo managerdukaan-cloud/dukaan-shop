@@ -2347,7 +2347,7 @@ async function handleProfileUpdate(event) {
             }
         }
 
-        // Event Listeners
+                // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             
@@ -2367,7 +2367,7 @@ async function handleProfileUpdate(event) {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
         });
 
-                        /* ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
+        /* ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
         function initializeMobileUI() {
             // Show/hide floating button based on scroll
             window.addEventListener('scroll', () => {
@@ -2386,7 +2386,7 @@ async function handleProfileUpdate(event) {
             
             // Set active quick action button
             setActiveQuickAction();
-        } // ✅ YEH CLOSING BRACE ADD KARO
+        }
 
         function updateOrdersSummary() {
             if (!orders || orders.length === 0) return;

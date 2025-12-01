@@ -1075,31 +1075,63 @@
     try {
         console.log("🔄 Updating order status:", orderId, newStatus);
         
-        // ✅ FIRST CHECK CURRENT STATUS
-        const orderDoc = await db.collection('orderItems').doc(orderId).get();
-        const currentOrder = orderDoc.data();
+        // ✅ FIRST GET THE ORDERITEM
+        const orderItemDoc = await db.collection('orderItems').doc(orderId).get();
         
-        // If customer has cancelled, don't allow shopkeeper to change status
-        if (currentOrder.status === 'cancelled' && newStatus !== 'cancelled') {
-            showToast('❌ Customer has cancelled this order', 'error');
+        if (!orderItemDoc.exists) {
+            showToast('Order not found', 'error');
             return;
         }
         
-        // Only proceed if order is not cancelled by customer
+        const orderItem = orderItemDoc.data();
+        
+        // ✅ CHECK IF ORDER IS ALREADY CANCELLED IN ORDERITEMS
+        if (orderItem.status === 'cancelled' && newStatus !== 'cancelled') {
+            showToast('❌ This order has been cancelled by customer', 'error');
+            return;
+        }
+        
+        // ✅ CHECK MAIN ORDERS COLLECTION FOR CANCELLATION
+        if (orderItem.orderId) {
+            try {
+                const mainOrderDoc = await db.collection('orders').doc(orderItem.orderId).get();
+                if (mainOrderDoc.exists) {
+                    const mainOrder = mainOrderDoc.data();
+                    if (mainOrder.status === 'cancelled' && newStatus !== 'cancelled') {
+                        showToast('❌ Customer has cancelled this order', 'error');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️ Could not check main order:', error);
+                // Continue anyway
+            }
+        }
+        
+        // ✅ UPDATE ORDERITEMS COLLECTION
         await db.collection('orderItems').doc(orderId).update({
             status: newStatus,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Update main order if exists
-        if (currentOrder && currentOrder.orderId) {
-            await db.collection('orders').doc(currentOrder.orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+        // ✅ ALSO UPDATE MAIN ORDERS COLLECTION IF POSSIBLE
+        if (orderItem.orderId) {
+            try {
+                await db.collection('orders').doc(orderItem.orderId).update({
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Updated main order:', orderItem.orderId);
+            } catch (error) {
+                console.log('⚠️ Could not update main order:', error);
+                // Continue anyway
+            }
         }
         
         showToast(`Order ${newStatus} successfully!`, 'success');
+        
+        // Refresh orders list
+        loadOrders();
         
     } catch (error) {
         console.error('Error updating order:', error);
@@ -1273,21 +1305,21 @@
                 }
                 
                 ordersHtml += `
-                    <tr>
-                        <td>#${order.id.slice(-6)}</td>
-                        <td>${order.customerEmail}</td>
-                        <td>${order.productName} × ${order.quantity}</td>
-                        <td>₹${order.price * order.quantity}</td>
-                        <td>
-                            <span class="badge bg-${statusClass}">${order.status}</span>
-                        </td>
-                        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
-                        <td>${orderDate}</td>
-                        <td>
-                            ${actionButtons}
-                        </td>
-                    </tr>
-                `;
+    <tr>
+        <td>#${order.orderId ? order.orderId.slice(-6) : order.id.slice(-6)}</td>  <!-- ✅ ORDER ID SHOW KARO -->
+        <td>${order.customerEmail}</td>
+        <td>${order.productName} × ${order.quantity}</td>
+        <td>₹${order.price * order.quantity}</td>
+        <td>
+            <span class="badge bg-${statusClass}">${order.status}</span>
+        </td>
+        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
+        <td>${orderDate}</td>
+        <td>
+            ${actionButtons}
+        </td>
+    </tr>
+`;
             });
             
             ordersList.innerHTML = ordersHtml;
@@ -1379,26 +1411,30 @@
         }
 
         function setupOrderNotificationsListener() {
-            if (!currentShop) {
-                console.log('⚠️ Shopkeeper not logged in');
-                return;
-            }
+    if (!currentShop) return;
 
-            console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
+    console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
 
-            db.collection('orderItems')
-                .where('shopId', '==', currentShop.id)
-                .where('status', '==', 'pending')
-                .onSnapshot((snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') {
-                            const newOrder = { id: change.doc.id, ...change.doc.data() };
-                            console.log('🆕 New order detected:', newOrder.id);
-                            showNewOrderNotification(newOrder);
-                        }
-                    });
-                });
-        }
+    // Listen for ALL order changes, not just pending
+    db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added' && change.doc.data().status === 'pending') {
+                    const newOrder = { id: change.doc.id, ...change.doc.data() };
+                    console.log('🆕 New order detected:', newOrder.id);
+                    showNewOrderNotification(newOrder);
+                }
+                else if (change.type === 'modified') {
+                    const updatedOrder = { id: change.doc.id, ...change.doc.data() };
+                    if (updatedOrder.status === 'cancelled') {
+                        console.log('❌ Order cancelled:', updatedOrder.id);
+                        showToast(`Order #${updatedOrder.orderId?.slice(-6)} cancelled by customer`, 'error');
+                    }
+                }
+            });
+        });
+}
 
                 function showNewOrderNotification(order) {
             const notificationTitle = `🛍️ New Order Received!`;

@@ -1391,20 +1391,25 @@
                 });
         }
 
-        function showNewOrderNotification(order) {
+                function showNewOrderNotification(order) {
             const notificationTitle = `🛍️ New Order Received!`;
             const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
             
             playNotificationSound();
             
-            if (notificationPermission === "granted" && !isAppActive) {
+            // ✅ ALWAYS show browser notification if permission granted
+            if (notificationPermission === "granted") {
                 showBrowserNotification(notificationTitle, notificationBody, order);
             }
             
-            showInAppNotification(notificationTitle, notificationBody, order);
+            // ✅ Only show in-app popup if app is active
+            if (isAppActive) {
+                showInAppNotification(notificationTitle, notificationBody, order);
+            }
+            
             updateOrderBadge();
         }
-
+        
         function showBrowserNotification(title, body, order) {
             const notification = new Notification(title, {
                 body: body,
@@ -1531,9 +1536,13 @@
             }, { once: true });
         }
 
-        function setupAppVisibilityDetection() {
+                function setupAppVisibilityDetection() {
+            // ✅ Detect if page is visible on load
+            isAppActive = !document.hidden;
+            
             document.addEventListener('visibilitychange', () => {
                 isAppActive = !document.hidden;
+                console.log(`👀 App active: ${isAppActive}`);
             });
 
             window.addEventListener('focus', () => {

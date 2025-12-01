@@ -2256,14 +2256,6 @@ async function handleProfileUpdate(event) {
             }, 300);
         }
 
-        function playNotificationSound() {
-            try {
-                playWebAudioNotification();
-            } catch (error) {
-                console.error('❌ Error playing notification sound:', error);
-            }
-        }
-
                 function playNotificationSound() {
             try {
                 playWebAudioNotification();
@@ -2306,7 +2298,7 @@ async function handleProfileUpdate(event) {
             }, { once: true });
         }
 
-                function setupAppVisibilityDetection() {
+        function setupAppVisibilityDetection() {
             // ✅ Detect if page is visible on load
             isAppActive = !document.hidden;
             
@@ -2355,7 +2347,7 @@ async function handleProfileUpdate(event) {
             }
         }
 
-                // Event Listeners
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             
@@ -2375,7 +2367,7 @@ async function handleProfileUpdate(event) {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
         });
 
-                /* ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
+        /* ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
         function initializeMobileUI() {
             // Show/hide floating button based on scroll
             window.addEventListener('scroll', () => {
@@ -2394,7 +2386,37 @@ async function handleProfileUpdate(event) {
             
             // Set active quick action button
             setActiveQuickAction();
-        } // ✅ YEH CLOSING BRACE ADD KARO
+        }
+
+        function updateOrdersSummary() {
+            if (!orders || orders.length === 0) return;
+            
+            const pendingCount = orders.filter(o => o.status === 'pending').length;
+            const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
+            const preparingCount = orders.filter(o => o.status === 'preparing').length;
+            
+            // Update summary elements if they exist
+            const pendingEl = document.getElementById('pendingSummary');
+            const confirmedEl = document.getElementById('confirmedSummary');
+            const preparingEl = document.getElementById('preparingSummary');
+            const totalEl = document.getElementById('totalSummary');
+            
+            if (pendingEl) pendingEl.textContent = pendingCount;
+            if (confirmedEl) confirmedEl.textContent = confirmedCount;
+            if (preparingEl) preparingEl.textContent = preparingCount;
+            if (totalEl) totalEl.textContent = orders.length;
+            
+            // Update floating button badge
+            const badges = document.querySelectorAll('.orders-badge');
+            badges.forEach(badge => {
+                if (pendingCount > 0) {
+                    badge.textContent = pendingCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+        }
 
         function setActiveQuickAction() {
             // Get current page from URL or localStorage

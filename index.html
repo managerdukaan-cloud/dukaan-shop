@@ -1072,31 +1072,40 @@
         }
 
         async function updateOrderStatus(orderId, newStatus) {
-            try {
-                console.log("🔄 Updating order status:", orderId, newStatus);
-                
-                await db.collection('orderItems').doc(orderId).update({
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                const orderItem = await db.collection('orderItems').doc(orderId).get();
-                const orderData = orderItem.data();
-                
-                if (orderData && orderData.orderId) {
-                    await db.collection('orders').doc(orderData.orderId).update({
-                        status: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                showToast(`Order ${newStatus} successfully!`, 'success');
-                
-            } catch (error) {
-                console.error('Error updating order:', error);
-                showToast('Error updating order: ' + error.message, 'error');
-            }
+    try {
+        console.log("🔄 Updating order status:", orderId, newStatus);
+        
+        // ✅ FIRST CHECK CURRENT STATUS
+        const orderDoc = await db.collection('orderItems').doc(orderId).get();
+        const currentOrder = orderDoc.data();
+        
+        // If customer has cancelled, don't allow shopkeeper to change status
+        if (currentOrder.status === 'cancelled' && newStatus !== 'cancelled') {
+            showToast('❌ Customer has cancelled this order', 'error');
+            return;
         }
+        
+        // Only proceed if order is not cancelled by customer
+        await db.collection('orderItems').doc(orderId).update({
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Update main order if exists
+        if (currentOrder && currentOrder.orderId) {
+            await db.collection('orders').doc(currentOrder.orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        showToast(`Order ${newStatus} successfully!`, 'success');
+        
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast('Error updating order: ' + error.message, 'error');
+    }
+}
 
         // Product Modal Functions
         function showAddProductModal() {

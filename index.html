@@ -1508,27 +1508,38 @@
             }
         }
 
-        function playWebAudioNotification() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                function playNotificationSound() {
+            try {
+                playWebAudioNotification();
+                // ✅ ADD HTML5 FALLBACK
+                playHTML5Notification();
+            } catch (error) {
+                console.error('❌ Error playing notification sound:', error);
+                // ✅ LAST RESORT: Simple beep
+                try {
+                    new AudioContext().createOscillator().start();
+                } catch(e) {}
             }
+        }
 
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.2);
-
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
-            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
+        function playHTML5Notification() {
+            try {
+                // Create a simple beep using oscillator
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.1;
+                
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 200);
+            } catch (error) {
+                // Silent fail
+            }
         }
 
         function initializeAudio() {

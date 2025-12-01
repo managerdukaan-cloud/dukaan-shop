@@ -850,6 +850,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+            <script>
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD2-yz4xwYD5S_oXs6ryhNP8XIC94jzda4",
@@ -874,8 +875,470 @@
                 db = firebase.firestore();
                 console.log("Firebase initialized for Shop App");
 
-                        // =============================================
-        // NOTIFICATION SYSTEM - ADD BEFORE EXISTING FUNCTIONS
+                // Check if user is already logged in
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await loadShopData(user.uid);
+                        showAppScreen();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization error:", error);
+            }
+        }
+
+        // Load Shop Data
+        async function loadShopData(shopId) {
+            try {
+                const shopDoc = await db.collection('shops').doc(shopId).get();
+                if (shopDoc.exists) {
+                    currentShop = { id: shopId, ...shopDoc.data() };
+                    await loadProducts();
+                    await loadOrders();
+                    updateProfileForm();
+                }
+            } catch (error) {
+                console.error("Error loading shop data:", error);
+            }
+        }
+
+        // Authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                await loadShopData(user.uid);
+                showAppScreen();
+                showToast('Welcome to your shop!', 'success');
+                
+            } catch (error) {
+                console.error("Login error:", error);
+                showToast('Login failed: ' + error.message, 'error');
+            }
+        }
+
+        function showForgotPassword() {
+            const email = prompt('Enter your email address to reset password:');
+            if (email && email.includes('@')) {
+                auth.sendPasswordResetEmail(email)
+                    .then(() => {
+                        alert('📧 Password reset email sent! Check your inbox and spam folder.');
+                    })
+                    .catch(error => {
+                        alert('❌ Error: ' + error.message);
+                    });
+            } else if (email) {
+                alert('⚠️ Please enter a valid email address.');
+            }
+        }
+
+        function showAppScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            loadDashboardData();
+            
+            // Initialize notifications after a short delay
+            setTimeout(() => { 
+                if (typeof initializeShopkeeperNotifications === 'function') {
+                    initializeShopkeeperNotifications(); 
+                }
+            }, 2000);
+        }
+
+        function logout() {
+            auth.signOut();
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'block';
+            showToast('Logged out successfully', 'info');
+        }
+
+        // Navigation
+        function navigateToPage(page) {
+            document.querySelectorAll('.content-page').forEach(pageElement => {
+                pageElement.classList.remove('active');
+            });
+            
+            const pageElement = document.getElementById(page + 'Page');
+            if (pageElement) {
+                pageElement.classList.add('active');
+                
+                switch(page) {
+                    case 'dashboard':
+                        loadDashboardData();
+                        break;
+                    case 'products':
+                        loadProducts();
+                        break;
+                    case 'orders':
+                        loadOrders();
+                        break;
+                }
+            }
+        }
+
+        // Dashboard Functions
+        async function loadDashboardData() {
+            if (!currentShop) return;
+            
+            try {
+                document.getElementById('totalProducts').textContent = products.length;
+                
+                const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
+                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
+                
+                const today = new Date().toDateString();
+                const todayOrdersCount = orders.filter(order => 
+                    new Date(order.createdAt).toDateString() === today
+                ).length;
+                document.getElementById('todayOrders').textContent = todayOrdersCount;
+                
+                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
+                
+            } catch (error) {
+                console.error("Error loading dashboard:", error);
+            }
+        }
+
+        // Product Management
+        async function loadProducts() {
+            if (!currentShop) return;
+            
+            try {
+                const snapshot = await db.collection('products')
+                    .where('shopId', '==', currentShop.id)
+                    .get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderProducts();
+                
+            } catch (error) {
+                console.error("Error loading products:", error);
+            }
+        }
+
+        function renderProducts() {
+            const productsList = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                productsList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #666; margin-bottom: 1rem;">No Products Yet</h3>
+                        <p style="color: #999; margin-bottom: 2rem;">Add your first product to start selling</p>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Add Your First Product
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let productsHtml = '';
+            products.forEach(product => {
+                productsHtml += `
+                    <div class="product-card">
+                        <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
+                             alt="${product.name}" class="product-image">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p style="color: #666; margin-bottom: 0.5rem; font-size: 0.9rem;">${product.category}</p>
+                        <div class="product-price">₹${product.price}</div>
+                        <p style="color: ${product.stock > 0 ? 'green' : 'red'}; margin-bottom: 1rem;">
+                            ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                        </p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary" onclick="editProduct('${product.id}')" style="flex: 1;">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline" onclick="deleteProduct('${product.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            productsList.innerHTML = productsHtml;
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                console.log("🔄 Updating order status:", orderId, newStatus);
+                
+                await db.collection('orderItems').doc(orderId).update({
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const orderItem = await db.collection('orderItems').doc(orderId).get();
+                const orderData = orderItem.data();
+                
+                if (orderData && orderData.orderId) {
+                    await db.collection('orders').doc(orderData.orderId).update({
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                showToast(`Order ${newStatus} successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showToast('Error updating order: ' + error.message, 'error');
+            }
+        }
+
+        // Product Modal Functions
+        function showAddProductModal() {
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productMrp').value = product.mrp;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productImage').value = product.image || '';
+            
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        async function handleProductSubmit() {
+            const productId = document.getElementById('editProductId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                mrp: parseFloat(document.getElementById('productMrp').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value,
+                image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+                shopId: currentShop.id,
+                shopName: currentShop.name,
+                isAvailable: true,
+                status: 'active',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                if (productId) {
+                    await db.collection('products').doc(productId).update(productData);
+                    showToast('Product updated successfully!', 'success');
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('products').add(productData);
+                    showToast('Product added successfully!', 'success');
+                }
+                
+                closeProductModal();
+                await loadProducts();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showToast('Error saving product: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                await db.collection('products').doc(productId).delete();
+                showToast('Product deleted successfully!', 'success');
+                await loadProducts();
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Error deleting product: ' + error.message, 'error');
+            }
+        }
+
+        // Order Management
+        async function loadOrders() {
+            if (!currentShop) return;
+            
+            try {
+                const snapshot = await db.collection('orderItems')
+                    .where('shopId', '==', currentShop.id)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                orders = [];
+                snapshot.forEach(doc => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderOrders();
+                
+            } catch (error) {
+                console.error("Error loading orders:", error);
+            }
+        }
+
+        function renderOrders() {
+            const ordersList = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h4 style="color: #666;">No Orders Yet</h4>
+                                <p style="color: #999;">Orders from customers will appear here</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let ordersHtml = '';
+            orders.forEach(order => {
+                const orderDate = order.createdAt ? 
+                    new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN') : 
+                    'Recently';
+                const statusClass = order.status === 'pending' ? 'warning' : 
+                                  order.status === 'confirmed' ? 'primary' :
+                                  order.status === 'preparing' ? 'info' :
+                                  order.status === 'dispatched' ? 'warning' :
+                                  order.status === 'delivered' ? 'success' : 'secondary';
+                
+                let actionButtons = '';
+                
+                if (order.status === 'pending') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
+                            Accept Order
+                        </button>
+                    `;
+                }
+                else if (order.status === 'confirmed') {
+                    actionButtons = `
+                        <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                            Start Preparing
+                        </button>
+                    `;
+                }
+                else if (order.status === 'preparing') {
+                    actionButtons = `
+                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
+                            Dispatch
+                        </button>
+                    `;
+                }
+                else if (order.status === 'dispatched') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                            Mark Delivered
+                        </button>
+                    `;
+                }
+                else if (order.status === 'delivered') {
+                    actionButtons = `
+                        <span class="badge bg-success">Completed</span>
+                    `;
+                }
+                
+                ordersHtml += `
+                    <tr>
+                        <td>#${order.id.slice(-6)}</td>
+                        <td>${order.customerEmail}</td>
+                        <td>${order.productName} × ${order.quantity}</td>
+                        <td>₹${order.price * order.quantity}</td>
+                        <td>
+                            <span class="badge bg-${statusClass}">${order.status}</span>
+                        </td>
+                        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td>
+                        <td>${orderDate}</td>
+                        <td>
+                            ${actionButtons}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            ordersList.innerHTML = ordersHtml;
+        }
+
+        // Profile Management
+        function updateProfileForm() {
+            if (!currentShop) return;
+            
+            document.getElementById('shopName').value = currentShop.name || '';
+            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
+            document.getElementById('shopDescription').value = currentShop.description || '';
+            document.getElementById('shopAddress').value = currentShop.address || '';
+            document.getElementById('shopPhone').value = currentShop.phone || '';
+        }
+
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            
+            const profileData = {
+                name: document.getElementById('shopName').value,
+                category: document.getElementById('shopCategory').value,
+                description: document.getElementById('shopDescription').value,
+                address: document.getElementById('shopAddress').value,
+                phone: document.getElementById('shopPhone').value,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                await db.collection('shops').doc(currentShop.id).update(profileData);
+                currentShop = { ...currentShop, ...profileData };
+                showToast('Profile updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Error updating profile: ' + error.message, 'error');
+            }
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<div class="toast-message">${message}</div>`;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
+            showToast(`Searching for: ${searchTerm}`);
+        }
+
+        // =============================================
+        // NOTIFICATION SYSTEM
         // =============================================
 
         let notificationPermission = 'default';
@@ -915,7 +1378,6 @@
 
             console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
 
-            // Listen for new pending orders
             db.collection('orderItems')
                 .where('shopId', '==', currentShop.id)
                 .where('status', '==', 'pending')
@@ -1073,7 +1535,6 @@
         function setupAppVisibilityDetection() {
             document.addEventListener('visibilitychange', () => {
                 isAppActive = !document.hidden;
-                console.log(`👀 App active: ${isAppActive}`);
             });
 
             window.addEventListener('focus', () => {
@@ -1116,518 +1577,13 @@
             }
         }
 
-        // =============================================
-        // YOUR EXISTING CODE CONTINUES BELOW...
-        // =============================================
-
-                // Check if user is already logged in
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        await loadShopData(user.uid);
-                        showAppScreen();
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization error:", error);
-            }
-        }
-
-        // Load Shop Data
-        async function loadShopData(shopId) {
-            try {
-                const shopDoc = await db.collection('shops').doc(shopId).get();
-                if (shopDoc.exists) {
-                    currentShop = { id: shopId, ...shopDoc.data() };
-                    await loadProducts();
-                    await loadOrders();
-                    updateProfileForm();
-                }
-            } catch (error) {
-                console.error("Error loading shop data:", error);
-            }
-        }
-
-        // Authentication
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                await loadShopData(user.uid);
-                showAppScreen();
-                showToast('Welcome to your shop!', 'success');
-                
-            } catch (error) {
-                console.error("Login error:", error);
-                showToast('Login failed: ' + error.message, 'error');
-            }
-        }
-
-        function showForgotPassword() {
-    const email = prompt('Enter your email address to reset password:');
-    if (email && email.includes('@')) {
-        auth.sendPasswordResetEmail(email)
-            .then(() => {
-                alert('📧 Password reset email sent! Check your inbox and spam folder.');
-            })
-            .catch(error => {
-                alert('❌ Error: ' + error.message);
-            });
-    } else if (email) {
-        alert('⚠️ Please enter a valid email address.');
-    }
-        }
-
-        function showAppScreen() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
-            loadDashboardData();
-            setTimeout(() => { initializeShopkeeperNotifications(); }, 2000);
-}
-
-        function logout() {
-            auth.signOut();
-            document.getElementById('appScreen').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'block';
-            showToast('Logged out successfully', 'info');
-        }
-
-        // Navigation
-        function navigateToPage(page) {
-            // Hide all pages
-            document.querySelectorAll('.content-page').forEach(pageElement => {
-                pageElement.classList.remove('active');
-            });
-            
-            // Show selected page
-            const pageElement = document.getElementById(page + 'Page');
-            if (pageElement) {
-                pageElement.classList.add('active');
-                
-                // Load page-specific data
-                switch(page) {
-                    case 'dashboard':
-                        loadDashboardData();
-                        break;
-                    case 'products':
-                        loadProducts();
-                        break;
-                    case 'orders':
-                        loadOrders();
-                        break;
-                }
-            }
-        }
-
-        // Dashboard Functions
-        async function loadDashboardData() {
-            if (!currentShop) return;
-            
-            try {
-                // Update stats
-                document.getElementById('totalProducts').textContent = products.length;
-                
-                const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
-                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
-                
-                const today = new Date().toDateString();
-                const todayOrdersCount = orders.filter(order => 
-                    new Date(order.createdAt).toDateString() === today
-                ).length;
-                document.getElementById('todayOrders').textContent = todayOrdersCount;
-                
-                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
-                
-            } catch (error) {
-                console.error("Error loading dashboard:", error);
-            }
-        }
-
-        // Product Management
-        async function loadProducts() {
-            if (!currentShop) return;
-            
-            try {
-                const snapshot = await db.collection('products')
-                    .where('shopId', '==', currentShop.id)
-                    .get();
-                
-                products = [];
-                snapshot.forEach(doc => {
-                    products.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderProducts();
-                
-            } catch (error) {
-                console.error("Error loading products:", error);
-            }
-        }
-
-        function renderProducts() {
-            const productsList = document.getElementById('productsList');
-            
-            if (products.length === 0) {
-                productsList.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <h3 style="color: #666; margin-bottom: 1rem;">No Products Yet</h3>
-                        <p style="color: #999; margin-bottom: 2rem;">Add your first product to start selling</p>
-                        <button class="btn btn-primary" onclick="showAddProductModal()">
-                            <i class="fas fa-plus"></i> Add Your First Product
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-            
-            let productsHtml = '';
-            products.forEach(product => {
-                productsHtml += `
-                    <div class="product-card">
-                        <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
-                             alt="${product.name}" class="product-image">
-                        <h3 class="product-title">${product.name}</h3>
-                        <p style="color: #666; margin-bottom: 0.5rem; font-size: 0.9rem;">${product.category}</p>
-                        <div class="product-price">₹${product.price}</div>
-                        <p style="color: ${product.stock > 0 ? 'green' : 'red'}; margin-bottom: 1rem;">
-                            ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                        </p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-primary" onclick="editProduct('${product.id}')" style="flex: 1;">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-outline" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            productsList.innerHTML = productsHtml;
-        }
-
-        // ✅ ADD THIS FUNCTION TO SHOPKEEPER APP
-async function updateOrderStatus(orderId, newStatus) {
-    try {
-        console.log("🔄 Updating order status:", orderId, newStatus);
-        
-        // Update order item for shopkeeper
-        await db.collection('orderItems').doc(orderId).update({
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // ✅ ALSO UPDATE MAIN ORDER FOR CUSTOMER APP
-        const orderItem = await db.collection('orderItems').doc(orderId).get();
-        const orderData = orderItem.data();
-        
-        if (orderData && orderData.orderId) {
-            // Update main order document
-            await db.collection('orders').doc(orderData.orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        showToast(`Order ${newStatus} successfully!`, 'success');
-        
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showToast('Error updating order: ' + error.message, 'error');
-    }
-}
-
-        // Product Modal Functions
-        function showAddProductModal() {
-            document.getElementById('productModalTitle').textContent = 'Add New Product';
-            document.getElementById('productForm').reset();
-            document.getElementById('editProductId').value = '';
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.remove('active');
-        }
-
-        function editProduct(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            document.getElementById('productModalTitle').textContent = 'Edit Product';
-            document.getElementById('editProductId').value = product.id;
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productCategory').value = product.category;
-            document.getElementById('productPrice').value = product.price;
-            document.getElementById('productMrp').value = product.mrp;
-            document.getElementById('productStock').value = product.stock;
-            document.getElementById('productDescription').value = product.description || '';
-            document.getElementById('productImage').value = product.image || '';
-            
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        async function handleProductSubmit() {
-            const productId = document.getElementById('editProductId').value;
-            const productData = {
-                name: document.getElementById('productName').value,
-                category: document.getElementById('productCategory').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                mrp: parseFloat(document.getElementById('productMrp').value),
-                stock: parseInt(document.getElementById('productStock').value),
-                description: document.getElementById('productDescription').value,
-                image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-                shopId: currentShop.id,
-                shopName: currentShop.name,
-                isAvailable: true,
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                if (productId) {
-                    // Update existing product
-                    await db.collection('products').doc(productId).update(productData);
-                    showToast('Product updated successfully!', 'success');
-                } else {
-                    // Add new product
-                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    await db.collection('products').add(productData);
-                    showToast('Product added successfully!', 'success');
-                }
-                
-                closeProductModal();
-                await loadProducts(); // Refresh product list
-                await loadDashboardData(); // Update dashboard
-                
-            } catch (error) {
-                console.error('Error saving product:', error);
-                showToast('Error saving product: ' + error.message, 'error');
-            }
-        }
-
-        async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product?')) return;
-            
-            try {
-                await db.collection('products').doc(productId).delete();
-                showToast('Product deleted successfully!', 'success');
-                await loadProducts();
-                await loadDashboardData();
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                showToast('Error deleting product: ' + error.message, 'error');
-            }
-        }
-
-        // Order Management
-        async function loadOrders() {
-            if (!currentShop) return;
-            
-            try {
-                const snapshot = await db.collection('orderItems')
-                    .where('shopId', '==', currentShop.id)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                orders = [];
-                snapshot.forEach(doc => {
-                    orders.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderOrders();
-                
-            } catch (error) {
-                console.error("Error loading orders:", error);
-            }
-        }
-
-        // Real-time orders listener - ADD THIS FUNCTION
-function setupOrdersListener() {
-    if (!currentShop) return;
-    
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .onSnapshot((snapshot) => {
-            orders = [];
-            snapshot.forEach(doc => {
-                orders.push({ id: doc.id, ...doc.data() });
-            });
-            // Manual sorting since we can't use orderBy during index building
-            orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            renderOrders();
-            loadDashboardData(); // Update dashboard stats
-        });
-}
-
-// Call this in loadShopData function after loading orders
-// setupOrdersListener();
-
-        function renderOrders() {
-    const ordersList = document.getElementById('ordersList');
-    
-    if (orders.length === 0) {
-        ordersList.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                    <h4 style="color: #666;">No Orders Yet</h4>
-                    <p style="color: #999;">Orders from customers will appear here</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    let ordersHtml = '';
-    orders.forEach(order => {
-        const orderDate = order.createdAt ? 
-    new Date(order.createdAt.seconds * 1000).toLocaleDateString('en-IN') : 
-    'Recently';
-        const statusClass = order.status === 'pending' ? 'warning' : 
-                          order.status === 'confirmed' ? 'primary' :
-                          order.status === 'preparing' ? 'info' :
-                          order.status === 'dispatched' ? 'warning' :
-                          order.status === 'delivered' ? 'success' : 'secondary';
-        
-        // ✅ STATUS BUTTONS BASED ON CURRENT STATUS
-        let actionButtons = '';
-        
-        if (order.status === 'pending') {
-            actionButtons = `
-                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
-                    Accept Order
-                </button>
-            `;
-        }
-        else if (order.status === 'confirmed') {
-            actionButtons = `
-                <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                    Start Preparing
-                </button>
-            `;
-        }
-        else if (order.status === 'preparing') {
-            actionButtons = `
-                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
-                    Dispatch
-                </button>
-            `;
-        }
-        else if (order.status === 'dispatched') {
-            actionButtons = `
-                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
-                    Mark Delivered
-                </button>
-            `;
-        }
-        else if (order.status === 'delivered') {
-            actionButtons = `
-                <span class="badge bg-success">Completed</span>
-            `;
-        }
-        
-        ordersHtml += `
-    <tr>
-        <td>#${order.id.slice(-6)}</td>
-        <td>${order.customerEmail}</td>
-        <td>${order.productName} × ${order.quantity}</td>
-        <td>₹${order.price * order.quantity}</td>
-        <td>
-            <span class="badge bg-${statusClass}">${order.status}</span>
-        </td>
-        <td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td> <!-- ✅ COMMENT REMOVED -->
-        <td>${orderDate}</td>
-        <td>
-            ${actionButtons}
-        </td>
-    </tr>
-`;
-    });
-    
-    ordersList.innerHTML = ordersHtml;
-}
-
-        // Profile Management
-        function updateProfileForm() {
-            if (!currentShop) return;
-            
-            document.getElementById('shopName').value = currentShop.name || '';
-            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
-            document.getElementById('shopDescription').value = currentShop.description || '';
-            document.getElementById('shopAddress').value = currentShop.address || '';
-            document.getElementById('shopPhone').value = currentShop.phone || '';
-        }
-
-        async function handleProfileUpdate(event) {
-            event.preventDefault();
-            
-            const profileData = {
-                name: document.getElementById('shopName').value,
-                category: document.getElementById('shopCategory').value,
-                description: document.getElementById('shopDescription').value,
-                address: document.getElementById('shopAddress').value,
-                phone: document.getElementById('shopPhone').value,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                await db.collection('shops').doc(currentShop.id).update(profileData);
-                currentShop = { ...currentShop, ...profileData };
-                showToast('Profile updated successfully!', 'success');
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showToast('Error updating profile: ' + error.message, 'error');
-            }
-        }
-
-        // Utility Functions
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-message">${message}</div>
-            `;
-            
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 5000);
-        }
-
-        function filterProducts() {
-            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
-            const filteredProducts = products.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) ||
-                product.category.toLowerCase().includes(searchTerm) ||
-                product.description?.toLowerCase().includes(searchTerm)
-            );
-            
-            // Temporary implementation
-            showToast(`Searching for: ${searchTerm}`);
-        }
-
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             
-            // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // Profile form
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
             
-            // Navigation
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1638,7 +1594,6 @@ function setupOrdersListener() {
                 });
             });
             
-            // Search functionality
             document.getElementById('productSearch').addEventListener('input', filterProducts);
         });
     </script>

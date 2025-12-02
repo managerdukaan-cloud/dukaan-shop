@@ -1228,6 +1228,158 @@
             appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
         };
 
+        // Add these missing functions at the beginning of the script section:
+
+// Authentication functions
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        showToast('Please enter email and password', 'error');
+        return;
+    }
+
+    console.log('Attempting login with email:', email);
+
+    try {
+        showLoading(true);
+        
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        console.log('Login successful:', user.email);
+        
+        await loadShopData(user.uid);
+        
+    } catch (error) {
+        console.error("Login error:", error);
+        
+        let errorMessage = 'Login failed. ';
+        
+        switch(error.code) {
+            case 'auth/invalid-email':
+                errorMessage = 'Invalid email address format.';
+                break;
+            case 'auth/user-disabled':
+                errorMessage = 'This account has been disabled.';
+                break;
+            case 'auth/user-not-found':
+                errorMessage = 'No account found with this email.';
+                break;
+            case 'auth/wrong-password':
+                errorMessage = 'Incorrect password.';
+                break;
+            case 'auth/network-request-failed':
+                errorMessage = 'Network error. Check your internet connection.';
+                break;
+            default:
+                errorMessage = error.message;
+        }
+        
+        showToast(errorMessage, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showForgotPassword() {
+    const email = prompt('Enter your email address to reset password:');
+    if (email && email.includes('@')) {
+        auth.sendPasswordResetEmail(email)
+            .then(() => {
+                alert('📧 Password reset email sent! Check your inbox and spam folder.');
+            })
+            .catch(error => {
+                alert('❌ Error: ' + error.message);
+            });
+    } else if (email) {
+        alert('⚠️ Please enter a valid email address.');
+    }
+}
+
+function showAuthScreen() {
+    document.getElementById('authScreen').style.display = 'block';
+    document.getElementById('appScreen').style.display = 'none';
+    console.log('Showing auth screen');
+}
+
+function showAppScreen() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    console.log('Showing app screen');
+    
+    // Initialize mobile UI if needed
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        initializeMobileUI();
+    }
+    
+    // Navigate to dashboard
+    navigateToPage('dashboard');
+}
+
+function logout() {
+    console.log('Logging out...');
+    clearAllNotifications();
+    auth.signOut();
+    showAuthScreen();
+    showToast('Logged out successfully', 'info');
+}
+
+// Loading Spinner
+function showLoading(show) {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        spinner.style.display = show ? 'block' : 'none';
+    }
+}
+
+// Navigation
+function navigateToPage(page) {
+    console.log('Navigating to page:', page);
+    
+    // Hide all pages
+    document.querySelectorAll('.content-page').forEach(pageElement => {
+        pageElement.classList.remove('active');
+    });
+    
+    // Show selected page
+    const pageElement = document.getElementById(page + 'Page');
+    if (pageElement) {
+        pageElement.classList.add('active');
+        
+        // Set active quick action button
+        setActiveQuickAction(page);
+        
+        // Load data for the page
+        switch(page) {
+            case 'dashboard':
+                loadDashboardData();
+                break;
+            case 'products':
+                loadProducts();
+                break;
+            case 'orders':
+                loadOrders();
+                break;
+        }
+    }
+}
+
+// Set active quick action button
+function setActiveQuickAction(page) {
+    const buttons = document.querySelectorAll('.quick-action-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        const pageAttr = btn.getAttribute('data-page');
+        if (pageAttr === page) {
+            btn.classList.add('active');
+        }
+    });
+}
+
         console.log('Firebase Config:', firebaseConfig);
 
         // Initialize Firebase
@@ -2277,49 +2429,58 @@ function logout() {
             }, 5000);
         }
 
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded');
-            
-            // Initialize app
-            initApp();
-            
-            // Login form
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // Profile form
-            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
-            
-            // Navigation links
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        navigateToPage(page);
-                    }
-                });
-            });
-            
-            // Product search
-            const productSearch = document.getElementById('productSearch');
-            if (productSearch) {
-                productSearch.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    // Filter products logic can be added here
-                    console.log('Searching for:', searchTerm);
-                });
+        // Event Listeners - CORRECTED VERSION
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
+    // Initialize app
+    initApp();
+    
+    // Login form - MAKE SURE ELEMENT EXISTS
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    // Profile form
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', handleProfileUpdate);
+    }
+    
+    // Navigation links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.getAttribute('data-page');
+            if (page) {
+                navigateToPage(page);
             }
-            
-            // Product form submit
-            document.getElementById('productForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveProduct();
-            });
-            
-            // Setup service options
-            setupServiceOptions();
         });
+    });
+    
+    // Product search
+    const productSearch = document.getElementById('productSearch');
+    if (productSearch) {
+        productSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            // Filter products logic can be added here
+            console.log('Searching for:', searchTerm);
+        });
+    }
+    
+    // Product form submit
+    const productForm = document.getElementById('productForm');
+    if (productForm) {
+        productForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveProduct();
+        });
+    }
+    
+    // Setup service options
+    setupServiceOptions();
+});
     </script>
 </body>
 </html>

@@ -355,19 +355,6 @@
             transform: translateY(-2px);
         }
 
-        /* Product Category Badge */
-        .product-category {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(15, 44, 89, 0.1);
-            color: var(--primary);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            align-self: flex-start;
-        }
-
         /* Orders Summary Card */
         .orders-summary-card {
             background: white;
@@ -445,35 +432,6 @@
             font-size: 1.5rem;
             margin-bottom: 5px;
             color: var(--primary);
-        }
-
-        /* Shop Status Badges */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .status-open {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-closed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-busy {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-holiday {
-            background: #d1ecf1;
-            color: #0c5460;
         }
 
         .form-group {
@@ -651,6 +609,172 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* ============================================= */
+        /* ORDER NOTIFICATION STYLES */
+        /* ============================================= */
+
+        /* Notifications Container */
+        .notifications-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        /* Individual Notification */
+        .in-app-notification {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            pointer-events: all;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .in-app-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+            max-height: 300px;
+        }
+
+        .in-app-notification.hide {
+            transform: translateX(400px);
+            opacity: 0;
+            max-height: 0;
+            margin-bottom: 0;
+        }
+
+        .notification-content {
+            padding: 16px;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .notification-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .notification-header h4 {
+            margin: 0;
+            flex: 1;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .notification-body {
+            margin-bottom: 16px;
+        }
+
+        .notification-body p {
+            margin: 4px 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-actions button {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-order {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+        }
+
+        .btn-view-order:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-dismiss {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-dismiss:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Order highlight animation */
+        .highlight-new {
+            animation: highlightPulse 2s ease-in-out;
+            border-left: 4px solid #667eea !important;
+        }
+
+        @keyframes highlightPulse {
+            0% { background-color: rgba(102, 126, 234, 0.1); }
+            50% { background-color: rgba(102, 126, 234, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        /* Badge styles */
+        .orders-badge, .notification-badge {
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7em;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -675,6 +799,13 @@
             
             .service-options {
                 grid-template-columns: 1fr;
+            }
+            
+            .notifications-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
             }
         }
 
@@ -938,17 +1069,15 @@
                                     <option value="cosmetics">Cosmetics</option>
                                     <option value="clothing">Clothing</option>
                                     <option value="electronics">Electronics</option>
-                                    <option value="medical">Medical</option>
-                                    <option value="stationery">Stationery</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea id="shopDescription" rows="3" placeholder="Describe your shop..."></textarea>
+                                <textarea id="shopDescription" rows="3"></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Address</label>
-                                <textarea id="shopAddress" rows="2" required placeholder="Full shop address"></textarea>
+                                <textarea id="shopAddress" rows="2" required></textarea>
                             </div>
                             
                             <!-- Shop Timings Section -->
@@ -994,7 +1123,7 @@
                             
                             <div class="form-group">
                                 <label>Phone Number</label>
-                                <input type="tel" id="shopPhone" required placeholder="+91 1234567890">
+                                <input type="tel" id="shopPhone" required>
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Update Profile</button>
@@ -1025,9 +1154,6 @@
                         <option value="dairy">Dairy</option>
                         <option value="bakery">Bakery</option>
                         <option value="beverages">Beverages</option>
-                        <option value="snacks">Snacks</option>
-                        <option value="personal_care">Personal Care</option>
-                        <option value="household">Household</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1060,6 +1186,9 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Notifications Container -->
+    <div class="notifications-container" id="notificationsContainer"></div>
 
     <!-- Floating Orders Button -->
     <button class="floating-orders-btn" id="floatingOrdersBtn" onclick="navigateToPage('orders')">
@@ -1107,6 +1236,9 @@
         let currentShop = null;
         let products = [];
         let orders = [];
+        let notificationPermission = 'default';
+        let isAppActive = true;
+        let audioContext = null;
 
         // Initialize App
         function initApp() {
@@ -1165,6 +1297,9 @@
                     await loadOrders();
                     updateProfileForm();
                     
+                    // Initialize notifications
+                    initializeShopkeeperNotifications();
+                    
                     showAppScreen();
                     showToast('Welcome back to your shop!', 'success');
                 } else {
@@ -1213,12 +1348,254 @@
                 currentShop = { id: userId, ...shopData };
                 console.log('Shop created:', currentShop.name);
                 
+                // Initialize notifications
+                initializeShopkeeperNotifications();
+                
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
                 
             } catch (error) {
                 console.log('Error creating shop:', error);
                 showToast('Error creating shop: ' + error.message, 'error');
+            }
+        }
+
+        // =============================================
+        // NOTIFICATION SYSTEM
+        // =============================================
+
+        function initializeShopkeeperNotifications() {
+            console.log('🔔 Initializing shopkeeper notification system...');
+            requestNotificationPermission();
+            setupOrderNotificationsListener();
+            setupAppVisibilityDetection();
+            initializeAudio();
+        }
+
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("❌ This browser does not support notifications");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                notificationPermission = "granted";
+                console.log("✅ Notification permission already granted");
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    notificationPermission = permission;
+                    console.log(`🔔 Notification permission: ${permission}`);
+                });
+            }
+        }
+
+        function setupOrderNotificationsListener() {
+            if (!currentShop) {
+                console.log('⚠️ Shopkeeper not logged in');
+                return;
+            }
+
+            console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
+            
+            // Listen for NEW pending orders
+            db.collection('orderItems')
+                .where('shopId', '==', currentShop.id)
+                .where('status', '==', 'pending')
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const newOrder = { id: change.doc.id, ...change.doc.data() };
+                            console.log('🆕 NEW order detected:', newOrder.id);
+                            showNewOrderNotification(newOrder);
+                        }
+                    });
+                }, (error) => {
+                    console.error('❌ Notification listener error:', error);
+                });
+        }
+
+        function showNewOrderNotification(order) {
+            const notificationTitle = `🛍️ New Order Received!`;
+            const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
+            
+            playNotificationSound();
+            
+            // ✅ ALWAYS show browser notification if permission granted
+            if (notificationPermission === "granted") {
+                showBrowserNotification(notificationTitle, notificationBody, order);
+            }
+            
+            // ✅ Only show in-app popup if app is active
+            if (isAppActive) {
+                showInAppNotification(notificationTitle, notificationBody, order);
+            }
+            
+            updateOrderBadge();
+        }
+
+        function showBrowserNotification(title, body, order) {
+            const notification = new Notification(title, {
+                body: body,
+                icon: 'https://cdn-icons-png.flaticon.com/512/891/891419.png',
+                badge: 'https://cdn-icons-png.flaticon.com/512/891/891419.png',
+                tag: 'new-order',
+                requireInteraction: true,
+                data: { orderId: order.id }
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+                navigateToPage('orders');
+                highlightOrderInList(order.id);
+            };
+
+            // Auto close after 15 seconds
+            setTimeout(() => {
+                notification.close();
+            }, 15000);
+        }
+
+        function showInAppNotification(title, body, order) {
+            const notificationEl = document.createElement('div');
+            notificationEl.className = 'in-app-notification show';
+            notificationEl.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-header">
+                        <span class="notification-icon">🛍️</span>
+                        <h4>${title}</h4>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                    <div class="notification-body">
+                        <p>${body}</p>
+                        <p><strong>Customer:</strong> ${order.customerEmail || 'Customer'}</p>
+                        <p><strong>Item:</strong> ${order.productName} × ${order.quantity}</p>
+                        <p><strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</p>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
+                        <button class="btn-dismiss">Dismiss</button>
+                    </div>
+                </div>
+            `;
+
+            const container = document.getElementById('notificationsContainer');
+            if (!container) {
+                const newContainer = document.createElement('div');
+                newContainer.id = 'notificationsContainer';
+                newContainer.className = 'notifications-container';
+                document.body.appendChild(newContainer);
+                newContainer.appendChild(notificationEl);
+            } else {
+                container.appendChild(notificationEl);
+            }
+
+            const autoRemove = setTimeout(() => {
+                removeNotification(notificationEl);
+            }, 8000);
+
+            notificationEl.querySelector('.notification-close').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+            };
+
+            notificationEl.querySelector('.btn-dismiss').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+            };
+
+            notificationEl.querySelector('.btn-view-order').onclick = () => {
+                clearTimeout(autoRemove);
+                removeNotification(notificationEl);
+                navigateToPage('orders');
+                highlightOrderInList(order.id);
+            };
+        }
+
+        function removeNotification(notificationEl) {
+            notificationEl.classList.remove('show');
+            notificationEl.classList.add('hide');
+            setTimeout(() => {
+                if (notificationEl.parentNode) {
+                    notificationEl.parentNode.removeChild(notificationEl);
+                }
+            }, 300);
+        }
+
+        function playNotificationSound() {
+            try {
+                // Create a simple beep using oscillator
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.1;
+                
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 200);
+            } catch (error) {
+                console.error('❌ Error playing notification sound:', error);
+            }
+        }
+
+        function initializeAudio() {
+            document.addEventListener('click', () => {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+        }
+
+        function setupAppVisibilityDetection() {
+            // ✅ Detect if page is visible on load
+            isAppActive = !document.hidden;
+            
+            document.addEventListener('visibilitychange', () => {
+                isAppActive = !document.hidden;
+                console.log(`👀 App active: ${isAppActive}`);
+            });
+
+            window.addEventListener('focus', () => {
+                isAppActive = true;
+                clearInAppNotifications();
+            });
+
+            window.addEventListener('blur', () => {
+                isAppActive = false;
+            });
+        }
+
+        function clearInAppNotifications() {
+            const container = document.getElementById('notificationsContainer');
+            if (container) {
+                const notifications = container.querySelectorAll('.in-app-notification');
+                notifications.forEach(notification => {
+                    removeNotification(notification);
+                });
+            }
+        }
+
+        function updateOrderBadge() {
+            const badges = document.querySelectorAll('.orders-badge, .badge');
+            badges.forEach(badge => {
+                const currentCount = parseInt(badge.textContent) || 0;
+                badge.textContent = currentCount + 1;
+                badge.style.display = 'inline-block';
+            });
+        }
+
+        function highlightOrderInList(orderId) {
+            const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
+            if (orderElement) {
+                orderElement.classList.add('highlight-new');
+                setTimeout(() => {
+                    orderElement.classList.remove('highlight-new');
+                }, 3000);
+                orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -1361,6 +1738,26 @@
                     btn.classList.add('active');
                 }
             });
+        }
+
+        // Mobile UI Functions
+        function initializeMobileUI() {
+            console.log('Initializing mobile UI');
+            
+            // Show/hide floating button based on scroll
+            window.addEventListener('scroll', () => {
+                const floatingBtn = document.getElementById('floatingOrdersBtn');
+                if (!floatingBtn) return;
+                
+                if (window.scrollY > 300) {
+                    floatingBtn.classList.add('active');
+                } else {
+                    floatingBtn.classList.remove('active');
+                }
+            });
+            
+            // Update summary card
+            updateOrdersSummary();
         }
 
         // Loading Spinner
@@ -1681,16 +2078,11 @@
             document.getElementById('preparingSummary').textContent = preparingCount;
             document.getElementById('totalSummary').textContent = orders.length;
             
-            // Update badges
-            const badges = document.querySelectorAll('.orders-badge, .badge');
-            badges.forEach(badge => {
-                if (pendingCount > 0) {
-                    badge.textContent = pendingCount;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            });
+            // Update floating button
+            const floatingBadge = document.querySelector('.floating-orders-btn .badge');
+            if (floatingBadge && pendingCount > 0) {
+                floatingBadge.textContent = pendingCount;
+            }
         }
 
         function renderOrders() {
@@ -1953,23 +2345,6 @@
                     serviceOptions.forEach(opt => opt.classList.remove('active'));
                     this.classList.add('active');
                 });
-            });
-        }
-
-        // Mobile UI Functions
-        function initializeMobileUI() {
-            console.log('Initializing mobile UI');
-            
-            // Show/hide floating button based on scroll
-            window.addEventListener('scroll', () => {
-                const floatingBtn = document.getElementById('floatingOrdersBtn');
-                if (!floatingBtn) return;
-                
-                if (window.scrollY > 300) {
-                    floatingBtn.classList.add('active');
-                } else {
-                    floatingBtn.classList.remove('active');
-                }
             });
         }
 

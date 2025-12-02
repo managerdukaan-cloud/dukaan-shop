@@ -273,20 +273,6 @@
             border: 1px solid #d4f1e0;
         }
 
-        .product-shop {
-            font-size: 0.9rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            margin-top: 0.2rem;
-        }
-
-        .product-shop i {
-            color: var(--primary);
-            font-size: 0.95rem;
-        }
-
         .product-stock {
             font-size: 0.9rem;
             font-weight: 600;
@@ -353,6 +339,19 @@
             background: #e9ecef;
             border-color: #b0b0b0;
             transform: translateY(-2px);
+        }
+
+        /* Product Category Badge */
+        .product-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(15, 44, 89, 0.1);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            align-self: flex-start;
         }
 
         /* Orders Summary Card */
@@ -432,6 +431,35 @@
             font-size: 1.5rem;
             margin-bottom: 5px;
             color: var(--primary);
+        }
+
+        /* Shop Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-busy {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-holiday {
+            background: #d1ecf1;
+            color: #0c5460;
         }
 
         .form-group {
@@ -609,172 +637,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ============================================= */
-        /* ORDER NOTIFICATION STYLES */
-        /* ============================================= */
-
-        /* Notifications Container */
-        .notifications-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            max-width: 400px;
-            pointer-events: none;
-        }
-
-        /* Individual Notification */
-        .in-app-notification {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 0;
-            margin-bottom: 10px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            pointer-events: all;
-            transform: translateX(400px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-height: 0;
-            overflow: hidden;
-        }
-
-        .in-app-notification.show {
-            transform: translateX(0);
-            opacity: 1;
-            max-height: 300px;
-        }
-
-        .in-app-notification.hide {
-            transform: translateX(400px);
-            opacity: 0;
-            max-height: 0;
-            margin-bottom: 0;
-        }
-
-        .notification-content {
-            padding: 16px;
-        }
-
-        .notification-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .notification-icon {
-            font-size: 1.5em;
-            margin-right: 10px;
-        }
-
-        .notification-header h4 {
-            margin: 0;
-            flex: 1;
-            font-size: 1.1em;
-            font-weight: 600;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-close:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .notification-body {
-            margin-bottom: 16px;
-        }
-
-        .notification-body p {
-            margin: 4px 0;
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        .notification-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .notification-actions button {
-            flex: 1;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .btn-view-order {
-            background: rgba(255,255,255,0.9);
-            color: #667eea;
-        }
-
-        .btn-view-order:hover {
-            background: white;
-            transform: translateY(-1px);
-        }
-
-        .btn-dismiss {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .btn-dismiss:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Order highlight animation */
-        .highlight-new {
-            animation: highlightPulse 2s ease-in-out;
-            border-left: 4px solid #667eea !important;
-        }
-
-        @keyframes highlightPulse {
-            0% { background-color: rgba(102, 126, 234, 0.1); }
-            50% { background-color: rgba(102, 126, 234, 0.3); }
-            100% { background-color: transparent; }
-        }
-
-        /* Badge styles */
-        .orders-badge, .notification-badge {
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7em;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            animation: badgePulse 2s infinite;
-        }
-
-        @keyframes badgePulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -799,13 +661,6 @@
             
             .service-options {
                 grid-template-columns: 1fr;
-            }
-            
-            .notifications-container {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: none;
             }
         }
 
@@ -1069,15 +924,17 @@
                                     <option value="cosmetics">Cosmetics</option>
                                     <option value="clothing">Clothing</option>
                                     <option value="electronics">Electronics</option>
+                                    <option value="medical">Medical</option>
+                                    <option value="stationery">Stationery</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea id="shopDescription" rows="3"></textarea>
+                                <textarea id="shopDescription" rows="3" placeholder="Describe your shop..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Address</label>
-                                <textarea id="shopAddress" rows="2" required></textarea>
+                                <textarea id="shopAddress" rows="2" required placeholder="Full shop address"></textarea>
                             </div>
                             
                             <!-- Shop Timings Section -->
@@ -1123,7 +980,7 @@
                             
                             <div class="form-group">
                                 <label>Phone Number</label>
-                                <input type="tel" id="shopPhone" required>
+                                <input type="tel" id="shopPhone" required placeholder="+91 1234567890">
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Update Profile</button>
@@ -1154,6 +1011,9 @@
                         <option value="dairy">Dairy</option>
                         <option value="bakery">Bakery</option>
                         <option value="beverages">Beverages</option>
+                        <option value="snacks">Snacks</option>
+                        <option value="personal_care">Personal Care</option>
+                        <option value="household">Household</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1186,9 +1046,6 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Notifications Container -->
-    <div class="notifications-container" id="notificationsContainer"></div>
 
     <!-- Floating Orders Button -->
     <button class="floating-orders-btn" id="floatingOrdersBtn" onclick="navigateToPage('orders')">
@@ -1228,158 +1085,6 @@
             appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
         };
 
-        // Add these missing functions at the beginning of the script section:
-
-// Authentication functions
-async function handleLogin(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    if (!email || !password) {
-        showToast('Please enter email and password', 'error');
-        return;
-    }
-
-    console.log('Attempting login with email:', email);
-
-    try {
-        showLoading(true);
-        
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        console.log('Login successful:', user.email);
-        
-        await loadShopData(user.uid);
-        
-    } catch (error) {
-        console.error("Login error:", error);
-        
-        let errorMessage = 'Login failed. ';
-        
-        switch(error.code) {
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address format.';
-                break;
-            case 'auth/user-disabled':
-                errorMessage = 'This account has been disabled.';
-                break;
-            case 'auth/user-not-found':
-                errorMessage = 'No account found with this email.';
-                break;
-            case 'auth/wrong-password':
-                errorMessage = 'Incorrect password.';
-                break;
-            case 'auth/network-request-failed':
-                errorMessage = 'Network error. Check your internet connection.';
-                break;
-            default:
-                errorMessage = error.message;
-        }
-        
-        showToast(errorMessage, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-function showForgotPassword() {
-    const email = prompt('Enter your email address to reset password:');
-    if (email && email.includes('@')) {
-        auth.sendPasswordResetEmail(email)
-            .then(() => {
-                alert('📧 Password reset email sent! Check your inbox and spam folder.');
-            })
-            .catch(error => {
-                alert('❌ Error: ' + error.message);
-            });
-    } else if (email) {
-        alert('⚠️ Please enter a valid email address.');
-    }
-}
-
-function showAuthScreen() {
-    document.getElementById('authScreen').style.display = 'block';
-    document.getElementById('appScreen').style.display = 'none';
-    console.log('Showing auth screen');
-}
-
-function showAppScreen() {
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'block';
-    console.log('Showing app screen');
-    
-    // Initialize mobile UI if needed
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        initializeMobileUI();
-    }
-    
-    // Navigate to dashboard
-    navigateToPage('dashboard');
-}
-
-function logout() {
-    console.log('Logging out...');
-    clearAllNotifications();
-    auth.signOut();
-    showAuthScreen();
-    showToast('Logged out successfully', 'info');
-}
-
-// Loading Spinner
-function showLoading(show) {
-    const spinner = document.getElementById('loadingSpinner');
-    if (spinner) {
-        spinner.style.display = show ? 'block' : 'none';
-    }
-}
-
-// Navigation
-function navigateToPage(page) {
-    console.log('Navigating to page:', page);
-    
-    // Hide all pages
-    document.querySelectorAll('.content-page').forEach(pageElement => {
-        pageElement.classList.remove('active');
-    });
-    
-    // Show selected page
-    const pageElement = document.getElementById(page + 'Page');
-    if (pageElement) {
-        pageElement.classList.add('active');
-        
-        // Set active quick action button
-        setActiveQuickAction(page);
-        
-        // Load data for the page
-        switch(page) {
-            case 'dashboard':
-                loadDashboardData();
-                break;
-            case 'products':
-                loadProducts();
-                break;
-            case 'orders':
-                loadOrders();
-                break;
-        }
-    }
-}
-
-// Set active quick action button
-function setActiveQuickAction(page) {
-    const buttons = document.querySelectorAll('.quick-action-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-        const pageAttr = btn.getAttribute('data-page');
-        if (pageAttr === page) {
-            btn.classList.add('active');
-        }
-    });
-}
-
         console.log('Firebase Config:', firebaseConfig);
 
         // Initialize Firebase
@@ -1388,9 +1093,18 @@ function setActiveQuickAction(page) {
         let currentShop = null;
         let products = [];
         let orders = [];
-        let notificationPermission = 'default';
-        let isAppActive = true;
-        let audioContext = null;
+
+        // Working Unsplash image URLs
+        const defaultProductImages = [
+            'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format',
+            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&h=300&fit=crop&auto=format'
+        ];
 
         // Initialize App
         function initApp() {
@@ -1449,11 +1163,9 @@ function setActiveQuickAction(page) {
                     await loadOrders();
                     updateProfileForm();
                     
-                    // Initialize notifications
-                    initializeShopkeeperNotifications();
-                    
                     showAppScreen();
                     showToast('Welcome back to your shop!', 'success');
+                    
                 } else {
                     console.log('Shop document not found in Firestore');
                     showToast('Shop profile not found. Please contact admin to create your shop.', 'error');
@@ -1500,9 +1212,6 @@ function setActiveQuickAction(page) {
                 currentShop = { id: userId, ...shopData };
                 console.log('Shop created:', currentShop.name);
                 
-                // Initialize notifications
-                initializeShopkeeperNotifications();
-                
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
                 
@@ -1512,256 +1221,102 @@ function setActiveQuickAction(page) {
             }
         }
 
-        // =============================================
-// NOTIFICATION SYSTEM - FIXED VERSION
-// =============================================
+        // Authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
-let processedOrderIds = new Set(); // Track which orders we've already notified
+            if (!email || !password) {
+                showToast('Please enter email and password', 'error');
+                return;
+            }
 
-function initializeShopkeeperNotifications() {
-    console.log('🔔 Initializing shopkeeper notification system...');
-    requestNotificationPermission();
-    setupOrderNotificationsListener();
-    setupAppVisibilityDetection();
-    initializeAudio();
-    
-    // Load previously processed orders from localStorage
-    loadProcessedOrders();
-}
+            console.log('Attempting login with email:', email);
 
-function loadProcessedOrders() {
-    const stored = localStorage.getItem('processedOrders');
-    if (stored) {
-        processedOrderIds = new Set(JSON.parse(stored));
-        console.log('📋 Loaded processed orders:', processedOrderIds.size);
-    }
-}
-
-function saveProcessedOrders() {
-    localStorage.setItem('processedOrders', JSON.stringify(Array.from(processedOrderIds)));
-}
-
-function setupOrderNotificationsListener() {
-    if (!currentShop) {
-        console.log('⚠️ Shopkeeper not logged in');
-        return;
-    }
-
-    console.log(`🏪 Setting up SMART order notifications for shop: ${currentShop.id}`);
-    
-    // Get current time to avoid old orders
-    const now = Date.now();
-    const oneHourAgo = new Date(now - 60 * 60 * 1000);
-    
-    // Listen for NEW pending orders created within last hour
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .where('status', '==', 'pending')
-        .where('createdAt', '>', oneHourAgo)
-        .onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const newOrder = { id: change.doc.id, ...change.doc.data() };
-                    
-                    // ✅ CHECK IF WE'VE ALREADY PROCESSED THIS ORDER
-                    if (processedOrderIds.has(newOrder.id)) {
-                        console.log('⏭️ Order already processed:', newOrder.id);
-                        return;
-                    }
-                    
-                    // ✅ CHECK IF ORDER IS REALLY NEW (within last 5 minutes)
-                    const orderTime = newOrder.createdAt?.toDate?.() || new Date();
-                    const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
-                    
-                    if (orderTime > fiveMinutesAgo) {
-                        console.log('🆕 NEW order detected:', newOrder.id);
-                        showNewOrderNotification(newOrder);
-                        
-                        // ✅ MARK AS PROCESSED
-                        processedOrderIds.add(newOrder.id);
-                        saveProcessedOrders();
-                    } else {
-                        console.log('⏰ Old order ignored:', newOrder.id);
-                        // Mark old pending orders as processed to avoid future notifications
-                        processedOrderIds.add(newOrder.id);
-                        saveProcessedOrders();
-                    }
+            try {
+                showLoading(true);
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                console.log('Login successful:', user.email);
+                
+                await loadShopData(user.uid);
+                
+            } catch (error) {
+                console.error("Login error:", error);
+                
+                let errorMessage = 'Login failed. ';
+                
+                switch(error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Check your internet connection.';
+                        break;
+                    default:
+                        errorMessage = error.message;
                 }
-            });
-        }, (error) => {
-            console.error('❌ Notification listener error:', error);
-        });
-    
-    // ✅ ALSO LISTEN FOR STATUS CHANGES TO REMOVE FROM PROCESSED
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'modified') {
-                    const updatedOrder = { id: change.doc.id, ...change.doc.data() };
-                    
-                    // If order status changed from pending to something else, we can remove it from processed
-                    // This allows re-notification if it becomes pending again
-                    if (updatedOrder.status !== 'pending' && processedOrderIds.has(updatedOrder.id)) {
-                        console.log('✅ Order status changed, removing from processed:', updatedOrder.id);
-                        processedOrderIds.delete(updatedOrder.id);
-                        saveProcessedOrders();
-                    }
-                }
-            });
-        });
-}
-
-// Also add this function to clear notifications when order is viewed/processed
-function clearOrderNotification(orderId) {
-    console.log('🔕 Clearing notification for order:', orderId);
-    
-    // Remove from processed set if exists
-    if (processedOrderIds.has(orderId)) {
-        processedOrderIds.delete(orderId);
-        saveProcessedOrders();
-    }
-    
-    // Remove any in-app notification
-    const notification = document.querySelector(`.in-app-notification [data-order-id="${orderId}"]`);
-    if (notification) {
-        const notificationEl = notification.closest('.in-app-notification');
-        if (notificationEl) {
-            removeNotification(notificationEl);
+                
+                showToast(errorMessage, 'error');
+            } finally {
+                showLoading(false);
+            }
         }
-    }
-}
 
-// Update order action buttons to clear notification when order is processed
-async function updateOrderStatus(orderId, newStatus) {
-    if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
-    
-    try {
-        showLoading(true);
-        
-        // Clear notification first
-        clearOrderNotification(orderId);
-        
-        // Try both collections
-        try {
-            await db.collection('orders').doc(orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (error) {
-            await db.collection('orderItems').doc(orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+        function showForgotPassword() {
+            const email = prompt('Enter your email address to reset password:');
+            if (email && email.includes('@')) {
+                auth.sendPasswordResetEmail(email)
+                    .then(() => {
+                        alert('📧 Password reset email sent! Check your inbox and spam folder.');
+                    })
+                    .catch(error => {
+                        alert('❌ Error: ' + error.message);
+                    });
+            } else if (email) {
+                alert('⚠️ Please enter a valid email address.');
+            }
         }
-        
-        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
-        await loadOrders();
-        await loadDashboardData();
-        
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showToast('Error updating order: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
 
-// Update the showInAppNotification function to include data-order-id
-function showInAppNotification(title, body, order) {
-    const notificationEl = document.createElement('div');
-    notificationEl.className = 'in-app-notification show';
-    notificationEl.innerHTML = `
-        <div class="notification-content">
-            <div class="notification-header">
-                <span class="notification-icon">🛍️</span>
-                <h4>${title}</h4>
-                <button class="notification-close">&times;</button>
-            </div>
-            <div class="notification-body">
-                <p>${body}</p>
-                <p><strong>Customer:</strong> ${order.customerEmail || 'Customer'}</p>
-                <p><strong>Item:</strong> ${order.productName} × ${order.quantity}</p>
-                <p><strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</p>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
-                <button class="btn-dismiss" data-order-id="${order.id}">Dismiss</button>
-            </div>
-        </div>
-    `;
-
-    const container = document.getElementById('notificationsContainer');
-    if (!container) {
-        const newContainer = document.createElement('div');
-        newContainer.id = 'notificationsContainer';
-        newContainer.className = 'notifications-container';
-        document.body.appendChild(newContainer);
-        newContainer.appendChild(notificationEl);
-    } else {
-        container.appendChild(notificationEl);
-    }
-
-    const autoRemove = setTimeout(() => {
-        removeNotification(notificationEl);
-        // Also mark as processed when auto-removed
-        if (!processedOrderIds.has(order.id)) {
-            processedOrderIds.add(order.id);
-            saveProcessedOrders();
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('appScreen').style.display = 'none';
+            console.log('Showing auth screen');
         }
-    }, 8000);
 
-    notificationEl.querySelector('.notification-close').onclick = () => {
-        clearTimeout(autoRemove);
-        removeNotification(notificationEl);
-        if (!processedOrderIds.has(order.id)) {
-            processedOrderIds.add(order.id);
-            saveProcessedOrders();
+        function showAppScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            console.log('Showing app screen');
+            
+            // Initialize mobile UI if needed
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                initializeMobileUI();
+            }
+            
+            // Navigate to dashboard
+            navigateToPage('dashboard');
         }
-    };
 
-    notificationEl.querySelector('.btn-dismiss').onclick = () => {
-        clearTimeout(autoRemove);
-        removeNotification(notificationEl);
-        if (!processedOrderIds.has(order.id)) {
-            processedOrderIds.add(order.id);
-            saveProcessedOrders();
+        function logout() {
+            console.log('Logging out...');
+            auth.signOut();
+            showAuthScreen();
+            showToast('Logged out successfully', 'info');
         }
-    };
-
-    notificationEl.querySelector('.btn-view-order').onclick = () => {
-        clearTimeout(autoRemove);
-        removeNotification(notificationEl);
-        if (!processedOrderIds.has(order.id)) {
-            processedOrderIds.add(order.id);
-            saveProcessedOrders();
-        }
-        navigateToPage('orders');
-        highlightOrderInList(order.id);
-    };
-}
-
-// Add clear all notifications function
-function clearAllNotifications() {
-    console.log('🧹 Clearing all notifications');
-    processedOrderIds.clear();
-    saveProcessedOrders();
-    
-    // Remove all in-app notifications
-    const container = document.getElementById('notificationsContainer');
-    if (container) {
-        container.innerHTML = '';
-    }
-}
-
-// Call this when user logs out
-function logout() {
-    console.log('Logging out...');
-    clearAllNotifications();
-    auth.signOut();
-    showAuthScreen();
-    showToast('Logged out successfully', 'info');
-}
 
         // Navigation
         function navigateToPage(page) {
@@ -1805,26 +1360,6 @@ function logout() {
                     btn.classList.add('active');
                 }
             });
-        }
-
-        // Mobile UI Functions
-        function initializeMobileUI() {
-            console.log('Initializing mobile UI');
-            
-            // Show/hide floating button based on scroll
-            window.addEventListener('scroll', () => {
-                const floatingBtn = document.getElementById('floatingOrdersBtn');
-                if (!floatingBtn) return;
-                
-                if (window.scrollY > 300) {
-                    floatingBtn.classList.add('active');
-                } else {
-                    floatingBtn.classList.remove('active');
-                }
-            });
-            
-            // Update summary card
-            updateOrdersSummary();
         }
 
         // Loading Spinner
@@ -1895,6 +1430,11 @@ function logout() {
             }
         }
 
+        function getRandomImage() {
+            const randomIndex = Math.floor(Math.random() * defaultProductImages.length);
+            return defaultProductImages[randomIndex];
+        }
+
         function renderProducts() {
             const productsList = document.getElementById('productsList');
             
@@ -1913,7 +1453,7 @@ function logout() {
             }
             
             let productsHtml = '';
-            products.forEach(product => {
+            products.forEach((product, index) => {
                 // Determine stock status
                 let stockClass = 'in-stock';
                 let stockText = '';
@@ -1942,11 +1482,14 @@ function logout() {
                     }
                 }
 
+                // Use product image or random default image
+                const productImage = product.image || getRandomImage();
+
                 productsHtml += `
                     <div class="product-card">
                         <div class="product-image-container">
-                            <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
-                                 alt="${product.name}" class="product-image">
+                            <img src="${productImage}" 
+                                 alt="${product.name}" class="product-image" onerror="this.src='${getRandomImage()}'">
                             <span class="product-badge">${product.category || 'Product'}</span>
                         </div>
                         <div class="product-details">
@@ -2045,7 +1588,7 @@ function logout() {
                 mrp: productMrp,
                 stock: productStock,
                 description: document.getElementById('productDescription').value.trim(),
-                image: document.getElementById('productImage').value.trim() || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+                image: document.getElementById('productImage').value.trim() || getRandomImage(),
                 shopId: currentShop.id,
                 shopName: currentShop.name,
                 isAvailable: true,
@@ -2145,11 +1688,16 @@ function logout() {
             document.getElementById('preparingSummary').textContent = preparingCount;
             document.getElementById('totalSummary').textContent = orders.length;
             
-            // Update floating button
-            const floatingBadge = document.querySelector('.floating-orders-btn .badge');
-            if (floatingBadge && pendingCount > 0) {
-                floatingBadge.textContent = pendingCount;
-            }
+            // Update badges
+            const badges = document.querySelectorAll('.orders-badge, .badge');
+            badges.forEach(badge => {
+                if (pendingCount > 0) {
+                    badge.textContent = pendingCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
         }
 
         function renderOrders() {
@@ -2415,6 +1963,53 @@ function logout() {
             });
         }
 
+        // Mobile UI Functions
+        function initializeMobileUI() {
+            console.log('Initializing mobile UI');
+            
+            // Show/hide floating button based on scroll
+            window.addEventListener('scroll', () => {
+                const floatingBtn = document.getElementById('floatingOrdersBtn');
+                if (!floatingBtn) return;
+                
+                if (window.scrollY > 300) {
+                    floatingBtn.classList.add('active');
+                } else {
+                    floatingBtn.classList.remove('active');
+                }
+            });
+        }
+
+        // Notification Functions (FIXED)
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("❌ This browser does not support notifications");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                console.log("✅ Notification permission already granted");
+                return "granted";
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    console.log(`🔔 Notification permission: ${permission}`);
+                    return permission;
+                });
+            }
+            return Notification.permission;
+        }
+
+        function initializeShopkeeperNotifications() {
+            console.log('🔔 Initializing shopkeeper notification system...');
+            try {
+                const permission = requestNotificationPermission();
+                console.log('Notification permission:', permission);
+                // We'll setup order listeners later if needed
+            } catch (error) {
+                console.log('Error initializing notifications:', error);
+            }
+        }
+
         // Utility Functions
         function showToast(message, type = 'success') {
             const toastContainer = document.getElementById('toastContainer');
@@ -2429,58 +2024,49 @@ function logout() {
             }, 5000);
         }
 
-        // Event Listeners - CORRECTED VERSION
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
-    
-    // Initialize app
-    initApp();
-    
-    // Login form - MAKE SURE ELEMENT EXISTS
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-    
-    // Profile form
-    const profileForm = document.getElementById('profileForm');
-    if (profileForm) {
-        profileForm.addEventListener('submit', handleProfileUpdate);
-    }
-    
-    // Navigation links
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const page = this.getAttribute('data-page');
-            if (page) {
-                navigateToPage(page);
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            // Initialize app
+            initApp();
+            
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Profile form
+            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            
+            // Navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+            
+            // Product search
+            const productSearch = document.getElementById('productSearch');
+            if (productSearch) {
+                productSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    // Filter products logic can be added here
+                    console.log('Searching for:', searchTerm);
+                });
             }
+            
+            // Product form submit
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProduct();
+            });
+            
+            // Setup service options
+            setupServiceOptions();
         });
-    });
-    
-    // Product search
-    const productSearch = document.getElementById('productSearch');
-    if (productSearch) {
-        productSearch.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            // Filter products logic can be added here
-            console.log('Searching for:', searchTerm);
-        });
-    }
-    
-    // Product form submit
-    const productForm = document.getElementById('productForm');
-    if (productForm) {
-        productForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            saveProduct();
-        });
-    }
-    
-    // Setup service options
-    setupServiceOptions();
-});
     </script>
 </body>
 </html>

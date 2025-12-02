@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raashanmart - Shopkeeper Panel</title>
-    <!-- ✅ RAASHANMART FAVICON -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3082/3082383.png" type="image/x-icon">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -34,6 +33,7 @@
         body {
             background-color: var(--secondary);
             color: var(--text);
+            min-height: 100vh;
         }
         
         .container {
@@ -160,753 +160,322 @@
             font-size: 0.9rem;
         }
         
-        /* Product Grid */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem 0;
-}
+        /* ===== ENHANCED PRODUCT CARD STYLES ===== */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.8rem;
+            padding: 1.5rem 0;
+        }
 
-.product-card {
-    background: var(--white);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: 280px;
-    position: relative;
-}
+        .product-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
 
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
 
-.product-image-container {
-    position: relative;
-    width: 100%;
-    height: 160px;
-    overflow: hidden;
-}
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
 
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
 
-.product-card:hover .product-image {
-    transform: scale(1.05);
-}
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
 
-.product-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: var(--primary);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: 0.3px;
+        }
 
-.product-details {
-    padding: 1rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
+        .product-details {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
 
-.product-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 0.5rem;
-    line-height: 1.3;
-    height: 36px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.4;
+            height: 48px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin: 0;
+            letter-spacing: -0.2px;
+        }
 
-.product-price-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.8rem;
-}
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 0.5rem 0;
+        }
 
-.product-price {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary);
-}
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
 
-.product-mrp {
-    font-size: 0.9rem;
-    color: #999;
-    text-decoration: line-through;
-    margin-left: 0.5rem;
-}
+        .product-mrp {
+            font-size: 0.95rem;
+            color: #999;
+            text-decoration: line-through;
+        }
 
-.product-discount {
-    font-size: 0.8rem;
-    color: #27ae60;
-    font-weight: 600;
-    background: #eafaf1;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: auto;
-}
+        .product-discount {
+            font-size: 0.85rem;
+            color: #27ae60;
+            font-weight: 700;
+            background: #eafaf1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #d4f1e0;
+        }
 
-.product-shop {
-    font-size: 0.8rem;
-    color: #666;
-    margin-bottom: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
+        .product-shop {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.2rem;
+        }
 
-.product-shop i {
-    color: var(--primary);
-}
+        .product-shop i {
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
 
-.product-stock {
-    font-size: 0.8rem;
-    color: #27ae60;
-    margin-bottom: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
+        .product-stock {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0.2rem 0;
+        }
 
-.product-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: auto;
-}
+        .product-stock.in-stock {
+            color: #27ae60;
+        }
 
-.btn-add-product, .btn-edit-product {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-}
+        .product-stock.low-stock {
+            color: #f39c12;
+        }
 
-/* Mobile Optimization */
-@media (max-width: 768px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
-        padding: 0.5rem;
-    }
-    
-    .product-card {
-        min-height: 240px;
-        border-radius: 8px;
-    }
-    
-    .product-image-container {
-        height: 120px;
-    }
-    
-    .product-details {
-        padding: 0.8rem;
-    }
-    
-    .product-title {
-        font-size: 0.85rem;
-        height: 32px;
-        margin-bottom: 0.3rem;
-    }
-    
-    .product-price {
-        font-size: 1rem;
-    }
-    
-    .product-mrp {
-        font-size: 0.8rem;
-    }
-    
-    .product-shop, .product-stock {
-        font-size: 0.75rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .product-actions {
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    
-    .btn-add-product, .btn-edit-product {
-        font-size: 0.8rem;
-        padding: 0.4rem;
-    }
-}
+        .product-stock.out-of-stock {
+            color: #e74c3c;
+        }
 
-/* Small Mobile */
-@media (max-width: 480px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.8rem;
-    }
-    
-    .product-card {
-        min-height: 220px;
-    }
-    
-    .product-image-container {
-        height: 100px;
-    }
-    
-    .product-title {
-        font-size: 0.8rem;
-        height: 30px;
-    }
-    
-    .product-price {
-        font-size: 0.95rem;
-    }
-}
+        .product-actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
 
-/* ✅ SMALL MOBILE */
-@media (max-width: 480px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    }
-    
-    .product-card {
-        min-height: 240px;
-        padding: 0.8rem;
-    }
-    
-    .product-image {
-        height: 100px;
-        margin-bottom: 0.8rem;
-    }
-    
-    .product-title {
-        font-size: 0.9rem;
-        height: 34px;
-        margin-bottom: 0.4rem;
-    }
-    
-    .product-price {
-/* Product Grid */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem 0;
-    width: 100%;
-}
+        .btn-add-product, .btn-edit-product {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
 
-.product-card {
-    background: var(--white);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    border: 1px solid #f0f0f0;
-}
+        .btn-add-product {
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 44, 89, 0.2);
+        }
 
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-    border-color: var(--primary);
-}
+        .btn-add-product:hover {
+            background: linear-gradient(135deg, #0056b3, var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 44, 89, 0.3);
+        }
 
-.product-image-container {
-    position: relative;
-    width: 100%;
-    height: 180px;
-    overflow: hidden;
-    background: #f8f9fa;
-}
+        .btn-edit-product {
+            background: #f8f9fa;
+            color: var(--text);
+            border: 1px solid #e0e0e0;
+        }
 
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-}
+        .btn-edit-product:hover {
+            background: #e9ecef;
+            border-color: #b0b0b0;
+            transform: translateY(-2px);
+        }
 
-.product-card:hover .product-image {
-    transform: scale(1.08);
-}
+        /* Product Category Badge */
+        .product-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(15, 44, 89, 0.1);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            align-self: flex-start;
+        }
 
-.product-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: linear-gradient(135deg, var(--primary), #0056b3);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    z-index: 2;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+        /* Orders Summary Card */
+        .orders-summary-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
 
-.product-details {
-    padding: 1.2rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-}
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
 
-.product-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.4;
-    height: 42px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin: 0;
-}
+        .summary-stat {
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
 
-.product-price-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
+        .summary-stat.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
 
-.product-price {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--primary);
-}
+        .summary-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: block;
+        }
 
-.product-mrp {
-    font-size: 0.9rem;
-    color: #999;
-    text-decoration: line-through;
-}
+        .summary-stat-label {
+            font-size: 0.8rem;
+            display: block;
+        }
 
-.product-discount {
-    font-size: 0.8rem;
-    color: #27ae60;
-    font-weight: 600;
-    background: #eafaf1;
-    padding: 3px 8px;
-    border-radius: 12px;
-}
+        /* Time Inputs */
+        .time-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
 
-.product-shop {
-    font-size: 0.85rem;
-    color: #666;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
+        .time-input-group input {
+            flex: 1;
+        }
 
-.product-shop i {
-    color: var(--primary);
-    font-size: 0.9rem;
-}
+        /* Service Type Options */
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-.product-stock {
-    font-size: 0.85rem;
-    color: #27ae60;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-weight: 500;
-}
+        .service-option {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-.product-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: auto;
-    padding-top: 0.8rem;
-    border-top: 1px solid #f0f0f0;
-}
+        .service-option.active {
+            border-color: var(--primary);
+            background: rgba(15, 44, 89, 0.1);
+        }
 
-.btn-add-product, .btn-edit-product {
-    flex: 1;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-}
+        .service-option i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
 
-.btn-add-product {
-    background: var(--primary);
-    color: white;
-}
+        /* Shop Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
-.btn-add-product:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
-}
+        .status-open {
+            background: #d4edda;
+            color: #155724;
+        }
 
-.btn-edit-product {
-    background: #f8f9fa;
-    color: var(--text);
-    border: 1px solid #ddd;
-}
+        .status-closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
-.btn-edit-product:hover {
-    background: #e9ecef;
-    border-color: #999;
-}
+        .status-busy {
+            background: #fff3cd;
+            color: #856404;
+        }
 
-/* Tablet (768px - 1024px) */
-@media (max-width: 1024px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 1.2rem;
-        padding: 0.8rem;
-    }
-    
-    .product-card {
-        border-radius: 10px;
-    }
-    
-    .product-image-container {
-        height: 160px;
-    }
-    
-    .product-details {
-        padding: 1rem;
-        gap: 0.6rem;
-    }
-    
-    .product-title {
-        font-size: 0.95rem;
-        height: 38px;
-    }
-    
-    .product-price {
-        font-size: 1.1rem;
-    }
-    
-    .product-actions {
-        flex-direction: row;
-    }
-}
+        .status-holiday {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
 
-/* Mobile (577px - 768px) */
-@media (max-width: 768px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-        gap: 1rem;
-        padding: 0.8rem;
-    }
-    
-    .product-card {
-        min-height: 260px;
-        border-radius: 10px;
-    }
-    
-    .product-image-container {
-        height: 140px;
-    }
-    
-    .product-details {
-        padding: 0.8rem;
-        gap: 0.5rem;
-    }
-    
-    .product-title {
-        font-size: 0.9rem;
-        height: 36px;
-        line-height: 1.3;
-    }
-    
-    .product-price-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.3rem;
-    }
-    
-    .product-price {
-        font-size: 1rem;
-    }
-    
-    .product-mrp {
-        font-size: 0.85rem;
-    }
-    
-    .product-discount {
-        font-size: 0.75rem;
-        padding: 2px 6px;
-    }
-    
-    .product-shop, .product-stock {
-        font-size: 0.8rem;
-    }
-    
-    .product-actions {
-        flex-direction: column;
-        gap: 0.4rem;
-    }
-    
-    .btn-add-product, .btn-edit-product {
-        font-size: 0.8rem;
-        padding: 0.5rem;
-        width: 100%;
-    }
-}
-
-/* Small Mobile (480px - 576px) */
-@media (max-width: 576px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 0.8rem;
-        padding: 0.5rem;
-    }
-    
-    .product-card {
-        min-height: 240px;
-        border-radius: 8px;
-    }
-    
-    .product-image-container {
-        height: 120px;
-    }
-    
-    .product-details {
-        padding: 0.7rem;
-        gap: 0.4rem;
-    }
-    
-    .product-title {
-        font-size: 0.85rem;
-        height: 34px;
-        -webkit-line-clamp: 2;
-    }
-    
-    .product-price {
-        font-size: 0.95rem;
-    }
-    
-    .product-shop, .product-stock {
-        font-size: 0.75rem;
-    }
-    
-    .product-actions {
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    
-    .btn-add-product, .btn-edit-product {
-        font-size: 0.75rem;
-        padding: 0.4rem;
-        min-height: 32px;
-    }
-}
-
-/* Extra Small Mobile (Below 480px) */
-@media (max-width: 480px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.7rem;
-    }
-    
-    .product-card {
-        min-height: 230px;
-    }
-    
-    .product-image-container {
-        height: 110px;
-    }
-    
-    .product-details {
-        padding: 0.6rem;
-    }
-    
-    .product-title {
-        font-size: 0.8rem;
-        height: 32px;
-    }
-    
-    .product-price {
-        font-size: 0.9rem;
-    }
-    
-    .btn-add-product, .btn-edit-product {
-        font-size: 0.7rem;
-        padding: 0.35rem;
-    }
-}
-
-/* For very small screens like iPhone SE */
-@media (max-width: 375px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 0.6rem;
-    }
-    
-    .product-card {
-        min-height: 220px;
-    }
-    
-    .product-image-container {
-        height: 100px;
-    }
-    
-    .product-details {
-        padding: 0.5rem;
-    }
-    
-    .product-title {
-        font-size: 0.75rem;
-        height: 30px;
-    }
-    
-    .product-price {
-        font-size: 0.85rem;
-    }
-    
-    .product-shop, .product-stock {
-        font-size: 0.7rem;
-    }
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: var(--white);
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #666;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.close-modal:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-/* Desktop Optimization */
-@media (min-width: 1025px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.8rem;
-        padding: 1.5rem 0;
-    }
-    
-    .product-card {
-        border-radius: 14px;
-    }
-    
-    .product-image-container {
-        height: 200px;
-    }
-    
-    .product-details {
-        padding: 1.5rem;
-        gap: 1rem;
-    }
-    
-    .product-title {
-        font-size: 1.1rem;
-        height: 48px;
-    }
-    
-    .product-price {
-        font-size: 1.3rem;
-    }
-    
-    .product-actions {
-        gap: 0.8rem;
-    }
-    
-    .btn-add-product, .btn-edit-product {
-        padding: 0.8rem 1rem;
-        font-size: 0.9rem;
-    }
-}
-
-/* Large Desktop */
-@media (min-width: 1440px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 2rem;
-    }
-    
-    .product-image-container {
-        height: 220px;
-    }
-    
-    .product-details {
-        padding: 1.8rem;
-    }
-}
-        
         .form-group {
             margin-bottom: 1rem;
         }
@@ -925,6 +494,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
+            background: #fff;
         }
         
         /* Toast Notification */
@@ -991,13 +561,101 @@
             background: #f8f9fa;
         }
 
-                /* ===== MOBILE RESPONSIVE STYLES ===== */
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* Content Pages */
+        .content-page {
+            display: none;
+        }
+        
+        .content-page.active {
+            display: block;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            /* Header Mobile Fix */
             .header-content {
                 flex-direction: column;
                 gap: 10px;
-                padding: 10px 0;
             }
             
             .nav-links {
@@ -1006,501 +664,106 @@
                 justify-content: center;
             }
             
-            .logo {
-                font-size: 1.2rem;
-                text-align: center;
-            }
-            
-            /* Main Content Mobile */
-            main {
-                margin-top: 120px;
-                padding: 1rem 0;
-            }
-            
-            .container {
-                padding: 0 15px;
-            }
-            
-            /* Products Grid Mobile */
             .products-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                 gap: 1rem;
             }
             
-            .product-card {
-                padding: 1rem;
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            /* Stats Grid Mobile */
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-            
-            .stat-card {
-                padding: 1rem;
-            }
-            
-            .stat-value {
-                font-size: 1.5rem;
-            }
-            
-            /* Table Mobile */
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .admin-table {
-                font-size: 0.9rem;
-            }
-            
-            .admin-table th,
-            .admin-table td {
-                padding: 8px 12px;
-            }
-            
-            /* Modal Mobile */
-            .modal-content {
-                width: 95%;
-                margin: 10px;
-            }
-            
-            /* Buttons Mobile */
-            .btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            /* Auth Card Mobile */
-            .auth-card {
-                padding: 1.5rem;
-                margin: 10px;
-            }
-            
-            /* Page Headers Mobile */
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .section-title {
-                font-size: 1.3rem;
-            }
-        }
-
-        /* Small Mobile Devices */
-        @media (max-width: 480px) {
-            .stats-grid {
+            .service-options {
                 grid-template-columns: 1fr;
             }
-            
-            .nav-links {
-                gap: 0.5rem;
-            }
-            
-            .nav-links a {
-                font-size: 0.9rem;
-                padding: 0.3rem 0.6rem;
-            }
-            
-            .auth-card {
-                padding: 1rem;
-            }
         }
 
-        /* Mobile Landscape */
-        @media (max-width: 768px) and (orientation: landscape) {
+        /* Floating Orders Button */
+        .floating-orders-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .floating-orders-btn.active {
+            display: flex;
+        }
+
+        .floating-orders-btn .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Quick Actions Toolbar */
+        .quick-actions-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            display: none;
+            justify-content: space-around;
+            z-index: 999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .quick-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 0.8rem;
+            gap: 5px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .quick-action-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quick-action-btn i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions-toolbar {
+                display: flex;
+            }
+            
             main {
-                margin-top: 100px;
-            }
-            
-            .auth-container {
-                min-height: 70vh;
+                margin-bottom: 60px;
             }
         }
-
-        /* ============================================= */
-/* ORDER NOTIFICATION STYLES - ADD AFTER MEDIA QUERIES */
-/* ============================================= */
-
-/* Notifications Container */
-.notifications-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-    max-width: 400px;
-    pointer-events: none;
-}
-
-/* Individual Notification */
-.in-app-notification {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 0;
-    margin-bottom: 10px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    pointer-events: all;
-    transform: translateX(400px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    max-height: 0;
-    overflow: hidden;
-}
-
-.in-app-notification.show {
-    transform: translateX(0);
-    opacity: 1;
-    max-height: 300px;
-}
-
-.in-app-notification.hide {
-    transform: translateX(400px);
-    opacity: 0;
-    max-height: 0;
-    margin-bottom: 0;
-}
-
-.notification-content {
-    padding: 16px;
-}
-
-.notification-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.notification-icon {
-    font-size: 1.5em;
-    margin-right: 10px;
-}
-
-.notification-header h4 {
-    margin: 0;
-    flex: 1;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.notification-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5em;
-    cursor: pointer;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.notification-close:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.notification-body {
-    margin-bottom: 16px;
-}
-
-.notification-body p {
-    margin: 4px 0;
-    font-size: 0.9em;
-    opacity: 0.9;
-}
-
-.notification-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.notification-actions button {
-    flex: 1;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-view-order {
-    background: rgba(255,255,255,0.9);
-    color: #667eea;
-}
-
-.btn-view-order:hover {
-    background: white;
-    transform: translateY(-1px);
-}
-
-.btn-dismiss {
-    background: rgba(255,255,255,0.2);
-    color: white;
-}
-
-.btn-dismiss:hover {
-    background: rgba(255,255,255,0.3);
-}
-
-/* Order highlight animation */
-.highlight-new {
-    animation: highlightPulse 2s ease-in-out;
-    border-left: 4px solid #667eea !important;
-}
-
-@keyframes highlightPulse {
-    0% { background-color: rgba(102, 126, 234, 0.1); }
-    50% { background-color: rgba(102, 126, 234, 0.3); }
-    100% { background-color: transparent; }
-}
-
-/* Badge styles */
-.orders-badge, .notification-badge {
-    background: #ff4757;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 0.7em;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    animation: badgePulse 2s infinite;
-}
-
-@keyframes badgePulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-        /* ===== MOBILE OPTIMIZATION ===== */
-@media (max-width: 768px) {
-    /* Horizontal layout for orders table */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .admin-table {
-        width: 100%;
-        min-width: 800px; /* Force horizontal scroll on mobile */
-    }
-    
-    /* Dashboard stats - 2x2 grid */
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-    
-    .stat-card {
-        padding: 12px;
-    }
-    
-    .stat-value {
-        font-size: 1.5rem;
-    }
-    
-    /* Products grid - 2 columns */
-    .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-    
-    .product-card {
-        padding: 12px;
-    }
-    
-    /* Navigation fix */
-    .nav-links {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 5px;
-    }
-    
-    .nav-links a {
-        display: inline-block;
-        padding: 8px 12px;
-    }
-    
-    /* Header adjustments */
-    .header-content {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .logo {
-        font-size: 1.2rem;
-    }
-    
-    /* Action buttons stacking */
-    .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .btn-sm {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-    }
-}
-
-/* ===== TABLET OPTIMIZATION ===== */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .products-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* ===== ORDER MANAGEMENT ACCESSIBILITY ===== */
-/* Quick access floating button for orders */
-.floating-orders-btn {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: none;
-}
-
-.floating-orders-btn.active {
-    display: flex;
-}
-
-.floating-orders-btn .badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--error);
-    color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 0.7rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Quick actions toolbar */
-.quick-actions-toolbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid #ddd;
-    padding: 10px;
-    display: flex;
-    justify-content: space-around;
-    z-index: 999;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-}
-
-.quick-action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: none;
-    border: none;
-    color: var(--text-light);
-    font-size: 0.8rem;
-    gap: 5px;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all 0.3s;
-}
-
-.quick-action-btn.active {
-    background: var(--primary);
-    color: white;
-}
-
-.quick-action-btn i {
-    font-size: 1.2rem;
-}
-
-/* Orders summary card (for quick view) */
-.orders-summary-card {
-    position: sticky;
-    top: 70px;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
-    z-index: 10;
-}
-
-.summary-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    text-align: center;
-}
-
-.summary-stat {
-    padding: 10px;
-    border-radius: 8px;
-    background: #f8f9fa;
-}
-
-.summary-stat.pending {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.summary-stat-value {
-    font-size: 1.2rem;
-    font-weight: bold;
-    display: block;
-}
-
-.summary-stat-label {
-    font-size: 0.8rem;
-    display: block;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .notifications-container {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-    
-    .in-app-notification {
-        max-width: none;
-    }
-}
     </style>
 </head>
 <body>
@@ -1523,21 +786,30 @@
     <!-- Main Content -->
     <main>
         <div class="container">
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
             <!-- Auth Screen -->
             <div id="authScreen">
                 <div class="auth-container">
                     <div class="auth-card">
                         <h2 class="auth-title">Shopkeeper Login</h2>
+                        <div id="debugInfo" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 12px; display: none;">
+                            <strong>Debug Info:</strong> <span id="debugText"></span>
+                        </div>
                         <form id="loginForm">
                             <div class="form-group">
                                 <label for="loginEmail">Email</label>
-                                <input type="email" id="loginEmail" required>
+                                <input type="email" id="loginEmail" required placeholder="Enter your email">
                             </div>
                             <div class="form-group">
                                 <label for="loginPassword">Password</label>
-                                <input type="password" id="loginPassword" required>
+                                <input type="password" id="loginPassword" required placeholder="Enter your password">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
                             <div class="text-center mt-3">
                               <a href="#" onclick="showForgotPassword()" class="text-muted">Forgot Password?</a>
                             </div>
@@ -1586,10 +858,10 @@
 
                 <!-- Products Page -->
                 <div id="productsPage" class="content-page">
-                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                         <h2 style="color: var(--primary);">Product Management</h2>
                         <div style="display: flex; gap: 1rem;">
-                            <input type="text" id="productSearch" placeholder="Search products..." class="form-group" style="margin: 0;">
+                            <input type="text" id="productSearch" placeholder="Search products..." class="form-control" style="margin: 0; min-width: 200px;">
                             <button class="btn btn-primary" onclick="showAddProductModal()">
                                 <i class="fas fa-plus"></i> Add Product
                             </button>
@@ -1603,8 +875,9 @@
 
                 <!-- Orders Page -->
                 <div id="ordersPage" class="content-page">
-                    <h2 style="margin-bottom: 2rem; color: var(--primary);">Order Management</h2>
-                    <!-- In orders section, after the title -->
+                    <h2 style="margin-bottom: 1rem; color: var(--primary);">Order Management</h2>
+                    
+                    <!-- Orders Summary Card -->
                     <div class="orders-summary-card" id="ordersSummaryCard">
                         <h4 style="margin-bottom: 10px;">📊 Quick Summary</h4>
                         <div class="summary-stats">
@@ -1626,6 +899,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -1664,20 +938,23 @@
                                     <option value="cosmetics">Cosmetics</option>
                                     <option value="clothing">Clothing</option>
                                     <option value="electronics">Electronics</option>
+                                    <option value="medical">Medical</option>
+                                    <option value="stationery">Stationery</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea id="shopDescription" rows="3"></textarea>
+                                <textarea id="shopDescription" rows="3" placeholder="Describe your shop..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Address</label>
-                                <textarea id="shopAddress" rows="2" required></textarea>
+                                <textarea id="shopAddress" rows="2" required placeholder="Full shop address"></textarea>
                             </div>
+                            
                             <!-- Shop Timings Section -->
                             <div class="form-group">
                                 <label>Shop Timings</label>
-                                <div style="display:flex;gap:10px;align-items:center">
+                                <div class="time-input-group">
                                     <input type="time" id="shopOpenTime" value="09:00">
                                     <span>to</span>
                                     <input type="time" id="shopCloseTime" value="21:00">
@@ -1687,27 +964,39 @@
                             <!-- Service Type Section -->
                             <div class="form-group">
                                 <label>Service Type</label>
-                                <select id="deliveryType" required>
-                                    <option value="both">Both Delivery & Pickup</option>
-                                    <option value="delivery_only">Delivery Only</option>
-                                    <option value="pickup_only">Pickup Only</option>
-                                </select>
+                                <div class="service-options" id="serviceOptions">
+                                    <div class="service-option" data-value="both">
+                                        <i class="fas fa-truck"></i>
+                                        <span>Both Delivery & Pickup</span>
+                                    </div>
+                                    <div class="service-option" data-value="delivery_only">
+                                        <i class="fas fa-motorcycle"></i>
+                                        <span>Delivery Only</span>
+                                    </div>
+                                    <div class="service-option" data-value="pickup_only">
+                                        <i class="fas fa-store"></i>
+                                        <span>Pickup Only</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="deliveryType" value="both">
                             </div>
                             
                             <!-- Shop Status Section -->
                             <div class="form-group">
                                 <label>Shop Status</label>
                                 <select id="shopStatus">
-                                    <option value="open">Open</option>
-                                    <option value="closed">Closed</option>
-                                    <option value="busy">Busy (Accepting orders)</option>
-                                    <option value="holiday">On Holiday</option>
+                                    <option value="open">🟢 Open</option>
+                                    <option value="closed">🔴 Closed</option>
+                                    <option value="busy">🟡 Busy (Accepting orders)</option>
+                                    <option value="holiday">🏖️ On Holiday</option>
                                 </select>
                             </div>
+                            
                             <div class="form-group">
-                                <label>Phone</label>
-                                <input type="tel" id="shopPhone" required>
+                                <label>Phone Number</label>
+                                <input type="tel" id="shopPhone" required placeholder="+91 1234567890">
                             </div>
+                            
                             <button type="submit" class="btn btn-primary">Update Profile</button>
                         </form>
                     </div>
@@ -1732,23 +1021,26 @@
                 <div class="form-group">
                     <label>Category</label>
                     <select id="productCategory" required>
+                        <option value="groceries">Groceries</option>
                         <option value="dairy">Dairy</option>
                         <option value="bakery">Bakery</option>
-                        <option value="groceries">Groceries</option>
-                        <option value="cosmetics">Cosmetics</option>
+                        <option value="beverages">Beverages</option>
+                        <option value="snacks">Snacks</option>
+                        <option value="personal_care">Personal Care</option>
+                        <option value="household">Household</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Price (₹)</label>
-                    <input type="number" id="productPrice" required>
+                    <input type="number" id="productPrice" required min="0" step="0.01">
                 </div>
                 <div class="form-group">
                     <label>MRP (₹)</label>
-                    <input type="number" id="productMrp" required>
+                    <input type="number" id="productMrp" min="0" step="0.01">
                 </div>
                 <div class="form-group">
-                    <label>Stock</label>
-                    <input type="number" id="productStock" required>
+                    <label>Stock Quantity</label>
+                    <input type="number" id="productStock" required min="0">
                 </div>
                 <div class="form-group">
                     <label>Description</label>
@@ -1761,13 +1053,40 @@
             </form>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="handleProductSubmit()">Save Product</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
             </div>
         </div>
     </div>
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Floating Orders Button -->
+    <button class="floating-orders-btn" id="floatingOrdersBtn" onclick="navigateToPage('orders')">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="badge">0</span>
+    </button>
+
+    <!-- Quick Actions Toolbar -->
+    <div class="quick-actions-toolbar" id="quickActionsToolbar">
+        <button class="quick-action-btn" data-page="dashboard" onclick="navigateToPage('dashboard')">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </button>
+        <button class="quick-action-btn" data-page="orders" onclick="navigateToPage('orders')">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Orders</span>
+            <span class="orders-badge" style="display: none;">0</span>
+        </button>
+        <button class="quick-action-btn" data-page="products" onclick="navigateToPage('products')">
+            <i class="fas fa-box-open"></i>
+            <span>Products</span>
+        </button>
+        <button class="quick-action-btn" data-page="profile" onclick="navigateToPage('profile')">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </button>
+    </div>
 
     <script>
         // Firebase Configuration
@@ -1780,8 +1099,11 @@
             appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
         };
 
+        console.log('Firebase Config:', firebaseConfig);
+
         // Initialize Firebase
-        let auth, db;
+        let auth = null;
+        let db = null;
         let currentShop = null;
         let products = [];
         let orders = [];
@@ -1789,36 +1111,114 @@
         // Initialize App
         function initApp() {
             try {
-                firebase.initializeApp(firebaseConfig);
+                console.log('Initializing Firebase...');
+                
+                // Check if Firebase is already initialized
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                    console.log('Firebase initialized successfully');
+                } else {
+                    firebase.app(); // If already initialized, use that instance
+                    console.log('Using existing Firebase instance');
+                }
+                
                 auth = firebase.auth();
                 db = firebase.firestore();
-                console.log("Firebase initialized for Shop App");
+                
+                console.log('Firebase services initialized');
 
                 // Check if user is already logged in
                 auth.onAuthStateChanged(async (user) => {
+                    console.log('Auth state changed. User:', user ? user.email : 'null');
+                    
                     if (user) {
+                        console.log('User logged in:', user.email);
                         await loadShopData(user.uid);
-                        showAppScreen();
+                    } else {
+                        console.log('No user logged in');
+                        showAuthScreen();
                     }
                 });
 
             } catch (error) {
                 console.error("Firebase initialization error:", error);
+                showToast("Firebase initialization failed. Please refresh the page.", "error");
             }
         }
 
         // Load Shop Data
         async function loadShopData(shopId) {
             try {
+                console.log('Loading shop data for ID:', shopId);
+                showLoading(true);
+                
+                // Try to get shop document
                 const shopDoc = await db.collection('shops').doc(shopId).get();
+                console.log('Shop document exists:', shopDoc.exists);
+                
                 if (shopDoc.exists) {
                     currentShop = { id: shopId, ...shopDoc.data() };
+                    console.log('Shop loaded:', currentShop.name);
+                    
+                    // Load products and orders
                     await loadProducts();
-                    await loadOrdersManual(); // ✅ USE CORRECT FUNCTION NAME
+                    await loadOrders();
                     updateProfileForm();
+                    
+                    showAppScreen();
+                    showToast('Welcome back to your shop!', 'success');
+                } else {
+                    console.log('Shop document not found in Firestore');
+                    showToast('Shop profile not found. Please contact admin to create your shop.', 'error');
+                    
+                    // Auto-create a shop if doesn't exist
+                    await createShopForUser(shopId);
                 }
             } catch (error) {
                 console.error("Error loading shop data:", error);
+                showToast('Error loading shop data: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Create shop for user if doesn't exist
+        async function createShopForUser(userId) {
+            try {
+                console.log('Creating shop for user:', userId);
+                
+                // Get user email
+                const user = auth.currentUser;
+                if (!user) {
+                    console.log('No user found');
+                    return;
+                }
+                
+                const shopData = {
+                    name: user.email.split('@')[0] + ' Shop',
+                    email: user.email,
+                    category: 'groceries',
+                    description: 'Welcome to our shop!',
+                    address: 'Address not set',
+                    phone: 'Not set',
+                    openTime: '09:00',
+                    closeTime: '21:00',
+                    deliveryType: 'both',
+                    status: 'open',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('shops').doc(userId).set(shopData);
+                currentShop = { id: userId, ...shopData };
+                console.log('Shop created:', currentShop.name);
+                
+                showAppScreen();
+                showToast('New shop created! Please update your profile.', 'success');
+                
+            } catch (error) {
+                console.log('Error creating shop:', error);
+                showToast('Error creating shop: ' + error.message, 'error');
             }
         }
 
@@ -1826,20 +1226,54 @@
         async function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
+            if (!email || !password) {
+                showToast('Please enter email and password', 'error');
+                return;
+            }
+
+            console.log('Attempting login with email:', email);
+
             try {
+                showLoading(true);
+                
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
+                console.log('Login successful:', user.email);
+                
                 await loadShopData(user.uid);
-                showAppScreen();
-                showToast('Welcome to your shop!', 'success');
                 
             } catch (error) {
                 console.error("Login error:", error);
-                showToast('Login failed: ' + error.message, 'error');
+                
+                let errorMessage = 'Login failed. ';
+                
+                switch(error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Check your internet connection.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
@@ -1858,49 +1292,51 @@
             }
         }
 
-        function showAppScreen() {
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'block';
-    
-    // ✅ INITIALIZE REAL-TIME ORDERS
-    if (currentShop) {
-        initializeOrders();
-    } else {
-        loadDashboardData();
-    }
-    
-    // Initialize notifications after a short delay
-    setTimeout(() => { 
-        if (typeof initializeShopkeeperNotifications === 'function') {
-            initializeShopkeeperNotifications(); 
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('appScreen').style.display = 'none';
+            console.log('Showing auth screen');
         }
-    }, 2000);
-    
-    // ✅ INITIALIZE MOBILE UI
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        setTimeout(() => {
-            initializeMobileUI();
-        }, 1000);
-    }
-}
+
+        function showAppScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            console.log('Showing app screen');
+            
+            // Initialize mobile UI if needed
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                initializeMobileUI();
+            }
+            
+            // Navigate to dashboard
+            navigateToPage('dashboard');
+        }
 
         function logout() {
+            console.log('Logging out...');
             auth.signOut();
-            document.getElementById('appScreen').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'block';
+            showAuthScreen();
             showToast('Logged out successfully', 'info');
         }
 
         // Navigation
         function navigateToPage(page) {
+            console.log('Navigating to page:', page);
+            
+            // Hide all pages
             document.querySelectorAll('.content-page').forEach(pageElement => {
                 pageElement.classList.remove('active');
             });
             
+            // Show selected page
             const pageElement = document.getElementById(page + 'Page');
             if (pageElement) {
                 pageElement.classList.add('active');
                 
+                // Set active quick action button
+                setActiveQuickAction(page);
+                
+                // Load data for the page
                 switch(page) {
                     case 'dashboard':
                         loadDashboardData();
@@ -1915,24 +1351,52 @@
             }
         }
 
+        // Set active quick action button
+        function setActiveQuickAction(page) {
+            const buttons = document.querySelectorAll('.quick-action-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                const pageAttr = btn.getAttribute('data-page');
+                if (pageAttr === page) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Loading Spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
         // Dashboard Functions
         async function loadDashboardData() {
             if (!currentShop) return;
             
             try {
+                console.log('Loading dashboard data');
+                
+                // Update dashboard stats
                 document.getElementById('totalProducts').textContent = products.length;
                 
                 const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
                 document.getElementById('pendingOrders').textContent = pendingOrdersCount;
                 
                 const today = new Date().toDateString();
-                const todayOrdersCount = orders.filter(order => 
-                    new Date(order.createdAt).toDateString() === today
-                ).length;
+                const todayOrdersCount = orders.filter(order => {
+                    const orderDate = order.createdAt ? 
+                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toDateString() : 
+                        '';
+                    return orderDate === today;
+                }).length;
                 document.getElementById('todayOrders').textContent = todayOrdersCount;
                 
-                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
+                const totalRevenue = orders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+                
+                console.log('Dashboard stats updated');
                 
             } catch (error) {
                 console.error("Error loading dashboard:", error);
@@ -1944,6 +1408,9 @@
             if (!currentShop) return;
             
             try {
+                console.log('Loading products for shop:', currentShop.id);
+                showLoading(true);
+                
                 const snapshot = await db.collection('products')
                     .where('shopId', '==', currentShop.id)
                     .get();
@@ -1953,10 +1420,14 @@
                     products.push({ id: doc.id, ...doc.data() });
                 });
                 
+                console.log('Products loaded:', products.length);
                 renderProducts();
                 
             } catch (error) {
                 console.error("Error loading products:", error);
+                showToast('Error loading products: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
@@ -1979,23 +1450,66 @@
             
             let productsHtml = '';
             products.forEach(product => {
+                // Determine stock status
+                let stockClass = 'in-stock';
+                let stockText = '';
+                let stockIcon = 'check-circle';
+                
+                if (product.stock > 10) {
+                    stockClass = 'in-stock';
+                    stockText = `${product.stock} in stock`;
+                    stockIcon = 'check-circle';
+                } else if (product.stock > 0) {
+                    stockClass = 'low-stock';
+                    stockText = `Low stock (${product.stock})`;
+                    stockIcon = 'exclamation-circle';
+                } else {
+                    stockClass = 'out-of-stock';
+                    stockText = 'Out of stock';
+                    stockIcon = 'times-circle';
+                }
+
+                // Calculate discount if MRP exists
+                let discountBadge = '';
+                if (product.mrp && product.mrp > product.price) {
+                    const discountPercent = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                    if (discountPercent > 0) {
+                        discountBadge = `<span class="product-discount">${discountPercent}% OFF</span>`;
+                    }
+                }
+
                 productsHtml += `
                     <div class="product-card">
-                        <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
-                             alt="${product.name}" class="product-image">
-                        <h3 class="product-title">${product.name}</h3>
-                        <p style="color: #666; margin-bottom: 0.5rem; font-size: 0.9rem;">${product.category}</p>
-                        <div class="product-price">₹${product.price}</div>
-                        <p style="color: ${product.stock > 0 ? 'green' : 'red'}; margin-bottom: 1rem;">
-                            ${product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                        </p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn btn-primary" onclick="editProduct('${product.id}')" style="flex: 1;">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-outline" onclick="deleteProduct('${product.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <div class="product-image-container">
+                            <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop'}" 
+                                 alt="${product.name}" class="product-image">
+                            <span class="product-badge">${product.category || 'Product'}</span>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">${product.name}</h3>
+                            
+                            <div class="product-price-row">
+                                <span class="product-price">₹${parseFloat(product.price || 0).toFixed(2)}</span>
+                                ${product.mrp && product.mrp > product.price ? 
+                                    `<span class="product-mrp">₹${parseFloat(product.mrp).toFixed(2)}</span>` : ''}
+                                ${discountBadge}
+                            </div>
+                            
+                            <div class="product-stock ${stockClass}">
+                                <i class="fas fa-${stockIcon}"></i>
+                                ${stockText}
+                            </div>
+                            
+                            ${product.description ? `<p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">${product.description.substring(0, 60)}${product.description.length > 60 ? '...' : ''}</p>` : ''}
+                            
+                            <div class="product-actions">
+                                <button class="btn-edit-product" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-add-product" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -2003,173 +1517,6 @@
             
             productsList.innerHTML = productsHtml;
         }
-
-        async function updateOrderStatus(orderId, newStatus, itemId = null) {
-    try {
-        console.log("🔄 Updating order status:", orderId, newStatus, itemId);
-        
-        // Get order item
-        const orderItemDoc = await db.collection('orderItems').doc(orderId).get();
-        if (!orderItemDoc.exists) {
-            showToast('Order not found', 'error');
-            return;
-        }
-        
-        const orderItem = orderItemDoc.data();
-        
-        // Check if cancelled
-        if (orderItem.status === 'cancelled' && newStatus !== 'cancelled') {
-            showToast('❌ Order cancelled by customer', 'error');
-            return;
-        }
-        
-        // ✅ PARTIAL ACCEPTANCE LOGIC
-        if (newStatus === 'partial_accepted') {
-            const unavailableItems = [];
-            
-            // Check each item in order
-            if (orderItem.items && Array.isArray(orderItem.items)) {
-                for (const item of orderItem.items) {
-                    const productDoc = await db.collection('products').doc(item.id).get();
-                    if (productDoc.exists) {
-                        const product = productDoc.data();
-                        if ((product.stock || 0) < (item.quantity || 1)) {
-                            unavailableItems.push({
-                                name: item.name,
-                                requested: item.quantity,
-                                available: product.stock || 0
-                            });
-                        }
-                    }
-                }
-            }
-            
-            if (unavailableItems.length > 0) {
-                // Show modal with unavailable items
-                showPartialAcceptanceModal(orderId, orderItem, unavailableItems);
-                return;
-            }
-        }
-        
-        // Update status
-        await db.collection('orderItems').doc(orderId).update({
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Update main order
-        if (orderItem.orderId) {
-            await db.collection('orders').doc(orderItem.orderId).update({
-                status: newStatus,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
-        loadOrdersManual();
-        
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showToast('Error: ' + error.message, 'error');
-    }
-}
-
-// ✅ MODAL FOR PARTIAL ACCEPTANCE
-function showPartialAcceptanceModal(orderId, orderItem, unavailableItems) {
-    const modalHtml = `
-        <div class="modal" id="partialAcceptModal" style="display:block">
-            <div class="modal-content" style="max-width:500px">
-                <div class="modal-header">
-                    <h3>⚠️ Some Items Unavailable</h3>
-                    <button onclick="closeModal('partialAcceptModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>The following items are out of stock or insufficient:</p>
-                    <ul style="margin:15px 0">
-                        ${unavailableItems.map(item => `
-                            <li><strong>${item.name}</strong>: 
-                                Requested: ${item.requested}, Available: ${item.available}
-                            </li>
-                        `).join('')}
-                    </ul>
-                    <p>What would you like to do?</p>
-                </div>
-                <div class="modal-footer" style="display:flex;gap:10px;margin-top:20px">
-                    <button class="btn btn-danger" onclick="rejectOrder('${orderId}')">
-                        ❌ Reject Entire Order
-                    </button>
-                    <button class="btn btn-warning" onclick="acceptPartialOrder('${orderId}', '${JSON.stringify(unavailableItems)}')">
-                        ✅ Accept Available Items Only
-                    </button>
-                    <button class="btn btn-primary" onclick="closeModal('partialAcceptModal')">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Add modal to body
-    const modalContainer = document.createElement('div');
-    modalContainer.innerHTML = modalHtml;
-    document.body.appendChild(modalContainer);
-    
-    // Add styles if needed
-    if (!document.getElementById('modal-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'modal-styles';
-        styles.textContent = `
-            .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; }
-            .modal-content { background:white; margin:50px auto; padding:20px; border-radius:10px; }
-            .modal-header { display:flex; justify-content:space-between; margin-bottom:15px; }
-            .modal-footer { display:flex; justify-content:flex-end; gap:10px; }
-        `;
-        document.head.appendChild(styles);
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.remove();
-}
-
-async function rejectOrder(orderId) {
-    await updateOrderStatus(orderId, 'rejected');
-    closeModal('partialAcceptModal');
-}
-
-async function acceptPartialOrder(orderId, unavailableItemsJson) {
-    const unavailableItems = JSON.parse(unavailableItemsJson);
-    
-    // Here you can update quantities or create a partial order
-    // For now, just accept as partial
-    await updateOrderStatus(orderId, 'partial_accepted');
-    
-    // You can also update quantities in the order document
-    // This would require more complex logic
-    
-    closeModal('partialAcceptModal');
-    showToast('Order partially accepted. Customer notified.', 'success');
-}
-
-        // ✅ ADD THIS FUNCTION TO CLEAR NOTIFICATIONS
-function clearOrderNotification(orderId) {
-    // Remove in-app notification if exists
-    const notification = document.querySelector(`[data-order-id="${orderId}"]`);
-    if (notification) {
-        notification.remove();
-    }
-    
-    // Mark as processed in localStorage
-    const processedOrders = JSON.parse(localStorage.getItem('processedOrders') || '[]');
-    if (!processedOrders.includes(orderId)) {
-        processedOrders.push(orderId);
-        localStorage.setItem('processedOrders', JSON.stringify(processedOrders));
-    }
-    
-    console.log('🔕 Notification cleared for order:', orderId);
-}
-
 
         // Product Modal Functions
         function showAddProductModal() {
@@ -2190,9 +1537,9 @@ function clearOrderNotification(orderId) {
             document.getElementById('productModalTitle').textContent = 'Edit Product';
             document.getElementById('editProductId').value = product.id;
             document.getElementById('productName').value = product.name;
-            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productCategory').value = product.category || 'groceries';
             document.getElementById('productPrice').value = product.price;
-            document.getElementById('productMrp').value = product.mrp;
+            document.getElementById('productMrp').value = product.mrp || '';
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productDescription').value = product.description || '';
             document.getElementById('productImage').value = product.image || '';
@@ -2200,68 +1547,78 @@ function clearOrderNotification(orderId) {
             document.getElementById('productModal').classList.add('active');
         }
 
-        async function handleProductSubmit() {
-    // ✅ DEBUG: CHECK currentShop
-    console.log('🔍 DEBUG currentShop:', currentShop);
-    console.log('🔍 Shop Name:', currentShop?.name);
-    console.log('🔍 Shop ID:', currentShop?.id);
-    
-    if (!currentShop || !currentShop.name) {
-        showToast('❌ Shop information not loaded. Please refresh page.', 'error');
-        return;
-    }
-    
-    const productId = document.getElementById('editProductId').value;
-    const productData = {
-        name: document.getElementById('productName').value,
-        category: document.getElementById('productCategory').value,
-        price: parseFloat(document.getElementById('productPrice').value),
-        mrp: parseFloat(document.getElementById('productMrp').value),
-        stock: parseInt(document.getElementById('productStock').value),
-        description: document.getElementById('productDescription').value,
-        image: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-        shopId: currentShop.id,
-        shopName: currentShop.name, // ✅ YEH FIELD IMPORTANT HAI
-        isAvailable: true,
-        status: 'active',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    // ✅ DEBUG: CHECK FINAL DATA
-    console.log('📦 Product Data to save:', productData);
-    console.log('🔄 Saving to Firestore...');
-    console.log('Product Data JSON:', JSON.stringify(productData, null, 2));
-    console.log('Has shopName field?', 'shopName' in productData);
-    console.log('shopName value:', productData.shopName);
-    
-    try {
-        if (productId) {
-            await db.collection('products').doc(productId).update(productData);
-            showToast('Product updated successfully!', 'success');
-            console.log('✅ Product updated in Firestore');
-        } else {
-            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            const docRef = await db.collection('products').add(productData);
-            showToast('Product added successfully!', 'success');
-            console.log('✅ Product added to Firestore. ID:', docRef.id);
-            console.log('✅ Full saved data:', productData);
+        async function saveProduct() {
+            if (!currentShop || !currentShop.name) {
+                showToast('Shop information not loaded. Please refresh page.', 'error');
+                return;
+            }
+            
+            const productId = document.getElementById('editProductId').value;
+            const productName = document.getElementById('productName').value.trim();
+            const productPrice = parseFloat(document.getElementById('productPrice').value);
+            const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
+            const productStock = parseInt(document.getElementById('productStock').value);
+            
+            if (!productName) {
+                showToast('Product name is required', 'error');
+                return;
+            }
+            
+            if (isNaN(productPrice) || productPrice < 0) {
+                showToast('Please enter a valid price', 'error');
+                return;
+            }
+            
+            if (isNaN(productStock) || productStock < 0) {
+                showToast('Please enter a valid stock quantity', 'error');
+                return;
+            }
+            
+            const productData = {
+                name: productName,
+                category: document.getElementById('productCategory').value,
+                price: productPrice,
+                mrp: productMrp,
+                stock: productStock,
+                description: document.getElementById('productDescription').value.trim(),
+                image: document.getElementById('productImage').value.trim() || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+                shopId: currentShop.id,
+                shopName: currentShop.name,
+                isAvailable: true,
+                status: 'active',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            console.log('Saving product:', productData);
+            
+            try {
+                showLoading(true);
+                if (productId) {
+                    await db.collection('products').doc(productId).update(productData);
+                    showToast('Product updated successfully!', 'success');
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('products').add(productData);
+                    showToast('Product added successfully!', 'success');
+                }
+                
+                closeProductModal();
+                await loadProducts();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showToast('Error saving product: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
         }
-        
-        closeProductModal();
-        await loadProducts();
-        await loadDashboardData();
-        
-    } catch (error) {
-        console.error('❌ Error saving product:', error);
-        console.error('Error details:', error.message);
-        showToast('Error saving product: ' + error.message, 'error');
-    }
-}
 
         async function deleteProduct(productId) {
             if (!confirm('Are you sure you want to delete this product?')) return;
             
             try {
+                showLoading(true);
                 await db.collection('products').doc(productId).delete();
                 showToast('Product deleted successfully!', 'success');
                 await loadProducts();
@@ -2269,419 +1626,352 @@ function clearOrderNotification(orderId) {
             } catch (error) {
                 console.error('Error deleting product:', error);
                 showToast('Error deleting product: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
-        
-
-        // Order Management - REAL-TIME VERSION
-function setupRealTimeOrdersListener() {
-    if (!currentShop) return;
-    
-    console.log("🔔 Setting up real-time orders listener for shop:", currentShop.id);
-    
-    // Remove previous listener if exists
-    if (window.ordersListener) {
-        window.ordersListener();
-    }
-    
-    // Setup real-time listener
-    window.ordersListener = db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .orderBy('createdAt', 'desc')
-        .onSnapshot((snapshot) => {
-            console.log("🔄 Real-time order update received");
+        // Order Management
+        async function loadOrders() {
+            if (!currentShop) return;
             
-            orders = [];
-            snapshot.forEach(doc => {
-                orders.push({ id: doc.id, ...doc.data() });
+            try {
+                console.log('Loading orders for shop:', currentShop.id);
+                showLoading(true);
+                
+                // Try both collections
+                let snapshot;
+                try {
+                    snapshot = await db.collection('orders')
+                        .where('shopId', '==', currentShop.id)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                } catch (error) {
+                    // Try orderItems collection
+                    snapshot = await db.collection('orderItems')
+                        .where('shopId', '==', currentShop.id)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                }
+                
+                orders = [];
+                snapshot.forEach(doc => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log('Orders loaded:', orders.length);
+                renderOrders();
+                updateOrdersSummary();
+                
+            } catch (error) {
+                console.error("Error loading orders:", error);
+                showToast('No orders found', 'info');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateOrdersSummary() {
+            const pendingCount = orders.filter(o => o.status === 'pending').length;
+            const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
+            const preparingCount = orders.filter(o => o.status === 'preparing').length;
+            
+            document.getElementById('pendingSummary').textContent = pendingCount;
+            document.getElementById('confirmedSummary').textContent = confirmedCount;
+            document.getElementById('preparingSummary').textContent = preparingCount;
+            document.getElementById('totalSummary').textContent = orders.length;
+            
+            // Update badges
+            const badges = document.querySelectorAll('.orders-badge, .badge');
+            badges.forEach(badge => {
+                if (pendingCount > 0) {
+                    badge.textContent = pendingCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
             });
-            
-            renderOrders();
-            loadDashboardData(); // Update dashboard stats
-        }, (error) => {
-            console.error("❌ Real-time listener error:", error);
-            // Fallback to manual load
-            loadOrdersManual();
-        });
-}
-
-// Manual load as fallback
-async function loadOrdersManual() {
-    if (!currentShop) return;
-    
-    try {
-        const snapshot = await db.collection('orderItems')
-            .where('shopId', '==', currentShop.id)
-            .orderBy('createdAt', 'desc')
-            .get();
-        
-        orders = [];
-        snapshot.forEach(doc => {
-            orders.push({ id: doc.id, ...doc.data() });
-        });
-        
-        renderOrders();
-        
-    } catch (error) {
-        console.error("Error loading orders:", error);
-    }
-}
-
-// Initialize - CALL THIS INSTEAD OF loadOrders()
-function initializeOrders() {
-    if (!currentShop) return;
-    
-    // Try real-time first
-    setupRealTimeOrdersListener();
-    
-    // Also update dashboard
-    loadDashboardData();
-}
+        }
 
         function renderOrders() {
-    const ordersList = document.getElementById('ordersList');
-    
-    if (!ordersList) {
-        console.error('Orders list container not found');
-        return;
-    }
-    
-    if (orders.length === 0) {
-        ordersList.innerHTML = `
-            <tr>
-                <td colspan="9" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                    <h4 style="color: #666;">No Orders Yet</h4>
-                    <p style="color: #999;">Orders from customers will appear here</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    let ordersHtml = '';
-    
-    orders.forEach(order => {
-        try {
-            const orderDate = order.createdAt ? 
-                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) : 
-                'Recently';
+            const ordersList = document.getElementById('ordersList');
             
-            const statusClass = order.status === 'pending' ? 'warning' : 
-                              order.status === 'confirmed' ? 'primary' :
-                              order.status === 'partial_accepted' ? 'warning' :
-                              order.status === 'rejected' ? 'danger' :
-                              order.status === 'preparing' ? 'info' :
-                              order.status === 'dispatched' ? 'warning' :
-                              order.status === 'delivered' ? 'success' :
-                              order.status === 'ready_for_pickup' ? 'info' :
-                              order.status === 'picked_up' ? 'success' :
-                              order.status === 'cancelled' ? 'secondary' : 'secondary';
-            
-            const statusText = order.status === 'pending' ? 'Pending' :
-                             order.status === 'confirmed' ? 'Confirmed' :
-                             order.status === 'partial_accepted' ? 'Partially Accepted' :
-                             order.status === 'rejected' ? 'Rejected' :
-                             order.status === 'preparing' ? 'Preparing' :
-                             order.status === 'dispatched' ? 'Dispatched' :
-                             order.status === 'delivered' ? 'Delivered' :
-                             order.status === 'ready_for_pickup' ? 'Ready for Pickup' :
-                             order.status === 'picked_up' ? 'Picked Up' :
-                             order.status === 'cancelled' ? 'Cancelled' : order.status;
-            
-            // ✅ DYNAMIC ACTION BUTTONS BASED ON STATUS
-            let actionButtons = '';
-            
-            if (order.status === 'pending') {
-                actionButtons = `
-                    <div class="btn-group" role="group" style="display: flex; gap: 5px;">
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')" title="Accept Order">
-                            <i class="fas fa-check"></i> Accept
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')" title="Reject Order">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'partial_accepted')" title="Partial Accept">
-                            <i class="fas fa-exclamation-triangle"></i> Partial
-                        </button>
-                    </div>
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h4 style="color: #666;">No Orders Yet</h4>
+                            <p style="color: #999;">Orders from customers will appear here</p>
+                        </td>
+                    </tr>
                 `;
-            }
-            else if (order.status === 'confirmed') {
-                actionButtons = `
-                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                        <i class="fas fa-utensils"></i> Start Preparing
-                    </button>
-                `;
-            }
-            else if (order.status === 'preparing') {
-                // Check if shop offers delivery or pickup
-                const isPickupOnly = false; // You would check from shop data
-                
-                if (isPickupOnly) {
-                    actionButtons = `
-                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'ready_for_pickup')">
-                            <i class="fas fa-box"></i> Ready for Pickup
-                        </button>
-                    `;
-                } else {
-                    actionButtons = `
-                        <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
-                            <i class="fas fa-shipping-fast"></i> Dispatch
-                        </button>
-                    `;
-                }
-            }
-            else if (order.status === 'dispatched') {
-                actionButtons = `
-                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
-                        <i class="fas fa-check-circle"></i> Mark Delivered
-                    </button>
-                `;
-            }
-            else if (order.status === 'ready_for_pickup') {
-                actionButtons = `
-                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'picked_up')">
-                        <i class="fas fa-user-check"></i> Mark Picked Up
-                    </button>
-                `;
-            }
-            else if (order.status === 'delivered' || order.status === 'picked_up') {
-                actionButtons = `
-                    <span class="badge bg-success">Completed</span>
-                `;
-            }
-            else if (order.status === 'rejected') {
-                actionButtons = `
-                    <span class="badge bg-danger">Rejected</span>
-                `;
-            }
-            else if (order.status === 'cancelled') {
-                actionButtons = `
-                    <span class="badge bg-secondary">Cancelled by Customer</span>
-                `;
-            }
-            else if (order.status === 'partial_accepted') {
-                actionButtons = `
-                    <span class="badge bg-warning text-dark">Partially Accepted</span>
-                    <button class="btn btn-info btn-sm mt-1" onclick="showPartialOrderDetails('${order.id}')">
-                        <i class="fas fa-info-circle"></i> Details
-                    </button>
-                `;
+                return;
             }
             
-            // ✅ ORDER ITEMS DISPLAY
-            let itemsDisplay = '';
-            if (order.items && Array.isArray(order.items)) {
-                itemsDisplay = order.items.map(item => 
-                    `${item.quantity || 1}x ${item.name || 'Item'}`
-                ).join(', ');
-            } else if (order.productName) {
-                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
-            } else {
-                itemsDisplay = 'No items';
-            }
+            let ordersHtml = '';
             
-            // ✅ CUSTOMER INFO
-            const customerInfo = order.customerName ? 
-                `${order.customerName} (${order.customerEmail})` : 
-                order.customerEmail || 'Customer';
-            
-            // ✅ PAYMENT METHOD
-            const paymentText = order.paymentMethod === 'cod' ? 
-                '<span class="badge bg-info">Cash on Delivery</span>' : 
-                '<span class="badge bg-success">QR Paid</span>';
-            
-            // ✅ ORDER AMOUNT
-            const orderAmount = order.totalAmount || (order.price * order.quantity) || 0;
-            
-            ordersHtml += `
-                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-                    <td>
-                        <strong>#${order.orderId ? order.orderId.slice(-6) : order.id.slice(-6)}</strong>
-                        ${order.status === 'pending' ? '<div class="badge bg-danger blink">NEW</div>' : ''}
-                    </td>
-                    <td>
-                        <div class="customer-info">
-                            <div><strong>${customerInfo}</strong></div>
-                            <small>${order.customerPhone || ''}</small>
-                        </div>
-                    </td>
-                    <td title="${itemsDisplay}">
-                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-                    </td>
-                    <td><strong>₹${orderAmount}</strong></td>
-                    <td>
-                        <span class="badge bg-${statusClass}">${statusText}</span>
-                        ${order.status === 'partial_accepted' ? '<br><small class="text-muted">Some items unavailable</small>' : ''}
-                    </td>
-                    <td>${paymentText}</td>
-                    <td>${orderDate}</td>
-                    <td style="min-width: 200px;">
-                        ${actionButtons}
-                        <button class="btn btn-outline-secondary btn-sm mt-1" onclick="viewOrderDetails('${order.id}')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            
-        } catch (error) {
-            console.error('Error rendering order:', order, error);
-        }
-    });
-    
-    ordersList.innerHTML = ordersHtml;
-    
-    // Add blinking animation for new orders
-    if (!document.getElementById('blink-style')) {
-        const style = document.createElement('style');
-        style.id = 'blink-style';
-        style.textContent = `
-            .blink {
-                animation: blink 1s infinite;
-                font-size: 0.7em;
-                margin-left: 5px;
-            }
-            @keyframes blink {
-                0% { opacity: 1; }
-                50% { opacity: 0.3; }
-                100% { opacity: 1; }
-            }
-            .customer-info small {
-                color: #666;
-                font-size: 0.8em;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
-
-// ✅ HELPER FUNCTIONS
-function viewOrderDetails(orderId) {
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return;
-    
-    let itemsHtml = '';
-    if (order.items && Array.isArray(order.items)) {
-        itemsHtml = order.items.map(item => `
-            <tr>
-                <td>${item.name || 'Item'}</td>
-                <td>${item.quantity || 1}</td>
-                <td>₹${item.price || 0}</td>
-                <td>₹${(item.price || 0) * (item.quantity || 1)}</td>
-            </tr>
-        `).join('');
-    }
-    
-    const modalHtml = `
-        <div class="modal" id="orderDetailsModal" style="display:block">
-            <div class="modal-content" style="max-width:600px">
-                <div class="modal-header">
-                    <h3>Order Details #${order.id.slice(-6)}</h3>
-                    <button onclick="closeModal('orderDetailsModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-sm">
-                        <tr><th>Customer:</th><td>${order.customerName || ''} (${order.customerEmail || ''})</td></tr>
-                        <tr><th>Phone:</th><td>${order.customerPhone || 'Not provided'}</td></tr>
-                        <tr><th>Address:</th><td>${order.customerAddress || order.address || 'Not provided'}</td></tr>
-                        <tr><th>Payment:</th><td>${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</td></tr>
-                        <tr><th>Status:</th><td><span class="badge">${order.status}</span></td></tr>
-                    </table>
+            orders.forEach(order => {
+                try {
+                    const orderDate = order.createdAt ? 
+                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) : 
+                        'Recently';
                     
-                    <h5>Items:</h5>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
-                        </thead>
-                        <tbody>${itemsHtml}</tbody>
-                        <tfoot>
-                            <tr><th colspan="3">Total:</th><th>₹${order.totalAmount || (order.price * order.quantity) || 0}</th></tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="closeModal('orderDetailsModal')">Close</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const modalContainer = document.createElement('div');
-    modalContainer.innerHTML = modalHtml;
-    document.body.appendChild(modalContainer);
-}
+                    const statusClass = order.status === 'pending' ? 'warning' : 
+                                      order.status === 'confirmed' ? 'primary' :
+                                      order.status === 'preparing' ? 'info' :
+                                      order.status === 'dispatched' ? 'warning' :
+                                      order.status === 'delivered' ? 'success' :
+                                      order.status === 'ready_for_pickup' ? 'info' :
+                                      order.status === 'picked_up' ? 'success' :
+                                      order.status === 'cancelled' ? 'danger' : 'secondary';
+                    
+                    const statusText = order.status === 'pending' ? 'Pending' :
+                                     order.status === 'confirmed' ? 'Confirmed' :
+                                     order.status === 'preparing' ? 'Preparing' :
+                                     order.status === 'dispatched' ? 'Dispatched' :
+                                     order.status === 'delivered' ? 'Delivered' :
+                                     order.status === 'ready_for_pickup' ? 'Ready for Pickup' :
+                                     order.status === 'picked_up' ? 'Picked Up' :
+                                     order.status === 'cancelled' ? 'Cancelled' : order.status;
+                    
+                    // Order items display
+                    let itemsDisplay = '';
+                    if (order.items && Array.isArray(order.items)) {
+                        itemsDisplay = order.items.map(item => 
+                            `${item.quantity || 1}x ${item.name || 'Item'}`
+                        ).join(', ');
+                    } else if (order.productName) {
+                        itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
+                    } else {
+                        itemsDisplay = 'No items';
+                    }
+                    
+                    // Customer info
+                    const customerInfo = order.customerName ? 
+                        `${order.customerName}` : 
+                        order.customerEmail || 'Customer';
+                    
+                    // Payment method
+                    const paymentText = order.paymentMethod === 'cod' ? 
+                        '<span class="badge bg-info">Cash on Delivery</span>' : 
+                        '<span class="badge bg-success">Paid Online</span>';
+                    
+                    // Order amount
+                    const orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
+                    
+                    // Action buttons
+                    let actionButtons = '';
+                    if (order.status === 'pending') {
+                        actionButtons = `
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        `;
+                    } else if (order.status === 'confirmed') {
+                        actionButtons = `
+                            <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                <i class="fas fa-utensils"></i> Start Prep
+                            </button>
+                        `;
+                    } else if (order.status === 'preparing') {
+                        if (currentShop.deliveryType === 'pickup_only' || currentShop.deliveryType === 'both') {
+                            actionButtons = `
+                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'ready_for_pickup')">
+                                    <i class="fas fa-box"></i> Ready
+                                </button>
+                            `;
+                        } else {
+                            actionButtons = `
+                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
+                                    <i class="fas fa-shipping-fast"></i> Dispatch
+                                </button>
+                            `;
+                        }
+                    } else if (order.status === 'dispatched') {
+                        actionButtons = `
+                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                                <i class="fas fa-check-circle"></i> Delivered
+                            </button>
+                        `;
+                    } else if (order.status === 'ready_for_pickup') {
+                        actionButtons = `
+                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'picked_up')">
+                                <i class="fas fa-user-check"></i> Picked Up
+                            </button>
+                        `;
+                    }
+                    
+                    ordersHtml += `
+                        <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                            <td>
+                                <strong>#${order.id.slice(-6)}</strong>
+                            </td>
+                            <td>${customerInfo}</td>
+                            <td title="${itemsDisplay}">
+                                ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                            </td>
+                            <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+                            <td>
+                                <span class="badge bg-${statusClass}">${statusText}</span>
+                            </td>
+                            <td>${paymentText}</td>
+                            <td>${orderDate}</td>
+                            <td>${actionButtons}</td>
+                        </tr>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Error rendering order:', order, error);
+                }
+            });
+            
+            ordersList.innerHTML = ordersHtml;
+        }
 
-function showPartialOrderDetails(orderId) {
-    // Similar to viewOrderDetails but show which items were accepted/rejected
-    alert('Partial order details would show which items were available/unavailable');
-}
+        async function updateOrderStatus(orderId, newStatus) {
+            if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
+            
+            try {
+                showLoading(true);
+                
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    await db.collection('orderItems').doc(orderId).update({
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showToast('Error updating order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
 
         // Profile Management
         function updateProfileForm() {
-    if (!currentShop) return;
-    
-    document.getElementById('shopName').value = currentShop.name || '';
-    document.getElementById('shopCategory').value = currentShop.category || 'groceries';
-    document.getElementById('shopDescription').value = currentShop.description || '';
-    document.getElementById('shopAddress').value = currentShop.address || '';
-    document.getElementById('shopPhone').value = currentShop.phone || '';
-    
-    // ✅ NEW FIELDS
-    document.getElementById('shopOpenTime').value = currentShop.openTime || '09:00';
-    document.getElementById('shopCloseTime').value = currentShop.closeTime || '21:00';
-    document.getElementById('shopStatus').value = currentShop.status || 'open';
-    document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
-}
+            if (!currentShop) return;
+            
+            document.getElementById('shopName').value = currentShop.name || '';
+            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
+            document.getElementById('shopDescription').value = currentShop.description || '';
+            document.getElementById('shopAddress').value = currentShop.address || '';
+            document.getElementById('shopPhone').value = currentShop.phone || '';
+            document.getElementById('shopOpenTime').value = currentShop.openTime || '09:00';
+            document.getElementById('shopCloseTime').value = currentShop.closeTime || '21:00';
+            document.getElementById('shopStatus').value = currentShop.status || 'open';
+            document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
+            
+            // Set active service option
+            const serviceOptions = document.querySelectorAll('.service-option');
+            serviceOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-value') === (currentShop.deliveryType || 'both')) {
+                    option.classList.add('active');
+                }
+            });
+        }
 
-async function handleProfileUpdate(event) {
-    event.preventDefault();
-    
-    const profileData = {
-        name: document.getElementById('shopName').value,
-        category: document.getElementById('shopCategory').value,
-        description: document.getElementById('shopDescription').value,
-        address: document.getElementById('shopAddress').value,
-        phone: document.getElementById('shopPhone').value,
-        
-        // ✅ NEW FIELDS
-        openTime: document.getElementById('shopOpenTime').value,
-        closeTime: document.getElementById('shopCloseTime').value,
-        status: document.getElementById('shopStatus').value,
-        deliveryType: document.getElementById('deliveryType').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    // Check if shop is currently open
-    const now = new Date();
-    const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                       now.getMinutes().toString().padStart(2, '0');
-    
-    const isOpenByTime = currentTime >= profileData.openTime && 
-                        currentTime <= profileData.closeTime;
-    
-    // Auto-update status based on time
-    if (profileData.status === 'open' && !isOpenByTime) {
-        profileData.autoStatus = 'closed_by_time';
-    }
-    
-    try {
-        await db.collection('shops').doc(currentShop.id).update(profileData);
-        currentShop = { ...currentShop, ...profileData };
-        showToast('Profile updated successfully!', 'success');
-    } catch (error) {
-        console.error('Error updating profile:', error);
-        showToast('Error updating profile: ' + error.message, 'error');
-    }
-}
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            
+            const profileData = {
+                name: document.getElementById('shopName').value.trim(),
+                category: document.getElementById('shopCategory').value,
+                description: document.getElementById('shopDescription').value.trim(),
+                address: document.getElementById('shopAddress').value.trim(),
+                phone: document.getElementById('shopPhone').value.trim(),
+                openTime: document.getElementById('shopOpenTime').value,
+                closeTime: document.getElementById('shopCloseTime').value,
+                status: document.getElementById('shopStatus').value,
+                deliveryType: document.getElementById('deliveryType').value,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!profileData.name || !profileData.address || !profileData.phone) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            // Check if shop is currently open based on timings
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                               now.getMinutes().toString().padStart(2, '0');
+            
+            const isOpenByTime = currentTime >= profileData.openTime && 
+                                currentTime <= profileData.closeTime;
+            
+            // Auto-update status based on time if set to open
+            if (profileData.status === 'open' && !isOpenByTime) {
+                profileData.autoStatus = 'closed_by_time';
+            }
+            
+            try {
+                showLoading(true);
+                await db.collection('shops').doc(currentShop.id).update(profileData);
+                currentShop = { ...currentShop, ...profileData };
+                showToast('Profile updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Error updating profile: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Service type selection
+        function setupServiceOptions() {
+            const serviceOptions = document.querySelectorAll('.service-option');
+            serviceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    document.getElementById('deliveryType').value = value;
+                    
+                    serviceOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Mobile UI Functions
+        function initializeMobileUI() {
+            console.log('Initializing mobile UI');
+            
+            // Show/hide floating button based on scroll
+            window.addEventListener('scroll', () => {
+                const floatingBtn = document.getElementById('floatingOrdersBtn');
+                if (!floatingBtn) return;
+                
+                if (window.scrollY > 300) {
+                    floatingBtn.classList.add('active');
+                } else {
+                    floatingBtn.classList.remove('active');
+                }
+            });
+        }
 
         // Utility Functions
         function showToast(message, type = 'success') {
@@ -2697,423 +1987,20 @@ async function handleProfileUpdate(event) {
             }, 5000);
         }
 
-        function filterProducts() {
-            const searchTerm = document.getElementById('productSearch').value.toLowerCase();
-            showToast(`Searching for: ${searchTerm}`);
-        }
-
-        // =============================================
-        // NOTIFICATION SYSTEM
-        // =============================================
-
-        let notificationPermission = 'default';
-        let audioContext = null;
-        let isAppActive = true;
-
-        function initializeShopkeeperNotifications() {
-            console.log('🔔 Initializing shopkeeper notification system...');
-            requestNotificationPermission();
-            setupOrderNotificationsListener();
-            setupAppVisibilityDetection();
-            initializeAudio();
-        }
-
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                console.log("❌ This browser does not support notifications");
-                return;
-            }
-
-            if (Notification.permission === "granted") {
-                notificationPermission = "granted";
-                console.log("✅ Notification permission already granted");
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    notificationPermission = permission;
-                    console.log(`🔔 Notification permission: ${permission}`);
-                });
-            }
-        }
-
-        function setupOrderNotificationsListener() {
-    if (!currentShop) {
-        console.log('⚠️ Shopkeeper not logged in');
-        return;
-    }
-
-    console.log(`🏪 Setting up SMART order notifications for shop: ${currentShop.id}`);
-    
-    // ✅ STORE LAST NOTIFICATION TIME TO AVOID DUPLICATES
-    const lastNotificationTime = localStorage.getItem(`lastNotification_${currentShop.id}`) || 0;
-    const now = Date.now();
-    
-    // Listen for NEW pending orders (only those created after we logged in)
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .where('status', '==', 'pending')
-        .where('createdAt', '>', new Date(lastNotificationTime))
-        .onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    const newOrder = { id: change.doc.id, ...change.doc.data() };
-                    
-                    // ✅ CHECK IF ORDER IS REALLY NEW (within last 5 minutes)
-                    const orderTime = newOrder.createdAt?.toDate?.() || new Date();
-                    const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
-                    
-                    if (orderTime > fiveMinutesAgo) {
-                        console.log('🆕 NEW order detected:', newOrder.id);
-                        showNewOrderNotification(newOrder);
-                        
-                        // ✅ UPDATE LAST NOTIFICATION TIME
-                        localStorage.setItem(`lastNotification_${currentShop.id}`, now.toString());
-                    } else {
-                        console.log('⏰ Old order ignored:', newOrder.id);
-                    }
-                }
-            });
-        }, (error) => {
-            console.error('❌ Notification listener error:', error);
-        });
-    
-    // ✅ ALSO LISTEN FOR STATUS CHANGES TO CLEAR NOTIFICATIONS
-    db.collection('orderItems')
-        .where('shopId', '==', currentShop.id)
-        .onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'modified') {
-                    const updatedOrder = { id: change.doc.id, ...change.doc.data() };
-                    
-                    // If order status changed from pending, clear any notification
-                    if (updatedOrder.status !== 'pending') {
-                        console.log('✅ Order processed:', updatedOrder.id, 'Status:', updatedOrder.status);
-                        // You could add logic to remove/clear the notification
-                    }
-                }
-            });
-        });
-}
-                function showNewOrderNotification(order) {
-            const notificationTitle = `🛍️ New Order Received!`;
-            const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
-            
-            playNotificationSound();
-            
-            // ✅ ALWAYS show browser notification if permission granted
-            if (notificationPermission === "granted") {
-                showBrowserNotification(notificationTitle, notificationBody, order);
-            }
-            
-            // ✅ Only show in-app popup if app is active
-            if (isAppActive) {
-                showInAppNotification(notificationTitle, notificationBody, order);
-            }
-            
-            updateOrderBadge();
-        }
-
-        function showNewOrderNotification(order) {
-    const notificationTitle = `🛍️ New Order Received!`;
-    const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
-    
-    playNotificationSound();
-    
-    if (notificationPermission === "granted") {
-        showBrowserNotification(notificationTitle, notificationBody, order);
-    }
-    
-    if (isAppActive) {
-        showInAppNotification(notificationTitle, notificationBody, order);
-    }
-    
-    updateOrderBadge();
-}
-        
-                function showBrowserNotification(title, body, order) {
-            const notification = new Notification(title, {
-                body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/891/891419.png', // ✅ Simple shopping icon
-                badge: 'https://cdn-icons-png.flaticon.com/512/891/891419.png', // ✅ Same icon
-                tag: 'new-order',
-                requireInteraction: true,
-                data: { orderId: order.id }
-            });
-
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-                navigateToPage('orders');
-                // ✅ Order ko highlight bhi kare
-                highlightOrderInList(order.id);
-            };
-
-            // Auto close after 15 seconds (instead of 10)
-            setTimeout(() => {
-                notification.close();
-            }, 15000);
-        }
-
-        function showInAppNotification(title, body, order) {
-            const notificationEl = document.createElement('div');
-            notificationEl.className = 'in-app-notification show';
-            notificationEl.innerHTML = `
-                <div class="notification-content">
-                    <div class="notification-header">
-                        <span class="notification-icon">🛍️</span>
-                        <h4>${title}</h4>
-                        <button class="notification-close">&times;</button>
-                    </div>
-                    <div class="notification-body">
-                        <p>${body}</p>
-                        <p><strong>Customer:</strong> ${order.customerEmail || 'Customer'}</p>
-                        <p><strong>Item:</strong> ${order.productName} × ${order.quantity}</p>
-                        <p><strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</p>
-                    </div>
-                    <div class="notification-actions">
-                        <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
-                        <button class="btn-dismiss">Dismiss</button>
-                    </div>
-                </div>
-            `;
-
-            const container = document.getElementById('notificationsContainer') || createNotificationsContainer();
-            container.appendChild(notificationEl);
-
-            const autoRemove = setTimeout(() => {
-                removeNotification(notificationEl);
-            }, 8000);
-
-            notificationEl.querySelector('.notification-close').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-            };
-
-            notificationEl.querySelector('.btn-dismiss').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-            };
-
-            notificationEl.querySelector('.btn-view-order').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-                navigateToPage('orders');
-                highlightOrderInList(order.id);
-            };
-        }
-
-        function createNotificationsContainer() {
-            const container = document.createElement('div');
-            container.id = 'notificationsContainer';
-            container.className = 'notifications-container';
-            document.body.appendChild(container);
-            return container;
-        }
-
-        function removeNotification(notificationEl) {
-            notificationEl.classList.remove('show');
-            notificationEl.classList.add('hide');
-            setTimeout(() => {
-                if (notificationEl.parentNode) {
-                    notificationEl.parentNode.removeChild(notificationEl);
-                }
-            }, 300);
-        }
-
-                function playNotificationSound() {
-            try {
-                playWebAudioNotification();
-                // ✅ ADD HTML5 FALLBACK
-                playHTML5Notification();
-            } catch (error) {
-                console.error('❌ Error playing notification sound:', error);
-                // ✅ LAST RESORT: Simple beep
-                try {
-                    new AudioContext().createOscillator().start();
-                } catch(e) {}
-            }
-        }
-
-        function playHTML5Notification() {
-            try {
-                // Create a simple beep using oscillator
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                gainNode.gain.value = 0.1;
-                
-                oscillator.start();
-                setTimeout(() => oscillator.stop(), 200);
-            } catch (error) {
-                // Silent fail
-            }
-        }
-
-        function initializeAudio() {
-            document.addEventListener('click', () => {
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-            }, { once: true });
-        }
-
-        function setupAppVisibilityDetection() {
-            // ✅ Detect if page is visible on load
-            isAppActive = !document.hidden;
-            
-            document.addEventListener('visibilitychange', () => {
-                isAppActive = !document.hidden;
-                console.log(`👀 App active: ${isAppActive}`);
-            });
-
-            window.addEventListener('focus', () => {
-                isAppActive = true;
-                clearInAppNotifications();
-            });
-
-            window.addEventListener('blur', () => {
-                isAppActive = false;
-            });
-        }
-
-        function clearInAppNotifications() {
-            const container = document.getElementById('notificationsContainer');
-            if (container) {
-                const notifications = container.querySelectorAll('.in-app-notification');
-                notifications.forEach(notification => {
-                    removeNotification(notification);
-                });
-            }
-        }
-
-                function updateOrderBadge() {
-            const badges = document.querySelectorAll('.orders-badge, .notification-badge');
-            badges.forEach(badge => {
-                const currentCount = parseInt(badge.textContent) || 0;
-                badge.textContent = currentCount + 1;
-                badge.style.display = 'block';
-            });
-        }
-
-        function highlightOrderInList(orderId) {
-            const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
-            if (orderElement) {
-                orderElement.classList.add('highlight-new');
-                setTimeout(() => {
-                    orderElement.classList.remove('highlight-new');
-                }, 3000);
-                orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        } // <-- ADDED MISSING CLOSING BRACE HERE
-
-                // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-            
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
-            
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        navigateToPage(page);
-                    }
-                });
-            });
-            
-            document.getElementById('productSearch').addEventListener('input', filterProducts);
-        });
-
-        // ✅ MOBILE OPTIMIZATION FUNCTIONS - ADD BEFORE </script> */
-        function initializeMobileUI() {
-            // Show/hide floating button based on scroll
-            window.addEventListener('scroll', () => {
-                const floatingBtn = document.getElementById('floatingOrdersBtn');
-                if (!floatingBtn) return;
-                
-                if (window.scrollY > 300) {
-                    floatingBtn.classList.add('active');
-                } else {
-                    floatingBtn.classList.remove('active');
-                }
-            });
-            
-            // Update summary card
-            updateOrdersSummary();
-            
-            // Set active quick action button
-            setActiveQuickAction();
-        }
-
-        function updateOrdersSummary() {
-            if (!orders || orders.length === 0) return;
-            
-            const pendingCount = orders.filter(o => o.status === 'pending').length;
-            const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
-            const preparingCount = orders.filter(o => o.status === 'preparing').length;
-            
-            // Update summary elements if they exist
-            const pendingEl = document.getElementById('pendingSummary');
-            const confirmedEl = document.getElementById('confirmedSummary');
-            const preparingEl = document.getElementById('preparingSummary');
-            const totalEl = document.getElementById('totalSummary');
-            
-            if (pendingEl) pendingEl.textContent = pendingCount;
-            if (confirmedEl) confirmedEl.textContent = confirmedCount;
-            if (preparingEl) preparingEl.textContent = preparingCount;
-            if (totalEl) totalEl.textContent = orders.length;
-            
-            // Update floating button badge
-            const badges = document.querySelectorAll('.orders-badge');
-            badges.forEach(badge => {
-                if (pendingCount > 0) {
-                    badge.textContent = pendingCount;
-                    badge.style.display = 'block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            });
-        }
-
-        function setActiveQuickAction() {
-            // Get current page from URL or localStorage
-            let currentPage = 'dashboard'; // default
-            
-            // Try to get from URL hash
-            if (window.location.hash) {
-                currentPage = window.location.hash.replace('#', '');
-            }
-            // Try to get from localStorage
-            else if (localStorage.getItem('currentPage')) {
-                currentPage = localStorage.getItem('currentPage');
-            }
-            
-            console.log('Setting active page:', currentPage);
-            
-            const buttons = document.querySelectorAll('.quick-action-btn');
-            
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-                const pageAttr = btn.getAttribute('data-page');
-                if (pageAttr === currentPage) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            // Initialize app
             initApp();
             
+            // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Profile form
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
             
+            // Navigation links
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -3124,36 +2011,25 @@ async function handleProfileUpdate(event) {
                 });
             });
             
-            document.getElementById('productSearch').addEventListener('input', filterProducts);
+            // Product search
+            const productSearch = document.getElementById('productSearch');
+            if (productSearch) {
+                productSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    // Filter products logic can be added here
+                    console.log('Searching for:', searchTerm);
+                });
+            }
+            
+            // Product form submit
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProduct();
+            });
+            
+            // Setup service options
+            setupServiceOptions();
         });
-
     </script>
-    
-    <!-- Floating Orders Button -->
-    <button class="floating-orders-btn" id="floatingOrdersBtn" onclick="navigateToPage('orders')">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="orders-badge" style="display: none;">0</span>
-    </button>
-
-    <!-- Quick Actions Toolbar -->
-    <div class="quick-actions-toolbar" id="quickActionsToolbar">
-        <button class="quick-action-btn" data-page="dashboard" onclick="navigateToPage('dashboard')">
-            <i class="fas fa-chart-line"></i>
-            <span>Dashboard</span>
-        </button>
-        <button class="quick-action-btn" data-page="orders" onclick="navigateToPage('orders')">
-            <i class="fas fa-shopping-bag"></i>
-            <span>Orders</span>
-            <span class="orders-badge" style="display: none;">0</span>
-        </button>
-        <button class="quick-action-btn" data-page="products" onclick="navigateToPage('products')">
-            <i class="fas fa-box-open"></i>
-            <span>Products</span>
-        </button>
-        <button class="quick-action-btn" data-page="settings" onclick="navigateToPage('settings')">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </button>
-    </div>
 </body>
 </html>

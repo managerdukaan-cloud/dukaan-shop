@@ -606,6 +606,51 @@
             color: #333;
         }
 
+        /* Partial Order Modal */
+        .partial-order-modal {
+            max-width: 400px;
+        }
+
+        .item-quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .item-quantity-control .item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-display {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+
         /* Content Pages */
         .content-page {
             display: none;
@@ -1044,6 +1089,23 @@
         </div>
     </div>
 
+    <!-- Partial Order Modal -->
+    <div class="modal" id="partialOrderModal">
+        <div class="modal-content partial-order-modal">
+            <div class="modal-header">
+                <h3>Accept Partial Order</h3>
+                <button class="close-modal" onclick="closePartialOrderModal()">&times;</button>
+            </div>
+            <div id="partialOrderItems">
+                <!-- Items will be loaded here -->
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closePartialOrderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmPartialOrder()">Confirm Partial Order</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1093,6 +1155,8 @@
         let currentShop = null;
         let products = [];
         let orders = [];
+        let currentPartialOrderId = null;
+        let partialOrderItems = [];
 
         // Working Unsplash image URLs
         const defaultProductImages = [
@@ -1730,23 +1794,51 @@
                         }) : 
                         'Recently';
                     
-                    const statusClass = order.status === 'pending' ? 'warning' : 
-                                      order.status === 'confirmed' ? 'primary' :
-                                      order.status === 'preparing' ? 'info' :
-                                      order.status === 'dispatched' ? 'warning' :
-                                      order.status === 'delivered' ? 'success' :
-                                      order.status === 'ready_for_pickup' ? 'info' :
-                                      order.status === 'picked_up' ? 'success' :
-                                      order.status === 'cancelled' ? 'danger' : 'secondary';
+                    // Status badge with proper colors
+                    let statusClass = '';
+                    let statusText = '';
                     
-                    const statusText = order.status === 'pending' ? 'Pending' :
-                                     order.status === 'confirmed' ? 'Confirmed' :
-                                     order.status === 'preparing' ? 'Preparing' :
-                                     order.status === 'dispatched' ? 'Dispatched' :
-                                     order.status === 'delivered' ? 'Delivered' :
-                                     order.status === 'ready_for_pickup' ? 'Ready for Pickup' :
-                                     order.status === 'picked_up' ? 'Picked Up' :
-                                     order.status === 'cancelled' ? 'Cancelled' : order.status;
+                    switch(order.status) {
+                        case 'pending':
+                            statusClass = 'warning';
+                            statusText = 'Pending';
+                            break;
+                        case 'confirmed':
+                            statusClass = 'primary';
+                            statusText = 'Confirmed';
+                            break;
+                        case 'preparing':
+                            statusClass = 'info';
+                            statusText = 'Preparing';
+                            break;
+                        case 'dispatched':
+                            statusClass = 'warning';
+                            statusText = 'Dispatched';
+                            break;
+                        case 'delivered':
+                            statusClass = 'success';
+                            statusText = 'Delivered';
+                            break;
+                        case 'ready_for_pickup':
+                            statusClass = 'info';
+                            statusText = 'Ready for Pickup';
+                            break;
+                        case 'picked_up':
+                            statusClass = 'success';
+                            statusText = 'Picked Up';
+                            break;
+                        case 'cancelled':
+                            statusClass = 'danger';
+                            statusText = 'Cancelled';
+                            break;
+                        case 'rejected':
+                            statusClass = 'danger';
+                            statusText = 'Rejected';
+                            break;
+                        default:
+                            statusClass = 'secondary';
+                            statusText = order.status || 'Unknown';
+                    }
                     
                     // Order items display
                     let itemsDisplay = '';
@@ -1765,58 +1857,56 @@
                         `${order.customerName}` : 
                         order.customerEmail || 'Customer';
                     
-                    // Payment method
-                    const paymentText = order.paymentMethod === 'cod' ? 
-                        '<span class="badge bg-info">Cash on Delivery</span>' : 
-                        '<span class="badge bg-success">Paid Online</span>';
+                    // Payment method - FIXED: Show proper payment method
+                    let paymentText = '';
+                    if (order.paymentMethod === 'cod') {
+                        paymentText = '<span class="badge bg-warning text-dark">Cash on Delivery</span>';
+                    } else if (order.paymentMethod === 'online') {
+                        paymentText = '<span class="badge bg-success">Paid Online</span>';
+                    } else if (order.paymentStatus === 'paid') {
+                        paymentText = '<span class="badge bg-success">Paid</span>';
+                    } else {
+                        paymentText = '<span class="badge bg-secondary">Not Specified</span>';
+                    }
                     
                     // Order amount
                     const orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
                     
-                    // Action buttons
+                    // Action buttons - FIXED: Show taken action instead of blank space
                     let actionButtons = '';
-                    if (order.status === 'pending') {
+                    
+                    // If order is already processed, show the action taken
+                    if (order.status === 'confirmed') {
+                        actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Accepted</span>`;
+                    } else if (order.status === 'rejected') {
+                        actionButtons = `<span class="text-danger"><i class="fas fa-times-circle"></i> Rejected</span>`;
+                    } else if (order.status === 'preparing') {
+                        actionButtons = `<span class="text-info"><i class="fas fa-utensils"></i> Preparing</span>`;
+                    } else if (order.status === 'dispatched') {
+                        actionButtons = `<span class="text-warning"><i class="fas fa-shipping-fast"></i> Dispatched</span>`;
+                    } else if (order.status === 'delivered') {
+                        actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Delivered</span>`;
+                    } else if (order.status === 'ready_for_pickup') {
+                        actionButtons = `<span class="text-info"><i class="fas fa-box"></i> Ready for Pickup</span>`;
+                    } else if (order.status === 'picked_up') {
+                        actionButtons = `<span class="text-success"><i class="fas fa-user-check"></i> Picked Up</span>`;
+                    } else if (order.status === 'cancelled') {
+                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> Cancelled</span>`;
+                    }
+                    // If order is pending, show accept/reject buttons
+                    else if (order.status === 'pending') {
                         actionButtons = `
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
-                                    <i class="fas fa-check"></i> Accept
+                            <div style="display: flex; gap: 5px; flex-direction: column;">
+                                <button class="btn btn-success btn-sm" onclick="acceptFullOrder('${order.id}')">
+                                    <i class="fas fa-check"></i> Accept All
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')">
+                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${order.id}')">
+                                    <i class="fas fa-check-double"></i> Accept Partial
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectOrder('${order.id}')">
                                     <i class="fas fa-times"></i> Reject
                                 </button>
                             </div>
-                        `;
-                    } else if (order.status === 'confirmed') {
-                        actionButtons = `
-                            <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                                <i class="fas fa-utensils"></i> Start Prep
-                            </button>
-                        `;
-                    } else if (order.status === 'preparing') {
-                        if (currentShop.deliveryType === 'pickup_only' || currentShop.deliveryType === 'both') {
-                            actionButtons = `
-                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'ready_for_pickup')">
-                                    <i class="fas fa-box"></i> Ready
-                                </button>
-                            `;
-                        } else {
-                            actionButtons = `
-                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
-                                    <i class="fas fa-shipping-fast"></i> Dispatch
-                                </button>
-                            `;
-                        }
-                    } else if (order.status === 'dispatched') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
-                                <i class="fas fa-check-circle"></i> Delivered
-                            </button>
-                        `;
-                    } else if (order.status === 'ready_for_pickup') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'picked_up')">
-                                <i class="fas fa-user-check"></i> Picked Up
-                            </button>
                         `;
                     }
                     
@@ -1845,6 +1935,183 @@
             });
             
             ordersList.innerHTML = ordersHtml;
+        }
+
+        // Partial Order Functions
+        function showPartialOrderModal(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentPartialOrderId = orderId;
+            partialOrderItems = [];
+            
+            // Prepare items for partial order
+            let itemsHtml = '';
+            if (order.items && Array.isArray(order.items)) {
+                order.items.forEach((item, index) => {
+                    const maxQuantity = item.quantity || 1;
+                    partialOrderItems.push({
+                        ...item,
+                        originalQuantity: maxQuantity,
+                        acceptedQuantity: maxQuantity // Default accept all
+                    });
+                    
+                    itemsHtml += `
+                        <div class="item-quantity-control">
+                            <div class="item-name">${item.name || 'Item'}</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
+                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <span style="margin-left: 10px; color: #666;">
+                                    Max: ${maxQuantity}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                // Single item order
+                const maxQuantity = order.quantity || 1;
+                partialOrderItems.push({
+                    name: order.productName || 'Product',
+                    price: order.price || 0,
+                    originalQuantity: maxQuantity,
+                    acceptedQuantity: maxQuantity
+                });
+                
+                itemsHtml += `
+                    <div class="item-quantity-control">
+                        <div class="item-name">${order.productName || 'Product'}</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changePartialQuantity(0, -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
+                            <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <span style="margin-left: 10px; color: #666;">
+                                Max: ${maxQuantity}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('partialOrderItems').innerHTML = itemsHtml;
+            document.getElementById('partialOrderModal').classList.add('active');
+        }
+
+        function changePartialQuantity(index, change) {
+            if (index < 0 || index >= partialOrderItems.length) return;
+            
+            const item = partialOrderItems[index];
+            const newQuantity = item.acceptedQuantity + change;
+            
+            if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
+                item.acceptedQuantity = newQuantity;
+                document.getElementById(`partialQty${index}`).textContent = newQuantity;
+            }
+        }
+
+        function closePartialOrderModal() {
+            document.getElementById('partialOrderModal').classList.remove('active');
+            currentPartialOrderId = null;
+            partialOrderItems = [];
+        }
+
+        async function confirmPartialOrder() {
+            if (!currentPartialOrderId) return;
+            
+            try {
+                showLoading(true);
+                
+                // Update order status to confirmed
+                await db.collection('orders').doc(currentPartialOrderId).update({
+                    status: 'confirmed',
+                    isPartialOrder: true,
+                    partialItems: partialOrderItems,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Partial order accepted successfully!', 'success');
+                closePartialOrderModal();
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error accepting partial order:', error);
+                showToast('Error accepting partial order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function acceptFullOrder(orderId) {
+            if (!confirm('Are you sure you want to accept this order?')) return;
+            
+            try {
+                showLoading(true);
+                
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'confirmed',
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    await db.collection('orderItems').doc(orderId).update({
+                        status: 'confirmed',
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                showToast('Order accepted successfully!', 'success');
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error accepting order:', error);
+                showToast('Error accepting order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function rejectOrder(orderId) {
+            if (!confirm('Are you sure you want to reject this order?')) return;
+            
+            try {
+                showLoading(true);
+                
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'rejected',
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    await db.collection('orderItems').doc(orderId).update({
+                        status: 'rejected',
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                showToast('Order rejected successfully!', 'success');
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error rejecting order:', error);
+                showToast('Error rejecting order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
         }
 
         async function updateOrderStatus(orderId, newStatus) {
@@ -1978,36 +2245,6 @@
                     floatingBtn.classList.remove('active');
                 }
             });
-        }
-
-        // Notification Functions (FIXED)
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                console.log("❌ This browser does not support notifications");
-                return;
-            }
-
-            if (Notification.permission === "granted") {
-                console.log("✅ Notification permission already granted");
-                return "granted";
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    console.log(`🔔 Notification permission: ${permission}`);
-                    return permission;
-                });
-            }
-            return Notification.permission;
-        }
-
-        function initializeShopkeeperNotifications() {
-            console.log('🔔 Initializing shopkeeper notification system...');
-            try {
-                const permission = requestNotificationPermission();
-                console.log('Notification permission:', permission);
-                // We'll setup order listeners later if needed
-            } catch (error) {
-                console.log('Error initializing notifications:', error);
-            }
         }
 
         // Utility Functions

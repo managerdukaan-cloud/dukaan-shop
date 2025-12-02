@@ -1361,340 +1361,255 @@
         }
 
         // =============================================
-        // NOTIFICATION SYSTEM
-        // =============================================
+// NOTIFICATION SYSTEM - FIXED VERSION
+// =============================================
 
-        function initializeShopkeeperNotifications() {
-            console.log('🔔 Initializing shopkeeper notification system...');
-            requestNotificationPermission();
-            setupOrderNotificationsListener();
-            setupAppVisibilityDetection();
-            initializeAudio();
-        }
+let processedOrderIds = new Set(); // Track which orders we've already notified
 
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                console.log("❌ This browser does not support notifications");
-                return;
-            }
+function initializeShopkeeperNotifications() {
+    console.log('🔔 Initializing shopkeeper notification system...');
+    requestNotificationPermission();
+    setupOrderNotificationsListener();
+    setupAppVisibilityDetection();
+    initializeAudio();
+    
+    // Load previously processed orders from localStorage
+    loadProcessedOrders();
+}
 
-            if (Notification.permission === "granted") {
-                notificationPermission = "granted";
-                console.log("✅ Notification permission already granted");
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    notificationPermission = permission;
-                    console.log(`🔔 Notification permission: ${permission}`);
-                });
-            }
-        }
+function loadProcessedOrders() {
+    const stored = localStorage.getItem('processedOrders');
+    if (stored) {
+        processedOrderIds = new Set(JSON.parse(stored));
+        console.log('📋 Loaded processed orders:', processedOrderIds.size);
+    }
+}
 
-        function setupOrderNotificationsListener() {
-            if (!currentShop) {
-                console.log('⚠️ Shopkeeper not logged in');
-                return;
-            }
+function saveProcessedOrders() {
+    localStorage.setItem('processedOrders', JSON.stringify(Array.from(processedOrderIds)));
+}
 
-            console.log(`🏪 Setting up order notifications for shop: ${currentShop.id}`);
-            
-            // Listen for NEW pending orders
-            db.collection('orderItems')
-                .where('shopId', '==', currentShop.id)
-                .where('status', '==', 'pending')
-                .onSnapshot((snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') {
-                            const newOrder = { id: change.doc.id, ...change.doc.data() };
-                            console.log('🆕 NEW order detected:', newOrder.id);
-                            showNewOrderNotification(newOrder);
-                        }
-                    });
-                }, (error) => {
-                    console.error('❌ Notification listener error:', error);
-                });
-        }
+function setupOrderNotificationsListener() {
+    if (!currentShop) {
+        console.log('⚠️ Shopkeeper not logged in');
+        return;
+    }
 
-        function showNewOrderNotification(order) {
-            const notificationTitle = `🛍️ New Order Received!`;
-            const notificationBody = `Order #${order.id.slice(-8)} - ₹${order.price * order.quantity}`;
-            
-            playNotificationSound();
-            
-            // ✅ ALWAYS show browser notification if permission granted
-            if (notificationPermission === "granted") {
-                showBrowserNotification(notificationTitle, notificationBody, order);
-            }
-            
-            // ✅ Only show in-app popup if app is active
-            if (isAppActive) {
-                showInAppNotification(notificationTitle, notificationBody, order);
-            }
-            
-            updateOrderBadge();
-        }
-
-        function showBrowserNotification(title, body, order) {
-            const notification = new Notification(title, {
-                body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/891/891419.png',
-                badge: 'https://cdn-icons-png.flaticon.com/512/891/891419.png',
-                tag: 'new-order',
-                requireInteraction: true,
-                data: { orderId: order.id }
-            });
-
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-                navigateToPage('orders');
-                highlightOrderInList(order.id);
-            };
-
-            // Auto close after 15 seconds
-            setTimeout(() => {
-                notification.close();
-            }, 15000);
-        }
-
-        function showInAppNotification(title, body, order) {
-            const notificationEl = document.createElement('div');
-            notificationEl.className = 'in-app-notification show';
-            notificationEl.innerHTML = `
-                <div class="notification-content">
-                    <div class="notification-header">
-                        <span class="notification-icon">🛍️</span>
-                        <h4>${title}</h4>
-                        <button class="notification-close">&times;</button>
-                    </div>
-                    <div class="notification-body">
-                        <p>${body}</p>
-                        <p><strong>Customer:</strong> ${order.customerEmail || 'Customer'}</p>
-                        <p><strong>Item:</strong> ${order.productName} × ${order.quantity}</p>
-                        <p><strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</p>
-                    </div>
-                    <div class="notification-actions">
-                        <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
-                        <button class="btn-dismiss">Dismiss</button>
-                    </div>
-                </div>
-            `;
-
-            const container = document.getElementById('notificationsContainer');
-            if (!container) {
-                const newContainer = document.createElement('div');
-                newContainer.id = 'notificationsContainer';
-                newContainer.className = 'notifications-container';
-                document.body.appendChild(newContainer);
-                newContainer.appendChild(notificationEl);
-            } else {
-                container.appendChild(notificationEl);
-            }
-
-            const autoRemove = setTimeout(() => {
-                removeNotification(notificationEl);
-            }, 8000);
-
-            notificationEl.querySelector('.notification-close').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-            };
-
-            notificationEl.querySelector('.btn-dismiss').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-            };
-
-            notificationEl.querySelector('.btn-view-order').onclick = () => {
-                clearTimeout(autoRemove);
-                removeNotification(notificationEl);
-                navigateToPage('orders');
-                highlightOrderInList(order.id);
-            };
-        }
-
-        function removeNotification(notificationEl) {
-            notificationEl.classList.remove('show');
-            notificationEl.classList.add('hide');
-            setTimeout(() => {
-                if (notificationEl.parentNode) {
-                    notificationEl.parentNode.removeChild(notificationEl);
+    console.log(`🏪 Setting up SMART order notifications for shop: ${currentShop.id}`);
+    
+    // Get current time to avoid old orders
+    const now = Date.now();
+    const oneHourAgo = new Date(now - 60 * 60 * 1000);
+    
+    // Listen for NEW pending orders created within last hour
+    db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .where('status', '==', 'pending')
+        .where('createdAt', '>', oneHourAgo)
+        .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const newOrder = { id: change.doc.id, ...change.doc.data() };
+                    
+                    // ✅ CHECK IF WE'VE ALREADY PROCESSED THIS ORDER
+                    if (processedOrderIds.has(newOrder.id)) {
+                        console.log('⏭️ Order already processed:', newOrder.id);
+                        return;
+                    }
+                    
+                    // ✅ CHECK IF ORDER IS REALLY NEW (within last 5 minutes)
+                    const orderTime = newOrder.createdAt?.toDate?.() || new Date();
+                    const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
+                    
+                    if (orderTime > fiveMinutesAgo) {
+                        console.log('🆕 NEW order detected:', newOrder.id);
+                        showNewOrderNotification(newOrder);
+                        
+                        // ✅ MARK AS PROCESSED
+                        processedOrderIds.add(newOrder.id);
+                        saveProcessedOrders();
+                    } else {
+                        console.log('⏰ Old order ignored:', newOrder.id);
+                        // Mark old pending orders as processed to avoid future notifications
+                        processedOrderIds.add(newOrder.id);
+                        saveProcessedOrders();
+                    }
                 }
-            }, 300);
-        }
-
-        function playNotificationSound() {
-            try {
-                // Create a simple beep using oscillator
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                gainNode.gain.value = 0.1;
-                
-                oscillator.start();
-                setTimeout(() => oscillator.stop(), 200);
-            } catch (error) {
-                console.error('❌ Error playing notification sound:', error);
-            }
-        }
-
-        function initializeAudio() {
-            document.addEventListener('click', () => {
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
+            });
+        }, (error) => {
+            console.error('❌ Notification listener error:', error);
+        });
+    
+    // ✅ ALSO LISTEN FOR STATUS CHANGES TO REMOVE FROM PROCESSED
+    db.collection('orderItems')
+        .where('shopId', '==', currentShop.id)
+        .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'modified') {
+                    const updatedOrder = { id: change.doc.id, ...change.doc.data() };
+                    
+                    // If order status changed from pending to something else, we can remove it from processed
+                    // This allows re-notification if it becomes pending again
+                    if (updatedOrder.status !== 'pending' && processedOrderIds.has(updatedOrder.id)) {
+                        console.log('✅ Order status changed, removing from processed:', updatedOrder.id);
+                        processedOrderIds.delete(updatedOrder.id);
+                        saveProcessedOrders();
+                    }
                 }
-            }, { once: true });
-        }
-
-        function setupAppVisibilityDetection() {
-            // ✅ Detect if page is visible on load
-            isAppActive = !document.hidden;
-            
-            document.addEventListener('visibilitychange', () => {
-                isAppActive = !document.hidden;
-                console.log(`👀 App active: ${isAppActive}`);
             });
+        });
+}
 
-            window.addEventListener('focus', () => {
-                isAppActive = true;
-                clearInAppNotifications();
+// Also add this function to clear notifications when order is viewed/processed
+function clearOrderNotification(orderId) {
+    console.log('🔕 Clearing notification for order:', orderId);
+    
+    // Remove from processed set if exists
+    if (processedOrderIds.has(orderId)) {
+        processedOrderIds.delete(orderId);
+        saveProcessedOrders();
+    }
+    
+    // Remove any in-app notification
+    const notification = document.querySelector(`.in-app-notification [data-order-id="${orderId}"]`);
+    if (notification) {
+        const notificationEl = notification.closest('.in-app-notification');
+        if (notificationEl) {
+            removeNotification(notificationEl);
+        }
+    }
+}
+
+// Update order action buttons to clear notification when order is processed
+async function updateOrderStatus(orderId, newStatus) {
+    if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
+    
+    try {
+        showLoading(true);
+        
+        // Clear notification first
+        clearOrderNotification(orderId);
+        
+        // Try both collections
+        try {
+            await db.collection('orders').doc(orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            window.addEventListener('blur', () => {
-                isAppActive = false;
+        } catch (error) {
+            await db.collection('orderItems').doc(orderId).update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
+        
+        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast('Error updating order: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
-        function clearInAppNotifications() {
-            const container = document.getElementById('notificationsContainer');
-            if (container) {
-                const notifications = container.querySelectorAll('.in-app-notification');
-                notifications.forEach(notification => {
-                    removeNotification(notification);
-                });
-            }
+// Update the showInAppNotification function to include data-order-id
+function showInAppNotification(title, body, order) {
+    const notificationEl = document.createElement('div');
+    notificationEl.className = 'in-app-notification show';
+    notificationEl.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-header">
+                <span class="notification-icon">🛍️</span>
+                <h4>${title}</h4>
+                <button class="notification-close">&times;</button>
+            </div>
+            <div class="notification-body">
+                <p>${body}</p>
+                <p><strong>Customer:</strong> ${order.customerEmail || 'Customer'}</p>
+                <p><strong>Item:</strong> ${order.productName} × ${order.quantity}</p>
+                <p><strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'QR Payment'}</p>
+            </div>
+            <div class="notification-actions">
+                <button class="btn-view-order" data-order-id="${order.id}">View Order</button>
+                <button class="btn-dismiss" data-order-id="${order.id}">Dismiss</button>
+            </div>
+        </div>
+    `;
+
+    const container = document.getElementById('notificationsContainer');
+    if (!container) {
+        const newContainer = document.createElement('div');
+        newContainer.id = 'notificationsContainer';
+        newContainer.className = 'notifications-container';
+        document.body.appendChild(newContainer);
+        newContainer.appendChild(notificationEl);
+    } else {
+        container.appendChild(notificationEl);
+    }
+
+    const autoRemove = setTimeout(() => {
+        removeNotification(notificationEl);
+        // Also mark as processed when auto-removed
+        if (!processedOrderIds.has(order.id)) {
+            processedOrderIds.add(order.id);
+            saveProcessedOrders();
         }
+    }, 8000);
 
-        function updateOrderBadge() {
-            const badges = document.querySelectorAll('.orders-badge, .badge');
-            badges.forEach(badge => {
-                const currentCount = parseInt(badge.textContent) || 0;
-                badge.textContent = currentCount + 1;
-                badge.style.display = 'inline-block';
-            });
+    notificationEl.querySelector('.notification-close').onclick = () => {
+        clearTimeout(autoRemove);
+        removeNotification(notificationEl);
+        if (!processedOrderIds.has(order.id)) {
+            processedOrderIds.add(order.id);
+            saveProcessedOrders();
         }
+    };
 
-        function highlightOrderInList(orderId) {
-            const orderElement = document.querySelector(`[data-order-id="${orderId}"]`);
-            if (orderElement) {
-                orderElement.classList.add('highlight-new');
-                setTimeout(() => {
-                    orderElement.classList.remove('highlight-new');
-                }, 3000);
-                orderElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+    notificationEl.querySelector('.btn-dismiss').onclick = () => {
+        clearTimeout(autoRemove);
+        removeNotification(notificationEl);
+        if (!processedOrderIds.has(order.id)) {
+            processedOrderIds.add(order.id);
+            saveProcessedOrders();
         }
+    };
 
-        // Authentication
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                showToast('Please enter email and password', 'error');
-                return;
-            }
-
-            console.log('Attempting login with email:', email);
-
-            try {
-                showLoading(true);
-                
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                console.log('Login successful:', user.email);
-                
-                await loadShopData(user.uid);
-                
-            } catch (error) {
-                console.error("Login error:", error);
-                
-                let errorMessage = 'Login failed. ';
-                
-                switch(error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address format.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This account has been disabled.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No account found with this email.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Incorrect password.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Check your internet connection.';
-                        break;
-                    default:
-                        errorMessage = error.message;
-                }
-                
-                showToast(errorMessage, 'error');
-            } finally {
-                showLoading(false);
-            }
+    notificationEl.querySelector('.btn-view-order').onclick = () => {
+        clearTimeout(autoRemove);
+        removeNotification(notificationEl);
+        if (!processedOrderIds.has(order.id)) {
+            processedOrderIds.add(order.id);
+            saveProcessedOrders();
         }
+        navigateToPage('orders');
+        highlightOrderInList(order.id);
+    };
+}
 
-        function showForgotPassword() {
-            const email = prompt('Enter your email address to reset password:');
-            if (email && email.includes('@')) {
-                auth.sendPasswordResetEmail(email)
-                    .then(() => {
-                        alert('📧 Password reset email sent! Check your inbox and spam folder.');
-                    })
-                    .catch(error => {
-                        alert('❌ Error: ' + error.message);
-                    });
-            } else if (email) {
-                alert('⚠️ Please enter a valid email address.');
-            }
-        }
+// Add clear all notifications function
+function clearAllNotifications() {
+    console.log('🧹 Clearing all notifications');
+    processedOrderIds.clear();
+    saveProcessedOrders();
+    
+    // Remove all in-app notifications
+    const container = document.getElementById('notificationsContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+}
 
-        function showAuthScreen() {
-            document.getElementById('authScreen').style.display = 'block';
-            document.getElementById('appScreen').style.display = 'none';
-            console.log('Showing auth screen');
-        }
-
-        function showAppScreen() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
-            console.log('Showing app screen');
-            
-            // Initialize mobile UI if needed
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                initializeMobileUI();
-            }
-            
-            // Navigate to dashboard
-            navigateToPage('dashboard');
-        }
-
-        function logout() {
-            console.log('Logging out...');
-            auth.signOut();
-            showAuthScreen();
-            showToast('Logged out successfully', 'info');
-        }
+// Call this when user logs out
+function logout() {
+    console.log('Logging out...');
+    clearAllNotifications();
+    auth.signOut();
+    showAuthScreen();
+    showToast('Logged out successfully', 'info');
+}
 
         // Navigation
         function navigateToPage(page) {

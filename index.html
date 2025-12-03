@@ -1794,7 +1794,7 @@
                         }) : 
                         'Recently';
                     
-                    // Status badge with proper colors
+                    // Status badge with proper colors - FIXED: Clear status display
                     let statusClass = '';
                     let statusText = '';
                     
@@ -1857,57 +1857,115 @@
                         `${order.customerName}` : 
                         order.customerEmail || 'Customer';
                     
-                    // Payment method - FIXED: Show proper payment method
+                    // Payment method - FIXED: Clear payment information
                     let paymentText = '';
+                    
                     if (order.paymentMethod === 'cod') {
-                        paymentText = '<span class="badge bg-warning text-dark">Cash on Delivery</span>';
+                        // Check payment status for COD
+                        if (order.paymentStatus === 'paid') {
+                            paymentText = '<span class="badge bg-success">COD - PAID</span>';
+                        } else if (order.paymentStatus === 'pending') {
+                            paymentText = '<span class="badge bg-warning">COD - UNPAID</span>';
+                        } else {
+                            paymentText = '<span class="badge bg-warning">Cash on Delivery</span>';
+                        }
                     } else if (order.paymentMethod === 'online') {
-                        paymentText = '<span class="badge bg-success">Paid Online</span>';
+                        // Show UTR number if available
+                        if (order.utrNumber) {
+                            paymentText = `<span class="badge bg-success">Online - UTR: ${order.utrNumber.substring(0, 8)}...</span>`;
+                        } else {
+                            paymentText = '<span class="badge bg-success">Online Payment</span>';
+                        }
                     } else if (order.paymentStatus === 'paid') {
-                        paymentText = '<span class="badge bg-success">Paid</span>';
+                        paymentText = '<span class="badge bg-success">PAID</span>';
+                    } else if (order.paymentStatus === 'pending') {
+                        paymentText = '<span class="badge bg-warning">UNPAID</span>';
                     } else {
-                        paymentText = '<span class="badge bg-secondary">Not Specified</span>';
+                        paymentText = '<span class="badge bg-secondary">Payment Pending</span>';
                     }
                     
                     // Order amount
                     const orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
                     
-                    // Action buttons - FIXED: Show taken action instead of blank space
+                    // Action buttons - FIXED: Show proper flow of action buttons
                     let actionButtons = '';
                     
-                    // If order is already processed, show the action taken
-                    if (order.status === 'confirmed') {
-                        actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Accepted</span>`;
-                    } else if (order.status === 'rejected') {
-                        actionButtons = `<span class="text-danger"><i class="fas fa-times-circle"></i> Rejected</span>`;
-                    } else if (order.status === 'preparing') {
-                        actionButtons = `<span class="text-info"><i class="fas fa-utensils"></i> Preparing</span>`;
-                    } else if (order.status === 'dispatched') {
-                        actionButtons = `<span class="text-warning"><i class="fas fa-shipping-fast"></i> Dispatched</span>`;
-                    } else if (order.status === 'delivered') {
-                        actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Delivered</span>`;
-                    } else if (order.status === 'ready_for_pickup') {
-                        actionButtons = `<span class="text-info"><i class="fas fa-box"></i> Ready for Pickup</span>`;
-                    } else if (order.status === 'picked_up') {
-                        actionButtons = `<span class="text-success"><i class="fas fa-user-check"></i> Picked Up</span>`;
-                    } else if (order.status === 'cancelled') {
-                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> Cancelled</span>`;
-                    }
-                    // If order is pending, show accept/reject buttons
-                    else if (order.status === 'pending') {
-                        actionButtons = `
-                            <div style="display: flex; gap: 5px; flex-direction: column;">
-                                <button class="btn btn-success btn-sm" onclick="acceptFullOrder('${order.id}')">
-                                    <i class="fas fa-check"></i> Accept All
+                    switch(order.status) {
+                        case 'pending':
+                            actionButtons = `
+                                <div style="display: flex; gap: 5px; flex-direction: column;">
+                                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
+                                        <i class="fas fa-check"></i> Accept All
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${order.id}')">
+                                        <i class="fas fa-check-double"></i> Accept Partial
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'rejected')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            `;
+                            break;
+                            
+                        case 'confirmed':
+                            actionButtons = `
+                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${order.id}', 'preparing')">
+                                    <i class="fas fa-utensils"></i> Start Preparing
                                 </button>
-                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${order.id}')">
-                                    <i class="fas fa-check-double"></i> Accept Partial
+                            `;
+                            break;
+                            
+                        case 'preparing':
+                            // Check shop delivery type
+                            if (currentShop.deliveryType === 'pickup_only' || order.deliveryType === 'pickup') {
+                                actionButtons = `
+                                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'ready_for_pickup')">
+                                        <i class="fas fa-box"></i> Ready for Pickup
+                                    </button>
+                                `;
+                            } else {
+                                actionButtons = `
+                                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${order.id}', 'dispatched')">
+                                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                                    </button>
+                                `;
+                            }
+                            break;
+                            
+                        case 'ready_for_pickup':
+                            actionButtons = `
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'picked_up')">
+                                    <i class="fas fa-user-check"></i> Mark as Picked Up
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="rejectOrder('${order.id}')">
-                                    <i class="fas fa-times"></i> Reject
+                            `;
+                            break;
+                            
+                        case 'dispatched':
+                            actionButtons = `
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'delivered')">
+                                    <i class="fas fa-check-circle"></i> Mark as Delivered
                                 </button>
-                            </div>
-                        `;
+                            `;
+                            break;
+                            
+                        case 'delivered':
+                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Delivered</span>`;
+                            break;
+                            
+                        case 'picked_up':
+                            actionButtons = `<span class="text-success"><i class="fas fa-user-check"></i> Picked Up</span>`;
+                            break;
+                            
+                        case 'cancelled':
+                            actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> Cancelled</span>`;
+                            break;
+                            
+                        case 'rejected':
+                            actionButtons = `<span class="text-danger"><i class="fas fa-times-circle"></i> Rejected</span>`;
+                            break;
+                            
+                        default:
+                            actionButtons = `<span class="text-secondary">${order.status || 'Processing'}</span>`;
                     }
                     
                     ordersHtml += `
@@ -2047,68 +2105,6 @@
             } catch (error) {
                 console.error('Error accepting partial order:', error);
                 showToast('Error accepting partial order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function acceptFullOrder(orderId) {
-            if (!confirm('Are you sure you want to accept this order?')) return;
-            
-            try {
-                showLoading(true);
-                
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(orderId).update({
-                        status: 'confirmed',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    await db.collection('orderItems').doc(orderId).update({
-                        status: 'confirmed',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                showToast('Order accepted successfully!', 'success');
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error accepting order:', error);
-                showToast('Error accepting order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function rejectOrder(orderId) {
-            if (!confirm('Are you sure you want to reject this order?')) return;
-            
-            try {
-                showLoading(true);
-                
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(orderId).update({
-                        status: 'rejected',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    await db.collection('orderItems').doc(orderId).update({
-                        status: 'rejected',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                showToast('Order rejected successfully!', 'success');
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error rejecting order:', error);
-                showToast('Error rejecting order: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }

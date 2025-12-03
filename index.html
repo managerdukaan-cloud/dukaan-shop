@@ -609,6 +609,97 @@
             background: #f8f9fa;
         }
 
+        /* Status Text Styles */
+        .status-text {
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+        
+        .status-confirmed {
+            color: #004085;
+            background-color: #cce5ff;
+        }
+        
+        .status-preparing {
+            color: #0c5460;
+            background-color: #d1ecf1;
+        }
+        
+        .status-dispatched {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+        
+        .status-delivered {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .status-ready_for_pickup {
+            color: #0c5460;
+            background-color: #d1ecf1;
+        }
+        
+        .status-picked_up {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .status-cancelled {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+        
+        .status-rejected {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+        
+        /* Payment Text Styles */
+        .payment-text {
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .payment-cod-paid {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .payment-cod-unpaid {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+        
+        .payment-online-paid {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .payment-online-unpaid {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+        
+        .payment-paid {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .payment-unpaid {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -736,6 +827,11 @@
             color: #666;
             text-align: center;
             margin-top: 5px;
+        }
+
+        /* Payment Update Modal */
+        .payment-update-modal {
+            max-width: 400px;
         }
 
         /* Content Pages */
@@ -1203,7 +1299,52 @@
             </div>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn btn-outline" onclick="closePartialOrderModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmPartialOrder()">Confirm Partial Order</button>
+                <button class="btn btn-primary" id="confirmPartialOrderBtn" onclick="confirmPartialOrder()">Confirm Partial Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Update Modal -->
+    <div class="modal" id="paymentUpdateModal">
+        <div class="modal-content payment-update-modal">
+            <div class="modal-header">
+                <h3>Update Payment Status</h3>
+                <button class="close-modal" onclick="closePaymentUpdateModal()">&times;</button>
+            </div>
+            <form id="paymentUpdateForm">
+                <input type="hidden" id="paymentUpdateOrderId">
+                <div class="form-group">
+                    <label>Order Total</label>
+                    <input type="text" id="paymentOrderTotal" readonly style="background: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentUpdateMethod">
+                        <option value="cod">Cash on Delivery (COD)</option>
+                        <option value="qr">QR Payment</option>
+                        <option value="online">Online Payment</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Status</label>
+                    <select id="paymentUpdateStatus">
+                        <option value="paid">PAID</option>
+                        <option value="pending">UNPAID</option>
+                    </select>
+                </div>
+                <div class="form-group" id="utrField" style="display: none;">
+                    <label>UTR Number</label>
+                    <input type="text" id="paymentUtrNumber" placeholder="Enter UTR number">
+                </div>
+                <div id="qrInfo" style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none;">
+                    <h5><i class="fas fa-qrcode"></i> QR Payment Information</h5>
+                    <p><strong>Important:</strong> QR payment should be for the exact order amount shown above.</p>
+                    <p>If customer paid partial amount, update UTR with partial payment details.</p>
+                </div>
+            </form>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closePaymentUpdateModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="updatePaymentStatus()">Update Payment</button>
             </div>
         </div>
     </div>
@@ -1961,50 +2102,50 @@
                         }) : 
                         'Recently';
                     
-                    // Status badge with proper colors - FIXED: Clear status display
-                    let statusClass = '';
+                    // Status text
                     let statusText = '';
+                    let statusClass = '';
                     
                     switch(order.status) {
                         case 'pending':
-                            statusClass = 'warning';
                             statusText = 'Pending';
+                            statusClass = 'status-text status-pending';
                             break;
                         case 'confirmed':
-                            statusClass = 'primary';
                             statusText = 'Confirmed';
+                            statusClass = 'status-text status-confirmed';
                             break;
                         case 'preparing':
-                            statusClass = 'info';
                             statusText = 'Preparing';
+                            statusClass = 'status-text status-preparing';
                             break;
                         case 'dispatched':
-                            statusClass = 'warning';
                             statusText = 'Dispatched';
+                            statusClass = 'status-text status-dispatched';
                             break;
                         case 'delivered':
-                            statusClass = 'success';
                             statusText = 'Delivered';
+                            statusClass = 'status-text status-delivered';
                             break;
                         case 'ready_for_pickup':
-                            statusClass = 'info';
                             statusText = 'Ready for Pickup';
+                            statusClass = 'status-text status-ready_for_pickup';
                             break;
                         case 'picked_up':
-                            statusClass = 'success';
                             statusText = 'Picked Up';
+                            statusClass = 'status-text status-picked_up';
                             break;
                         case 'cancelled':
-                            statusClass = 'danger';
                             statusText = 'Cancelled';
+                            statusClass = 'status-text status-cancelled';
                             break;
                         case 'rejected':
-                            statusClass = 'danger';
                             statusText = 'Rejected';
+                            statusClass = 'status-text status-rejected';
                             break;
                         default:
-                            statusClass = 'secondary';
                             statusText = order.status || 'Unknown';
+                            statusClass = 'status-text';
                     }
                     
                     // Order items display
@@ -2024,39 +2165,46 @@
                         `${order.customerName}` : 
                         order.customerEmail || 'Customer';
                     
-                    // Payment method - FIXED: Clear payment information
+                    // Payment method - AUTOMATICALLY MARK PAID FOR DELIVERED/PICKED UP ORDERS
                     let paymentText = '';
                     const paymentMethod = order.paymentMethod || 'cod';
-                    const paymentStatus = order.paymentStatus || 'pending';
+                    let paymentStatus = order.paymentStatus || 'pending';
+                    
+                    // AUTO-UPDATE: If order is delivered/picked up, mark as paid
+                    if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                        paymentStatus = 'paid';
+                        // Auto-update in database
+                        autoUpdatePaymentStatus(order.id, paymentStatus);
+                    }
                     
                     if (paymentMethod === 'cod') {
                         if (paymentStatus === 'paid') {
-                            paymentText = '<span class="badge bg-success">COD - PAID</span>';
+                            paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
                         } else {
-                            paymentText = '<span class="badge bg-warning">COD - UNPAID</span>';
+                            paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
                         }
-                    } else if (paymentMethod === 'online') {
+                    } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
                         if (paymentStatus === 'paid') {
                             if (order.utrNumber) {
-                                paymentText = `<span class="badge bg-success">ONLINE - UTR: ${order.utrNumber.substring(0, 8)}...</span>`;
+                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
                             } else {
-                                paymentText = '<span class="badge bg-success">ONLINE - PAID</span>';
+                                paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
                             }
                         } else {
-                            paymentText = '<span class="badge bg-danger">ONLINE - UNPAID</span>';
+                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
                         }
                     } else {
                         if (paymentStatus === 'paid') {
-                            paymentText = '<span class="badge bg-success">PAID</span>';
+                            paymentText = `<span class="payment-text payment-paid">PAID</span>`;
                         } else {
-                            paymentText = '<span class="badge bg-warning">UNPAID</span>';
+                            paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
                         }
                     }
                     
                     // Order amount
                     const orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
                     
-                    // Action buttons - FIXED: Show proper flow of action buttons
+                    // Action buttons - ADD PAYMENT UPDATE BUTTON FOR DELIVERED/PICKED UP ORDERS
                     let actionButtons = '';
                     
                     switch(order.status) {
@@ -2118,11 +2266,20 @@
                             break;
                             
                         case 'delivered':
-                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Delivered</span>`;
-                            break;
-                            
                         case 'picked_up':
-                            actionButtons = `<span class="text-success"><i class="fas fa-user-check"></i> Picked Up</span>`;
+                            // Show payment update option if still unpaid
+                            if (paymentStatus === 'pending') {
+                                actionButtons = `
+                                    <div style="display: flex; gap: 5px; flex-direction: column;">
+                                        <span class="text-success"><i class="fas fa-check-circle"></i> ${order.status === 'delivered' ? 'Delivered' : 'Picked Up'}</span>
+                                        <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${order.id}', ${orderAmount})">
+                                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                                        </button>
+                                    </div>
+                                `;
+                            } else {
+                                actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> ${order.status === 'delivered' ? 'Delivered' : 'Picked Up'}</span>`;
+                            }
                             break;
                             
                         case 'cancelled':
@@ -2148,7 +2305,7 @@
                             </td>
                             <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
                             <td>
-                                <span class="badge bg-${statusClass}">${statusText}</span>
+                                <span class="${statusClass}">${statusText}</span>
                             </td>
                             <td>${paymentText}</td>
                             <td>${orderDate}</td>
@@ -2164,8 +2321,117 @@
             ordersList.innerHTML = ordersHtml;
         }
 
+        // Auto-update payment status when order is delivered/picked up
+        async function autoUpdatePaymentStatus(orderId, paymentStatus) {
+            try {
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        paymentStatus: paymentStatus,
+                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    await db.collection('orderItems').doc(orderId).update({
+                        paymentStatus: paymentStatus,
+                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                console.log(`Auto-updated payment status to ${paymentStatus} for order ${orderId}`);
+            } catch (error) {
+                console.error('Error auto-updating payment status:', error);
+            }
+        }
+
+        // Payment Update Modal Functions
+        function showPaymentUpdateModal(orderId, orderAmount) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            document.getElementById('paymentUpdateOrderId').value = orderId;
+            document.getElementById('paymentOrderTotal').value = `₹${orderAmount.toFixed(2)}`;
+            document.getElementById('paymentUpdateMethod').value = order.paymentMethod || 'cod';
+            document.getElementById('paymentUpdateStatus').value = 'paid'; // Default to paid
+            document.getElementById('paymentUtrNumber').value = order.utrNumber || '';
+            
+            // Show/hide UTR field based on payment method
+            const paymentMethod = document.getElementById('paymentUpdateMethod');
+            const utrField = document.getElementById('utrField');
+            const qrInfo = document.getElementById('qrInfo');
+            
+            if (paymentMethod.value === 'qr' || paymentMethod.value === 'online') {
+                utrField.style.display = 'block';
+                qrInfo.style.display = 'block';
+            } else {
+                utrField.style.display = 'none';
+                qrInfo.style.display = 'none';
+            }
+            
+            // Add event listener for payment method change
+            paymentMethod.onchange = function() {
+                if (this.value === 'qr' || this.value === 'online') {
+                    utrField.style.display = 'block';
+                    qrInfo.style.display = 'block';
+                } else {
+                    utrField.style.display = 'none';
+                    qrInfo.style.display = 'none';
+                }
+            };
+            
+            document.getElementById('paymentUpdateModal').classList.add('active');
+        }
+
+        function closePaymentUpdateModal() {
+            document.getElementById('paymentUpdateModal').classList.remove('active');
+        }
+
+        async function updatePaymentStatus() {
+            const orderId = document.getElementById('paymentUpdateOrderId').value;
+            const paymentMethod = document.getElementById('paymentUpdateMethod').value;
+            const paymentStatus = document.getElementById('paymentUpdateStatus').value;
+            const utrNumber = document.getElementById('paymentUtrNumber').value;
+            
+            if ((paymentMethod === 'qr' || paymentMethod === 'online') && !utrNumber && paymentStatus === 'paid') {
+                showToast('Please enter UTR number for QR/Online payment', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                const updateData = {
+                    paymentMethod: paymentMethod,
+                    paymentStatus: paymentStatus,
+                    paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (utrNumber) {
+                    updateData.utrNumber = utrNumber;
+                }
+                
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(orderId).update(updateData);
+                } catch (error) {
+                    await db.collection('orderItems').doc(orderId).update(updateData);
+                }
+                
+                showToast('Payment status updated successfully!', 'success');
+                closePaymentUpdateModal();
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                showToast('Error updating payment status: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
         // Partial Order Functions
         function showPartialOrderModal(orderId) {
+            console.log('Opening partial order modal for order:', orderId);
+            
             const order = orders.find(o => o.id === orderId);
             if (!order) {
                 showToast('Order not found!', 'error');
@@ -2247,6 +2513,8 @@
             document.getElementById('partialOrderItems').innerHTML = itemsHtml;
             document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
             document.getElementById('partialOrderModal').classList.add('active');
+            
+            console.log('Partial order modal opened successfully');
         }
 
         function changePartialQuantity(index, change) {
@@ -2280,6 +2548,8 @@
         }
 
         async function confirmPartialOrder() {
+            console.log('Confirming partial order for:', currentPartialOrderId);
+            
             if (!currentPartialOrderId) {
                 showToast('No order selected!', 'error');
                 return;
@@ -2305,17 +2575,34 @@
                 // Calculate new total
                 const newTotal = acceptedItems.reduce((sum, item) => sum + (item.price * item.acceptedQuantity), 0);
                 
+                console.log('Updating order with partial items:', acceptedItems);
+                
                 // Update order status to confirmed with partial items
-                await db.collection('orders').doc(currentPartialOrderId).update({
-                    status: 'confirmed',
-                    isPartialOrder: true,
-                    partialItems: acceptedItems,
-                    acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
-                    rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
-                    totalAmount: newTotal,
-                    originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // Try both collections
+                try {
+                    await db.collection('orders').doc(currentPartialOrderId).update({
+                        status: 'confirmed',
+                        isPartialOrder: true,
+                        partialItems: acceptedItems,
+                        acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
+                        rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
+                        totalAmount: newTotal,
+                        originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch (error) {
+                    console.log('Trying orderItems collection...');
+                    await db.collection('orderItems').doc(currentPartialOrderId).update({
+                        status: 'confirmed',
+                        isPartialOrder: true,
+                        partialItems: acceptedItems,
+                        acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
+                        rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
+                        totalAmount: newTotal,
+                        originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
                 
                 showToast('Partial order accepted successfully!', 'success');
                 closePartialOrderModal();
@@ -2342,11 +2629,21 @@
                         status: newStatus,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    
+                    // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
+                    if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                        await autoUpdatePaymentStatus(orderId, 'paid');
+                    }
                 } catch (error) {
                     await db.collection('orderItems').doc(orderId).update({
                         status: newStatus,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    
+                    // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
+                    if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                        await autoUpdatePaymentStatus(orderId, 'paid');
+                    }
                 }
                 
                 showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
@@ -2519,6 +2816,14 @@
             
             // Setup service options
             setupServiceOptions();
+            
+            // Fix for partial order confirm button
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'confirmPartialOrderBtn') {
+                    e.preventDefault();
+                    confirmPartialOrder();
+                }
+            });
         });
     </script>
 </body>

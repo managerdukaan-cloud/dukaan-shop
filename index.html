@@ -160,6 +160,68 @@
             font-size: 0.9rem;
         }
         
+        /* Dashboard Orders Summary */
+        .dashboard-orders-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-orders-summary h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dashboard-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .dashboard-stat {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        
+        .dashboard-stat.pending {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .dashboard-stat.confirmed {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+        
+        .dashboard-stat.preparing {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .dashboard-stat.delivered {
+            background: #c3e6cb;
+            border: 1px solid #b1dfbb;
+        }
+        
+        .dashboard-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .dashboard-stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
         /* ===== ENHANCED PRODUCT CARD STYLES ===== */
         .products-grid {
             display: grid;
@@ -608,23 +670,32 @@
 
         /* Partial Order Modal */
         .partial-order-modal {
-            max-width: 400px;
+            max-width: 500px;
         }
 
         .item-quantity-control {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background: #f8f9fa;
         }
 
-        .item-quantity-control .item-name {
+        .item-quantity-control .item-info {
             flex: 1;
+        }
+
+        .item-name {
             font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            font-size: 0.85rem;
+            color: #666;
         }
 
         .quantity-controls {
@@ -634,8 +705,8 @@
         }
 
         .quantity-btn {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             border: 1px solid #ddd;
             background: white;
@@ -643,12 +714,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .quantity-btn:disabled {
+            background: #f8f9fa;
+            color: #ccc;
+            cursor: not-allowed;
         }
 
         .quantity-display {
-            min-width: 30px;
+            min-width: 40px;
             text-align: center;
             font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .max-quantity {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
         }
 
         /* Content Pages */
@@ -701,6 +788,10 @@
             }
             
             .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dashboard-stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             
@@ -874,6 +965,14 @@
                         <div class="stat-card">
                             <div class="stat-label">Today's Orders</div>
                             <div class="stat-value" id="todayOrders">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Orders Summary -->
+                    <div class="dashboard-orders-summary" id="dashboardOrdersSummary">
+                        <h4><i class="fas fa-shopping-bag"></i> Order Management Summary</h4>
+                        <div class="dashboard-stats-grid" id="dashboardOrdersStats">
+                            <!-- Will be populated by JavaScript -->
                         </div>
                     </div>
 
@@ -1098,6 +1197,9 @@
             </div>
             <div id="partialOrderItems">
                 <!-- Items will be loaded here -->
+            </div>
+            <div id="partialOrderTotal" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: right;">
+                <strong>Total: ₹<span id="partialOrderTotalAmount">0</span></strong>
             </div>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn btn-outline" onclick="closePartialOrderModal()">Cancel</button>
@@ -1459,11 +1561,67 @@
                 const totalRevenue = orders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
                 document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
                 
+                // Load dashboard orders summary
+                updateDashboardOrdersSummary();
+                
                 console.log('Dashboard stats updated');
                 
             } catch (error) {
                 console.error("Error loading dashboard:", error);
             }
+        }
+
+        // Update dashboard orders summary
+        function updateDashboardOrdersSummary() {
+            const statsContainer = document.getElementById('dashboardOrdersStats');
+            
+            if (!statsContainer) return;
+            
+            // Calculate order statistics
+            const pendingCount = orders.filter(o => o.status === 'pending').length;
+            const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
+            const preparingCount = orders.filter(o => o.status === 'preparing').length;
+            const dispatchedCount = orders.filter(o => o.status === 'dispatched').length;
+            const deliveredCount = orders.filter(o => o.status === 'delivered').length;
+            const pickupReadyCount = orders.filter(o => o.status === 'ready_for_pickup').length;
+            const pickedUpCount = orders.filter(o => o.status === 'picked_up').length;
+            const cancelledCount = orders.filter(o => o.status === 'cancelled' || o.status === 'rejected').length;
+            
+            // Calculate today's pending orders
+            const today = new Date().toDateString();
+            const todayPendingCount = orders.filter(order => {
+                const orderDate = order.createdAt ? 
+                    (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toDateString() : 
+                    '';
+                return orderDate === today && order.status === 'pending';
+            }).length;
+            
+            statsContainer.innerHTML = `
+                <div class="dashboard-stat pending">
+                    <span class="dashboard-stat-value">${pendingCount}</span>
+                    <span class="dashboard-stat-label">Pending Orders</span>
+                </div>
+                <div class="dashboard-stat confirmed">
+                    <span class="dashboard-stat-value">${confirmedCount}</span>
+                    <span class="dashboard-stat-label">Confirmed</span>
+                </div>
+                <div class="dashboard-stat preparing">
+                    <span class="dashboard-stat-value">${preparingCount}</span>
+                    <span class="dashboard-stat-label">Preparing</span>
+                </div>
+                <div class="dashboard-stat delivered">
+                    <span class="dashboard-stat-value">${deliveredCount + pickedUpCount}</span>
+                    <span class="dashboard-stat-label">Completed</span>
+                </div>
+                <div class="dashboard-stat">
+                    <span class="dashboard-stat-value">${todayPendingCount}</span>
+                    <span class="dashboard-stat-label">Today's Pending</span>
+                </div>
+                <div class="dashboard-stat">
+                    <span class="dashboard-stat-value">${cancelledCount}</span>
+                    <span class="dashboard-stat-label">Cancelled/Rejected</span>
+                </div>
+            `;
         }
 
         // Product Management
@@ -1727,12 +1885,21 @@
                 
                 orders = [];
                 snapshot.forEach(doc => {
-                    orders.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    // Ensure paymentMethod and paymentStatus exist
+                    if (!data.paymentMethod) {
+                        data.paymentMethod = 'cod'; // Default to COD
+                    }
+                    if (!data.paymentStatus) {
+                        data.paymentStatus = 'pending'; // Default to pending
+                    }
+                    orders.push({ id: doc.id, ...data });
                 });
                 
                 console.log('Orders loaded:', orders.length);
                 renderOrders();
                 updateOrdersSummary();
+                updateDashboardOrdersSummary();
                 
             } catch (error) {
                 console.error("Error loading orders:", error);
@@ -1859,29 +2026,31 @@
                     
                     // Payment method - FIXED: Clear payment information
                     let paymentText = '';
+                    const paymentMethod = order.paymentMethod || 'cod';
+                    const paymentStatus = order.paymentStatus || 'pending';
                     
-                    if (order.paymentMethod === 'cod') {
-                        // Check payment status for COD
-                        if (order.paymentStatus === 'paid') {
+                    if (paymentMethod === 'cod') {
+                        if (paymentStatus === 'paid') {
                             paymentText = '<span class="badge bg-success">COD - PAID</span>';
-                        } else if (order.paymentStatus === 'pending') {
+                        } else {
                             paymentText = '<span class="badge bg-warning">COD - UNPAID</span>';
-                        } else {
-                            paymentText = '<span class="badge bg-warning">Cash on Delivery</span>';
                         }
-                    } else if (order.paymentMethod === 'online') {
-                        // Show UTR number if available
-                        if (order.utrNumber) {
-                            paymentText = `<span class="badge bg-success">Online - UTR: ${order.utrNumber.substring(0, 8)}...</span>`;
+                    } else if (paymentMethod === 'online') {
+                        if (paymentStatus === 'paid') {
+                            if (order.utrNumber) {
+                                paymentText = `<span class="badge bg-success">ONLINE - UTR: ${order.utrNumber.substring(0, 8)}...</span>`;
+                            } else {
+                                paymentText = '<span class="badge bg-success">ONLINE - PAID</span>';
+                            }
                         } else {
-                            paymentText = '<span class="badge bg-success">Online Payment</span>';
+                            paymentText = '<span class="badge bg-danger">ONLINE - UNPAID</span>';
                         }
-                    } else if (order.paymentStatus === 'paid') {
-                        paymentText = '<span class="badge bg-success">PAID</span>';
-                    } else if (order.paymentStatus === 'pending') {
-                        paymentText = '<span class="badge bg-warning">UNPAID</span>';
                     } else {
-                        paymentText = '<span class="badge bg-secondary">Payment Pending</span>';
+                        if (paymentStatus === 'paid') {
+                            paymentText = '<span class="badge bg-success">PAID</span>';
+                        } else {
+                            paymentText = '<span class="badge bg-warning">UNPAID</span>';
+                        }
                     }
                     
                     // Order amount
@@ -1998,25 +2167,37 @@
         // Partial Order Functions
         function showPartialOrderModal(orderId) {
             const order = orders.find(o => o.id === orderId);
-            if (!order) return;
+            if (!order) {
+                showToast('Order not found!', 'error');
+                return;
+            }
             
             currentPartialOrderId = orderId;
             partialOrderItems = [];
             
             // Prepare items for partial order
             let itemsHtml = '';
+            let totalAmount = 0;
+            
             if (order.items && Array.isArray(order.items)) {
                 order.items.forEach((item, index) => {
                     const maxQuantity = item.quantity || 1;
+                    const price = item.price || 0;
                     partialOrderItems.push({
                         ...item,
                         originalQuantity: maxQuantity,
-                        acceptedQuantity: maxQuantity // Default accept all
+                        acceptedQuantity: maxQuantity, // Default accept all
+                        price: price
                     });
+                    
+                    totalAmount += price * maxQuantity;
                     
                     itemsHtml += `
                         <div class="item-quantity-control">
-                            <div class="item-name">${item.name || 'Item'}</div>
+                            <div class="item-info">
+                                <div class="item-name">${item.name || 'Item'}</div>
+                                <div class="item-price">Price: ₹${price.toFixed(2)}</div>
+                            </div>
                             <div class="quantity-controls">
                                 <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)">
                                     <i class="fas fa-minus"></i>
@@ -2025,26 +2206,30 @@
                                 <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
                                     <i class="fas fa-plus"></i>
                                 </button>
-                                <span style="margin-left: 10px; color: #666;">
-                                    Max: ${maxQuantity}
-                                </span>
                             </div>
                         </div>
+                        <div class="max-quantity">Max: ${maxQuantity} (Can set to 0 if not available)</div>
                     `;
                 });
             } else {
                 // Single item order
                 const maxQuantity = order.quantity || 1;
+                const price = order.price || 0;
                 partialOrderItems.push({
                     name: order.productName || 'Product',
-                    price: order.price || 0,
+                    price: price,
                     originalQuantity: maxQuantity,
                     acceptedQuantity: maxQuantity
                 });
                 
+                totalAmount += price * maxQuantity;
+                
                 itemsHtml += `
                     <div class="item-quantity-control">
-                        <div class="item-name">${order.productName || 'Product'}</div>
+                        <div class="item-info">
+                            <div class="item-name">${order.productName || 'Product'}</div>
+                            <div class="item-price">Price: ₹${price.toFixed(2)}</div>
+                        </div>
                         <div class="quantity-controls">
                             <button class="quantity-btn" onclick="changePartialQuantity(0, -1)">
                                 <i class="fas fa-minus"></i>
@@ -2053,15 +2238,14 @@
                             <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <span style="margin-left: 10px; color: #666;">
-                                Max: ${maxQuantity}
-                            </span>
                         </div>
                     </div>
+                    <div class="max-quantity">Max: ${maxQuantity} (Can set to 0 if not available)</div>
                 `;
             }
             
             document.getElementById('partialOrderItems').innerHTML = itemsHtml;
+            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
             document.getElementById('partialOrderModal').classList.add('active');
         }
 
@@ -2071,10 +2255,22 @@
             const item = partialOrderItems[index];
             const newQuantity = item.acceptedQuantity + change;
             
+            // Allow quantity from 0 to originalQuantity
             if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
                 item.acceptedQuantity = newQuantity;
                 document.getElementById(`partialQty${index}`).textContent = newQuantity;
+                
+                // Update total amount
+                updatePartialOrderTotal();
             }
+        }
+
+        function updatePartialOrderTotal() {
+            let totalAmount = 0;
+            partialOrderItems.forEach(item => {
+                totalAmount += (item.price || 0) * item.acceptedQuantity;
+            });
+            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
         }
 
         function closePartialOrderModal() {
@@ -2084,16 +2280,40 @@
         }
 
         async function confirmPartialOrder() {
-            if (!currentPartialOrderId) return;
+            if (!currentPartialOrderId) {
+                showToast('No order selected!', 'error');
+                return;
+            }
+            
+            // Check if at least one item has quantity > 0
+            const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
+            
+            if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
+                return;
+            }
             
             try {
                 showLoading(true);
                 
-                // Update order status to confirmed
+                // Prepare accepted items
+                const acceptedItems = partialOrderItems.map(item => ({
+                    ...item,
+                    quantity: item.acceptedQuantity,
+                    accepted: item.acceptedQuantity > 0
+                }));
+                
+                // Calculate new total
+                const newTotal = acceptedItems.reduce((sum, item) => sum + (item.price * item.acceptedQuantity), 0);
+                
+                // Update order status to confirmed with partial items
                 await db.collection('orders').doc(currentPartialOrderId).update({
                     status: 'confirmed',
                     isPartialOrder: true,
-                    partialItems: partialOrderItems,
+                    partialItems: acceptedItems,
+                    acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
+                    rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
+                    totalAmount: newTotal,
+                    originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 

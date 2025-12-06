@@ -2021,55 +2021,116 @@
 
         // ==================== ORDER MANAGEMENT - FIXED VERSION ====================
         
-        async function loadOrders() {
-            if (!currentShop) return;
+        // ==================== ORDER MANAGEMENT - FIXED VERSION ====================
+        
+async function loadOrders() {
+    if (!currentShop) return;
+    
+    try {
+        console.log('Loading orders for shop ID:', currentShop.id);
+        console.log('Shop Name:', currentShop.name);
+        showLoading(true);
+        
+        // TRY 1: Query by shopId
+        console.log('Trying query 1: where shopId ==', currentShop.id);
+        try {
+            const ordersSnapshot = await db.collection('orders')
+                .where('shopId', '==', currentShop.id)
+                .orderBy('createdAt', 'desc')
+                .get();
             
+            console.log('Query 1 results:', ordersSnapshot.size, 'orders');
+            
+            ordersSnapshot.forEach(doc => {
+                const data = doc.data();
+                console.log('Found order with shopId:', data.shopId, 'shopName:', data.shopName);
+                orders.push({ 
+                    id: doc.id, 
+                    ...data,
+                    shortId: generateShortOrderId(doc.id)
+                });
+            });
+        } catch (error) {
+            console.log('Query 1 error:', error.message);
+        }
+        
+        // TRY 2: Query by shopName (fallback)
+        if (orders.length === 0) {
+            console.log('Trying query 2: where shopName ==', currentShop.name);
             try {
-                console.log('Loading orders for shop:', currentShop.id);
-                showLoading(true);
-                
-                // Query orders from 'orders' collection
-                const ordersSnapshot = await db.collection('orders')
-                    .where('shopId', '==', currentShop.id)
+                const ordersByNameSnapshot = await db.collection('orders')
+                    .where('shopName', '==', currentShop.name)
                     .orderBy('createdAt', 'desc')
                     .get();
                 
-                orders = [];
-                ordersSnapshot.forEach(doc => {
+                console.log('Query 2 results:', ordersByNameSnapshot.size, 'orders');
+                
+                ordersByNameSnapshot.forEach(doc => {
                     const data = doc.data();
-                    // Fix: Check for both id and orderId fields
-                    const orderId = data.orderId || doc.id;
-                    
-                    orders.push({ 
-                        id: orderId, 
-                        firestoreId: doc.id, // Store original Firestore ID
-                        ...data,
-                        shortId: generateShortOrderId(orderId)
-                    });
+                    console.log('Found order with shopName:', data.shopName);
+                    // Avoid duplicates
+                    if (!orders.find(o => o.id === doc.id)) {
+                        orders.push({ 
+                            id: doc.id, 
+                            ...data,
+                            shortId: generateShortOrderId(doc.id)
+                        });
+                    }
                 });
-                
-                console.log('Total orders found:', orders.length);
-                console.log('Orders:', orders);
-                
-                if (orders.length === 0) {
-                    showToast('No orders found. Make sure shopId matches.', 'info');
-                }
-                
-                // Apply filter
-                filterOrders();
-                updateOrdersSummary();
-                updateDashboardOrdersSummary();
-                
             } catch (error) {
-                console.error("Error loading orders:", error);
-                showToast('Error loading orders: ' + error.message, 'error');
-                orders = [];
-                filteredOrders = [];
-                renderOrders();
-            } finally {
-                showLoading(false);
+                console.log('Query 2 error:', error.message);
             }
         }
+        
+        // TRY 3: Debug - Check ALL orders to see what's in database
+        if (orders.length === 0) {
+            console.log('DEBUG: Checking ALL orders in database...');
+            try {
+                const allOrdersSnapshot = await db.collection('orders')
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+                
+                console.log('Total orders in database:', allOrdersSnapshot.size);
+                console.log('=== ALL ORDERS DEBUG INFO ===');
+                allOrdersSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('Order ID:', doc.id);
+                    console.log('  - shopId:', data.shopId);
+                    console.log('  - shopName:', data.shopName);
+                    console.log('  - customerName:', data.customerName);
+                    console.log('  - status:', data.status);
+                    console.log('  - total:', data.total);
+                    console.log('---');
+                });
+            } catch (error) {
+                console.log('DEBUG query error:', error.message);
+            }
+        }
+        
+        console.log('Total orders loaded:', orders.length);
+        
+        if (orders.length === 0) {
+            showToast('No orders found. Check console for debug info.', 'warning');
+        } else {
+            showToast(`Loaded ${orders.length} orders`, 'success');
+        }
+        
+        // Apply filter
+        filterOrders();
+        updateOrdersSummary();
+        updateDashboardOrdersSummary();
+        
+    } catch (error) {
+        console.error("Error loading orders:", error);
+        showToast('Error loading orders: ' + error.message, 'error');
+        orders = [];
+        filteredOrders = [];
+        renderOrders();
+    } finally {
+        showLoading(false);
+    }
+}
 
         // Generate short order ID for display
         function generateShortOrderId(orderId) {

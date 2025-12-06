@@ -2205,7 +2205,7 @@ const customerId = data.customerId || data.userId || (data.user && data.user.id)
                     } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
                         if (paymentStatus === 'paid') {
                             if (order.utrNumber) {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber || 'N/A'}</span>`;
                             } else {
                                 paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
                             }

@@ -524,64 +524,6 @@
             color: #0c5460;
         }
 
-        /* Refund Badge Styles */
-        .refund-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 5px;
-        }
-        
-        .refund-pending {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
-        .refund-approved {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        
-        .refund-completed {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .refund-rejected {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .refund-alert {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .refund-alert.warning {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-        
-        .refund-alert.info {
-            background: #d1ecf1;
-            border-left-color: #17a2b8;
-        }
-        
-        .refund-alert.success {
-            background: #d4edda;
-            border-left-color: #28a745;
-        }
-
         .form-group {
             margin-bottom: 1rem;
         }
@@ -817,141 +759,6 @@
             color: #333;
         }
 
-        /* Partial Order Modal */
-        .partial-order-modal {
-            max-width: 500px;
-        }
-
-        .item-quantity-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .item-quantity-control .item-info {
-            flex: 1;
-        }
-
-        .item-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .item-price {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quantity-btn {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .quantity-btn:disabled {
-            background: #f8f9fa;
-            color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .quantity-display {
-            min-width: 40px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .max-quantity {
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-            margin-top: 5px;
-        }
-
-        /* Payment Update Modal */
-        .payment-update-modal {
-            max-width: 400px;
-        }
-
-        /* Refund Modal Styles */
-        .refund-modal {
-            max-width: 500px;
-        }
-
-        .refund-item-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 15px 0;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .refund-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .refund-item:last-child {
-            border-bottom: none;
-        }
-
-        .refund-item-info {
-            flex: 1;
-        }
-
-        .refund-item-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .refund-item-price {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .refund-amount-input {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .refund-total {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 1px solid #e9ecef;
-        }
-
         /* Content Pages */
         .content-page {
             display: none;
@@ -1100,55 +907,6 @@
                 margin-bottom: 60px;
             }
         }
-
-        /* Refund Dashboard Stats */
-        .refund-stats {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .refund-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .refund-stat {
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            background: #f8f9fa;
-        }
-
-        .refund-stat.pending {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-        }
-
-        .refund-stat.approved {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-        }
-
-        .refund-stat.completed {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-        }
-
-        .refund-stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .refund-stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
     </style>
 </head>
 <body>
@@ -1231,14 +989,6 @@
                         </div>
                     </div>
 
-                    <!-- Refund Statistics -->
-                    <div class="refund-stats" id="refundStats" style="display: none;">
-                        <h4><i class="fas fa-exchange-alt"></i> Refund Management</h4>
-                        <div class="refund-stats-grid" id="refundStatsGrid">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
                     <!-- Dashboard Orders Summary -->
                     <div class="dashboard-orders-summary" id="dashboardOrdersSummary">
                         <h4><i class="fas fa-shopping-bag"></i> Order Management Summary</h4>
@@ -1253,9 +1003,6 @@
                         </button>
                         <button class="btn btn-outline" onclick="navigateToPage('orders')">
                             <i class="fas fa-shopping-bag"></i> View Orders
-                        </button>
-                        <button class="btn btn-warning" onclick="showRefundsPage()">
-                            <i class="fas fa-exchange-alt"></i> Refund Requests
                         </button>
                     </div>
                 </div>
@@ -1421,42 +1168,6 @@
                         </form>
                     </div>
                 </div>
-
-                <!-- Refunds Page (New) -->
-                <div id="refundsPage" class="content-page">
-                    <h2 style="margin-bottom: 1rem; color: var(--primary);">Refund Management</h2>
-                    
-                    <!-- Refund Filter -->
-                    <div class="mb-3">
-                        <select id="refundStatusFilter" class="form-select" style="max-width: 200px;" onchange="filterRefunds()">
-                            <option value="all">All Refunds</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="completed">Completed</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Refund ID</th>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>Reason</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="refundsList">
-                                <!-- Refunds will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
@@ -1514,166 +1225,8 @@
         </div>
     </div>
 
-    <!-- Partial Order Modal -->
-    <div class="modal" id="partialOrderModal">
-        <div class="modal-content partial-order-modal">
-            <div class="modal-header">
-                <h3>Accept Partial Order</h3>
-                <button class="close-modal" onclick="closePartialOrderModal()">&times;</button>
-            </div>
-            <div id="partialOrderItems">
-                <!-- Items will be loaded here -->
-            </div>
-            <div id="partialOrderTotal" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: right;">
-                <strong>Total: ₹<span id="partialOrderTotalAmount">0</span></strong>
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closePartialOrderModal()">Cancel</button>
-                <button class="btn btn-primary" id="confirmPartialOrderBtn" onclick="confirmPartialOrder()">Confirm Partial Order</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Payment Update Modal -->
-    <div class="modal" id="paymentUpdateModal">
-        <div class="modal-content payment-update-modal">
-            <div class="modal-header">
-                <h3>Update Payment Status</h3>
-                <button class="close-modal" onclick="closePaymentUpdateModal()">&times;</button>
-            </div>
-            <form id="paymentUpdateForm">
-                <input type="hidden" id="paymentUpdateOrderId">
-                <div class="form-group">
-                    <label>Order Total</label>
-                    <input type="text" id="paymentOrderTotal" readonly style="background: #f8f9fa;">
-                </div>
-                <div class="form-group">
-                    <label>Payment Method</label>
-                    <select id="paymentUpdateMethod">
-                        <option value="cod">Cash on Delivery (COD)</option>
-                        <option value="qr">QR Payment</option>
-                        <option value="online">Online Payment</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Payment Status</label>
-                    <select id="paymentUpdateStatus">
-                        <option value="paid">PAID</option>
-                        <option value="pending">UNPAID</option>
-                    </select>
-                </div>
-                <div class="form-group" id="utrField" style="display: none;">
-                    <label>UTR Number</label>
-                    <input type="text" id="paymentUtrNumber" placeholder="Enter UTR number">
-                </div>
-                <div id="qrInfo" style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none;">
-                    <h5><i class="fas fa-qrcode"></i> QR Payment Information</h5>
-                    <p><strong>Important:</strong> QR payment should be for the exact order amount shown above.</p>
-                    <p>If customer paid partial amount, update UTR with partial payment details.</p>
-                </div>
-            </form>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closePaymentUpdateModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="updatePaymentStatus()">Update Payment</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Refund Modal -->
-    <div class="modal" id="refundModal">
-        <div class="modal-content refund-modal">
-            <div class="modal-header">
-                <h3>Initiate Refund</h3>
-                <button class="close-modal" onclick="closeRefundModal()">&times;</button>
-            </div>
-            <form id="refundForm">
-                <input type="hidden" id="refundOrderId">
-                <input type="hidden" id="refundCustomerId">
-                <input type="hidden" id="refundOrderTotal">
-                
-                <div class="refund-alert info">
-                    <i class="fas fa-info-circle"></i> Refunds will be processed within 24-48 hours.
-                </div>
-                
-                <div class="refund-item-list" id="refundItemsList">
-                    <!-- Items will be loaded here -->
-                </div>
-                
-                <div class="refund-total">
-                    Total Refund Amount: ₹<span id="refundTotalAmount">0</span>
-                </div>
-                
-                <div class="form-group">
-                    <label>Refund Reason</label>
-                    <select id="refundReason" required>
-                        <option value="">Select reason</option>
-                        <option value="Damaged item">Damaged item</option>
-                        <option value="Wrong item delivered">Wrong item delivered</option>
-                        <option value="Item not as described">Item not as described</option>
-                        <option value="Quality issue">Quality issue</option>
-                        <option value="Order cancelled">Order cancelled</option>
-                        <option value="Partial order accepted">Partial order accepted</option>
-                        <option value="Customer request">Customer request</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="otherReasonField" style="display: none;">
-                    <label>Please specify</label>
-                    <input type="text" id="otherRefundReason" placeholder="Enter reason">
-                </div>
-                
-                <div class="form-group">
-                    <label>Additional Notes</label>
-                    <textarea id="refundNotes" rows="2" placeholder="Any additional information..."></textarea>
-                </div>
-            </form>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closeRefundModal()">Cancel</button>
-                <button class="btn btn-warning" onclick="processRefund()">Submit Refund Request</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Refund Action Modal -->
-    <div class="modal" id="refundActionModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3 id="refundActionTitle">Update Refund Status</h3>
-                <button class="close-modal" onclick="closeRefundActionModal()">&times;</button>
-            </div>
-            <form id="refundActionForm">
-                <input type="hidden" id="actionRefundId">
-                
-                <div class="form-group">
-                    <label>Refund Status</label>
-                    <select id="refundActionStatus">
-                        <option value="approved">Approve Refund</option>
-                        <option value="rejected">Reject Refund</option>
-                        <option value="completed">Mark as Completed</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Notes (Optional)</label>
-                    <textarea id="refundActionNotes" rows="2" placeholder="Add any notes..."></textarea>
-                </div>
-            </form>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closeRefundActionModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="updateRefundStatus()">Update</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Floating Orders Button -->
-    <button class="floating-orders-btn" id="floatingOrdersBtn" onclick="navigateToPage('orders')">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="badge">0</span>
-    </button>
 
     <!-- Quick Actions Toolbar -->
     <div class="quick-actions-toolbar" id="quickActionsToolbar">
@@ -1716,22 +1269,6 @@
         let products = [];
         let orders = [];
         let filteredOrders = [];
-        let refunds = [];
-        let filteredRefunds = [];
-        let currentPartialOrderId = null;
-        let partialOrderItems = [];
-
-        // Working Unsplash image URLs
-        const defaultProductImages = [
-            'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format',
-            'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&h=300&fit=crop&auto=format'
-        ];
 
         // Initialize App
         function initApp() {
@@ -1785,15 +1322,10 @@
                     currentShop = { id: shopId, ...shopDoc.data() };
                     console.log('Shop loaded:', currentShop.name);
                     
-                    // Load products, orders and refunds
+                    // Load products and orders
                     await loadProducts();
                     await loadOrders();
-                    await loadRefunds();
                     updateProfileForm();
-                    
-                    // Set up real-time listeners
-                    setupOrderListeners();
-                    setupRefundListeners();
                     
                     showAppScreen();
                     showToast('Welcome back to your shop!', 'success');
@@ -1934,11 +1466,6 @@
             document.getElementById('appScreen').style.display = 'block';
             console.log('Showing app screen');
             
-            // Initialize mobile UI if needed
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                initializeMobileUI();
-            }
-            
             // Navigate to dashboard
             navigateToPage('dashboard');
         }
@@ -1964,9 +1491,6 @@
             if (pageElement) {
                 pageElement.classList.add('active');
                 
-                // Set active quick action button
-                setActiveQuickAction(page);
-                
                 // Load data for the page
                 switch(page) {
                     case 'dashboard':
@@ -1978,27 +1502,8 @@
                     case 'orders':
                         loadOrders();
                         break;
-                    case 'refunds':
-                        loadRefunds();
-                        break;
                 }
             }
-        }
-
-        function showRefundsPage() {
-            navigateToPage('refunds');
-        }
-
-        // Set active quick action button
-        function setActiveQuickAction(page) {
-            const buttons = document.querySelectorAll('.quick-action-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-                const pageAttr = btn.getAttribute('data-page');
-                if (pageAttr === page) {
-                    btn.classList.add('active');
-                }
-            });
         }
 
         // Loading Spinner
@@ -2037,9 +1542,6 @@
                 
                 // Load dashboard orders summary
                 updateDashboardOrdersSummary();
-                
-                // Update refund stats
-                updateRefundStats();
                 
                 console.log('Dashboard stats updated');
                 
@@ -2101,61 +1603,236 @@
             `;
         }
 
-        // ==================== ORDER MANAGEMENT - FIXED VERSION ====================
-        
-        // Set up real-time order listeners
-        function setupOrderListeners() {
+        // Product Management
+        async function loadProducts() {
             if (!currentShop) return;
             
-            console.log('Setting up real-time order listeners for shop:', currentShop.id);
-            
-            // Listen for new orders
-            db.collection('orders')
-                .where('shopId', '==', currentShop.id)
-                .orderBy('createdAt', 'desc')
-                .onSnapshot((snapshot) => {
-                    console.log('Real-time order update received:', snapshot.size, 'orders');
-                    
-                    orders = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const displayOrderId = data.orderId || doc.id;
-                        const customerId = data.customerId || data.userId || (data.user && data.user.id);
-                        
-                        orders.push({ 
-                            id: displayOrderId,
-                            firestoreId: doc.id,
-                            customerId: customerId,
-                            ...data,
-                            shortId: generateShortOrderId(displayOrderId)
-                        });
-                    });
-                    
-                    console.log('Real-time orders updated:', orders.length);
-                    
-                    // Apply current filter
-                    filterOrders();
-                    updateOrdersSummary();
-                    updateDashboardOrdersSummary();
-                    loadDashboardData();
-                    
-                    // Show notification for new orders
-                    if (snapshot.docChanges().some(change => change.type === 'added')) {
-                        const newOrders = snapshot.docChanges()
-                            .filter(change => change.type === 'added')
-                            .length;
-                        
-                        if (newOrders > 0) {
-                            showToast(`📦 ${newOrders} new order${newOrders > 1 ? 's' : ''} received!`, 'success');
-                        }
-                    }
-                }, (error) => {
-                    console.error('Error in order listener:', error);
-                    showToast('Connection to orders lost. Please refresh.', 'warning');
+            try {
+                console.log('Loading products for shop:', currentShop.id);
+                showLoading(true);
+                
+                const snapshot = await db.collection('products')
+                    .where('shopId', '==', currentShop.id)
+                    .get();
+                
+                products = [];
+                snapshot.forEach(doc => {
+                    products.push({ id: doc.id, ...doc.data() });
                 });
+                
+                console.log('Products loaded:', products.length);
+                renderProducts();
+                
+            } catch (error) {
+                console.error("Error loading products:", error);
+                showToast('Error loading products: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
         }
 
-        // Load orders initially
+        function renderProducts() {
+            const productsList = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                productsList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #666; margin-bottom: 1rem;">No Products Yet</h3>
+                        <p style="color: #999; margin-bottom: 2rem;">Add your first product to start selling</p>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">
+                            <i class="fas fa-plus"></i> Add Your First Product
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let productsHtml = '';
+            products.forEach((product, index) => {
+                // Determine stock status
+                let stockClass = 'in-stock';
+                let stockText = '';
+                let stockIcon = 'check-circle';
+                
+                if (product.stock > 10) {
+                    stockClass = 'in-stock';
+                    stockText = `${product.stock} in stock`;
+                    stockIcon = 'check-circle';
+                } else if (product.stock > 0) {
+                    stockClass = 'low-stock';
+                    stockText = `Low stock (${product.stock})`;
+                    stockIcon = 'exclamation-circle';
+                } else {
+                    stockClass = 'out-of-stock';
+                    stockText = 'Out of stock';
+                    stockIcon = 'times-circle';
+                }
+
+                // Calculate discount if MRP exists
+                let discountBadge = '';
+                if (product.mrp && product.mrp > product.price) {
+                    const discountPercent = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                    if (discountPercent > 0) {
+                        discountBadge = `<span class="product-discount">${discountPercent}% OFF</span>`;
+                    }
+                }
+
+                productsHtml += `
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format'}" 
+                                 alt="${product.name}" class="product-image">
+                            <span class="product-badge">${product.category || 'Product'}</span>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">${product.name}</h3>
+                            
+                            <div class="product-price-row">
+                                <span class="product-price">₹${parseFloat(product.price || 0).toFixed(2)}</span>
+                                ${product.mrp && product.mrp > product.price ? 
+                                    `<span class="product-mrp">₹${parseFloat(product.mrp).toFixed(2)}</span>` : ''}
+                                ${discountBadge}
+                            </div>
+                            
+                            <div class="product-stock ${stockClass}">
+                                <i class="fas fa-${stockIcon}"></i>
+                                ${stockText}
+                            </div>
+                            
+                            ${product.description ? `<p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">${product.description.substring(0, 60)}${product.description.length > 60 ? '...' : ''}</p>` : ''}
+                            
+                            <div class="product-actions">
+                                <button class="btn-edit-product" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-add-product" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            productsList.innerHTML = productsHtml;
+        }
+
+        // Product Modal Functions
+        function showAddProductModal() {
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('productModalTitle').textContent = 'Edit Product';
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category || 'groceries';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productMrp').value = product.mrp || '';
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productImage').value = product.image || '';
+            
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        async function saveProduct() {
+            if (!currentShop || !currentShop.name) {
+                showToast('Shop information not loaded. Please refresh page.', 'error');
+                return;
+            }
+            
+            const productId = document.getElementById('editProductId').value;
+            const productName = document.getElementById('productName').value.trim();
+            const productPrice = parseFloat(document.getElementById('productPrice').value);
+            const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
+            const productStock = parseInt(document.getElementById('productStock').value);
+            
+            if (!productName) {
+                showToast('Product name is required', 'error');
+                return;
+            }
+            
+            if (isNaN(productPrice) || productPrice < 0) {
+                showToast('Please enter a valid price', 'error');
+                return;
+            }
+            
+            if (isNaN(productStock) || productStock < 0) {
+                showToast('Please enter a valid stock quantity', 'error');
+                return;
+            }
+            
+            const productData = {
+                name: productName,
+                category: document.getElementById('productCategory').value,
+                price: productPrice,
+                mrp: productMrp,
+                stock: productStock,
+                description: document.getElementById('productDescription').value.trim(),
+                image: document.getElementById('productImage').value.trim() || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format',
+                shopId: currentShop.id,
+                shopName: currentShop.name,
+                isAvailable: true,
+                status: 'active',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            console.log('Saving product:', productData);
+            
+            try {
+                showLoading(true);
+                if (productId) {
+                    await db.collection('products').doc(productId).update(productData);
+                    showToast('Product updated successfully!', 'success');
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('products').add(productData);
+                    showToast('Product added successfully!', 'success');
+                }
+                
+                closeProductModal();
+                await loadProducts();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showToast('Error saving product: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                showLoading(true);
+                await db.collection('products').doc(productId).delete();
+                showToast('Product deleted successfully!', 'success');
+                await loadProducts();
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Error deleting product: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ==================== ORDER MANAGEMENT ====================
+        
         async function loadOrders() {
             if (!currentShop) return;
             
@@ -2166,83 +1843,23 @@
                 // Reset orders array
                 orders = [];
                 
-                // TRY MULTIPLE QUERIES TO FIND ORDERS
+                // Try different approaches to find orders
                 console.log('Trying to find orders in different ways...');
                 
-                // Query 1: By shopId (most common)
-                console.log('Query 1: where shopId ==', currentShop.id);
-                try {
-                    const ordersSnapshot = await db.collection('orders')
-                        .where('shopId', '==', currentShop.id)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-                    
-                    console.log('Query 1 results:', ordersSnapshot.size, 'orders');
-                    
-                    ordersSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        const displayOrderId = data.orderId || doc.id;
-                        const customerId = data.customerId || data.userId || (data.user && data.user.id);
-                        
-                        // Check if order already exists
-                        if (!orders.find(o => o.firestoreId === doc.id)) {
-                            orders.push({ 
-                                id: displayOrderId,
-                                firestoreId: doc.id,
-                                customerId: customerId,
-                                ...data,
-                                shortId: generateShortOrderId(displayOrderId)
-                            });
-                        }
-                    });
-                } catch (error) {
-                    console.log('Query 1 error:', error.message);
-                }
-                
-                // Query 2: By shopName
-                if (currentShop.name) {
-                    console.log('Query 2: where shopName ==', currentShop.name);
-                    try {
-                        const ordersSnapshot2 = await db.collection('orders')
-                            .where('shopName', '==', currentShop.name)
-                            .orderBy('createdAt', 'desc')
-                            .get();
-                        
-                        console.log('Query 2 results:', ordersSnapshot2.size, 'orders');
-                        
-                        ordersSnapshot2.forEach(doc => {
-                            const data = doc.data();
-                            const displayOrderId = data.orderId || doc.id;
-                            const customerId = data.customerId || data.userId || (data.user && data.user.id);
-                            
-                            // Check if order already exists
-                            if (!orders.find(o => o.firestoreId === doc.id)) {
-                                orders.push({ 
-                                    id: displayOrderId,
-                                    firestoreId: doc.id,
-                                    customerId: customerId,
-                                    ...data,
-                                    shortId: generateShortOrderId(displayOrderId)
-                                });
-                            }
-                        });
-                    } catch (error) {
-                        console.log('Query 2 error:', error.message);
-                    }
-                }
-                
-                // Query 3: Check all orders and filter manually
-                console.log('Query 3: Check all orders manually');
+                // Query 1: Try without composite index first (simple query)
+                console.log('Query 1: Simple query');
                 try {
                     const allOrdersSnapshot = await db.collection('orders')
                         .orderBy('createdAt', 'desc')
                         .limit(100)
                         .get();
                     
+                    console.log('Query 1 results:', allOrdersSnapshot.size, 'orders total in database');
+                    
                     allOrdersSnapshot.forEach(doc => {
                         const data = doc.data();
                         
-                        // Check if this order belongs to current shop by checking shopId or shopName
+                        // Check if this order belongs to current shop
                         const isOurOrder = data.shopId === currentShop.id || 
                                           data.shopName === currentShop.name ||
                                           (data.items && data.items.some(item => item.shopId === currentShop.id));
@@ -2264,7 +1881,7 @@
                         }
                     });
                 } catch (error) {
-                    console.log('Query 3 error:', error.message);
+                    console.log('Query 1 error:', error.message);
                 }
                 
                 console.log('Total orders loaded after all queries:', orders.length);
@@ -2523,26 +2140,11 @@
                     let actionButtons = '';
                     const firestoreId = order.firestoreId || order.id;
                     
-                    // IMPORTANT: Check for refund status
-                    let refundBadge = '';
-                    if (order.refundStatus === 'pending') {
-                        refundBadge = `<span class="refund-badge refund-pending">Refund Pending</span>`;
-                    } else if (order.refundStatus === 'approved') {
-                        refundBadge = `<span class="refund-badge refund-approved">Refund Approved</span>`;
-                    } else if (order.refundStatus === 'completed') {
-                        refundBadge = `<span class="refund-badge refund-completed">Refund Completed</span>`;
-                    } else if (order.refundStatus === 'rejected') {
-                        refundBadge = `<span class="refund-badge refund-rejected">Refund Rejected</span>`;
-                    }
-                    
                     if (order.status === 'pending') {
                         actionButtons = `
                             <div style="display: flex; gap: 5px; flex-direction: column;">
                                 <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
-                                    <i class="fas fa-check"></i> Accept All
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
-                                    <i class="fas fa-check-double"></i> Accept Partial
+                                    <i class="fas fa-check"></i> Accept
                                 </button>
                                 <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
                                     <i class="fas fa-times"></i> Reject
@@ -2570,23 +2172,12 @@
                     } else if (order.status === 'delivered' || order.status === 'picked_up') {
                         if (paymentStatus === 'pending') {
                             actionButtons = `
-                                <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${firestoreId}', ${orderAmount})">
+                                <button class="btn btn-success btn-sm" onclick="markAsPaid('${firestoreId}', ${orderAmount})">
                                     <i class="fas fa-money-bill-wave"></i> Mark as Paid
                                 </button>
                             `;
                         } else {
-                            // Add refund button for delivered orders
-                            if (!order.refundStatus || order.refundStatus === 'rejected') {
-                                actionButtons = `
-                                    <div style="display: flex; gap: 5px; flex-direction: column;">
-                                        <button class="btn btn-warning btn-sm" onclick="showRefundModal('${firestoreId}')">
-                                            <i class="fas fa-exchange-alt"></i> Initiate Refund
-                                        </button>
-                                    </div>
-                                `;
-                            } else {
-                                actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
-                            }
+                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
@@ -2597,7 +2188,6 @@
                             <td>
                                 <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
                                 ${partialBadge}
-                                ${refundBadge}
                             </td>
                             <td>${customerInfo}</td>
                             <td title="${itemsDisplay}">
@@ -2621,288 +2211,6 @@
             ordersList.innerHTML = ordersHtml;
         }
 
-        // Product Management
-        async function loadProducts() {
-            if (!currentShop) return;
-            
-            try {
-                console.log('Loading products for shop:', currentShop.id);
-                showLoading(true);
-                
-                const snapshot = await db.collection('products')
-                    .where('shopId', '==', currentShop.id)
-                    .get();
-                
-                products = [];
-                snapshot.forEach(doc => {
-                    products.push({ id: doc.id, ...doc.data() });
-                });
-                
-                console.log('Products loaded:', products.length);
-                renderProducts();
-                
-            } catch (error) {
-                console.error("Error loading products:", error);
-                showToast('Error loading products: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function getRandomImage() {
-            const randomIndex = Math.floor(Math.random() * defaultProductImages.length);
-            return defaultProductImages[randomIndex];
-        }
-
-        // Rest of the product management functions remain the same...
-        // (Product modal, edit, save, delete functions)
-
-        // Partial Order Functions
-        function showPartialOrderModal(orderId) {
-            console.log('Opening partial order modal for order:', orderId);
-            
-            const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
-            if (!order) {
-                showToast('Order not found!', 'error');
-                return;
-            }
-            
-            currentPartialOrderId = order.firestoreId || order.id;
-            partialOrderItems = [];
-            
-            // Prepare items for partial order
-            let itemsHtml = '';
-            let originalTotal = 0;
-            
-            if (order.items && Array.isArray(order.items)) {
-                order.items.forEach((item, index) => {
-                    const maxQuantity = item.quantity || 1;
-                    const price = item.price || 0;
-                    const itemTotal = price * maxQuantity;
-                    originalTotal += itemTotal;
-                    
-                    partialOrderItems.push({
-                        id: item.id,
-                        name: item.name || 'Item',
-                        price: price,
-                        originalQuantity: maxQuantity,
-                        acceptedQuantity: maxQuantity,
-                        image: item.image,
-                        shopId: item.shopId,
-                        shopName: item.shopName
-                    });
-                    
-                    itemsHtml += `
-                        <div class="item-quantity-control">
-                            <div class="item-info">
-                                <div class="item-name">${item.name || 'Item'}</div>
-                                <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
-                                <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
-                            </div>
-                            <div class="quantity-controls">
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
-                    `;
-                });
-            } else {
-                const maxQuantity = order.quantity || 1;
-                const price = order.price || 0;
-                const itemTotal = price * maxQuantity;
-                originalTotal += itemTotal;
-                
-                partialOrderItems.push({
-                    id: order.id,
-                    name: order.productName || 'Product',
-                    price: price,
-                    originalQuantity: maxQuantity,
-                    acceptedQuantity: maxQuantity,
-                    image: order.image
-                });
-                
-                itemsHtml += `
-                    <div class="item-quantity-control">
-                        <div class="item-info">
-                            <div class="item-name">${order.productName || 'Product'}</div>
-                            <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
-                            <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="quantity-btn" onclick="changePartialQuantity(0, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
-                            <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
-                `;
-            }
-            
-            document.getElementById('partialOrderItems').innerHTML = itemsHtml;
-            updatePartialOrderTotal();
-            
-            document.getElementById('partialOrderTotal').innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <strong>Original Total: ₹${originalTotal.toFixed(2)}</strong><br>
-                        <strong>New Total: ₹<span id="partialOrderTotalAmount">${originalTotal.toFixed(2)}</span></strong>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="text-success" id="savingsDisplay" style="${originalTotal === originalTotal ? 'display: none;' : ''}">
-                            Savings: ₹${(originalTotal - originalTotal).toFixed(2)}
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('partialOrderModal').classList.add('active');
-        }
-
-        function changePartialQuantity(index, change) {
-            if (index < 0 || index >= partialOrderItems.length) return;
-            
-            const item = partialOrderItems[index];
-            const newQuantity = item.acceptedQuantity + change;
-            
-            if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
-                item.acceptedQuantity = newQuantity;
-                document.getElementById(`partialQty${index}`).textContent = newQuantity;
-                
-                updatePartialOrderTotal();
-                
-                const minusBtn = document.querySelector(`button[onclick="changePartialQuantity(${index}, -1)"]`);
-                if (minusBtn) {
-                    minusBtn.disabled = newQuantity === 0;
-                }
-            }
-        }
-
-        function updatePartialOrderTotal() {
-            let totalAmount = 0;
-            let originalTotal = 0;
-            
-            partialOrderItems.forEach(item => {
-                totalAmount += (item.price || 0) * item.acceptedQuantity;
-                originalTotal += (item.price || 0) * item.originalQuantity;
-            });
-            
-            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
-            
-            const savingsDisplay = document.getElementById('savingsDisplay');
-            if (savingsDisplay) {
-                const savings = originalTotal - totalAmount;
-                if (savings > 0) {
-                    savingsDisplay.innerHTML = `Savings: ₹${savings.toFixed(2)}`;
-                    savingsDisplay.style.display = 'block';
-                } else {
-                    savingsDisplay.style.display = 'none';
-                }
-            }
-        }
-
-        function closePartialOrderModal() {
-            document.getElementById('partialOrderModal').classList.remove('active');
-            currentPartialOrderId = null;
-            partialOrderItems = [];
-        }
-
-        async function confirmPartialOrder() {
-            console.log('Confirming partial order for:', currentPartialOrderId);
-            
-            if (!currentPartialOrderId) {
-                showToast('No order selected!', 'error');
-                return;
-            }
-            
-            const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
-            
-            if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
-                return;
-            }
-            
-            try {
-                showLoading(true);
-                
-                const orderDoc = await db.collection('orders').doc(currentPartialOrderId).get();
-                const originalOrder = orderDoc.data();
-                
-                let originalTotal = 0;
-                let acceptedTotal = 0;
-                let acceptedItemsArray = [];
-                let rejectedItemsArray = [];
-                
-                partialOrderItems.forEach(item => {
-                    const itemTotal = (item.price || 0) * (item.originalQuantity || 1);
-                    const acceptedItemTotal = (item.price || 0) * item.acceptedQuantity;
-                    originalTotal += itemTotal;
-                    acceptedTotal += acceptedItemTotal;
-                    
-                    if (item.acceptedQuantity > 0) {
-                        acceptedItemsArray.push({
-                            ...item,
-                            quantity: item.acceptedQuantity,
-                            accepted: true
-                        });
-                    } else {
-                        rejectedItemsArray.push({
-                            ...item,
-                            quantity: item.originalQuantity,
-                            accepted: false,
-                            reason: 'Out of stock/Not available'
-                        });
-                    }
-                });
-                
-                const updateData = {
-                    status: 'confirmed',
-                    isPartialOrder: true,
-                    partialAccepted: true,
-                    acceptedItems: acceptedItemsArray,
-                    rejectedItems: rejectedItemsArray,
-                    acceptedTotal: acceptedTotal,
-                    originalTotal: originalTotal,
-                    total: acceptedTotal,
-                    totalAmount: acceptedTotal,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    partialAcceptedAt: new Date().toISOString()
-                };
-                
-                if (acceptedItemsArray.length === 0) {
-                    updateData.status = 'rejected';
-                    updateData.rejectionReason = 'All items out of stock';
-                }
-                
-                console.log('Updating order with partial acceptance:', updateData);
-                
-                await db.collection('orders').doc(currentPartialOrderId).update(updateData);
-                
-                // Create refund for rejected items
-                if (rejectedItemsArray.length > 0 && originalTotal > acceptedTotal) {
-                    await createPartialRefund(currentPartialOrderId, originalOrder, rejectedItemsArray, originalTotal - acceptedTotal);
-                }
-                
-                showToast('Partial order processed successfully!', 'success');
-                closePartialOrderModal();
-                
-            } catch (error) {
-                console.error('Error accepting partial order:', error);
-                showToast('Error accepting partial order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Update Order Status
         async function updateOrderStatus(firestoreId, newStatus) {
             if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
             
@@ -2918,10 +2226,15 @@
                 
                 // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
                 if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                    await autoUpdatePaymentStatus(firestoreId, 'paid');
+                    await db.collection('orders').doc(firestoreId).update({
+                        paymentStatus: 'paid',
+                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                 }
                 
                 showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
+                await loadOrders();
+                await loadDashboardData();
                 
             } catch (error) {
                 console.error('Error updating order:', error);
@@ -2931,284 +2244,95 @@
             }
         }
 
-        // Auto-update payment status
-        async function autoUpdatePaymentStatus(firestoreId, paymentStatus) {
+        async function markAsPaid(firestoreId, amount) {
+            if (!confirm(`Mark order #${firestoreId.substring(0, 6)} as paid? Amount: ₹${amount.toFixed(2)}`)) return;
+            
             try {
+                showLoading(true);
                 await db.collection('orders').doc(firestoreId).update({
-                    paymentStatus: paymentStatus,
+                    paymentStatus: 'paid',
                     paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                console.log(`Auto-updated payment status to ${paymentStatus} for order ${firestoreId}`);
+                showToast('Payment status updated!', 'success');
+                await loadOrders();
+                await loadDashboardData();
             } catch (error) {
-                console.error('Error auto-updating payment status:', error);
-            }
-        }
-
-        // ==================== REFUND MANAGEMENT SYSTEM ====================
-
-        // Set up real-time refund listeners
-        function setupRefundListeners() {
-            if (!currentShop) return;
-            
-            console.log('Setting up real-time refund listeners for shop:', currentShop.id);
-            
-            // Listen for new refunds
-            db.collection('refunds')
-                .where('shopId', '==', currentShop.id)
-                .orderBy('createdAt', 'desc')
-                .onSnapshot((snapshot) => {
-                    console.log('Real-time refund update received:', snapshot.size, 'refunds');
-                    
-                    refunds = [];
-                    snapshot.forEach(doc => {
-                        refunds.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    // Update refund stats
-                    updateRefundStats();
-                    
-                    // Render refunds if on refunds page
-                    if (document.getElementById('refundsPage').classList.contains('active')) {
-                        renderRefunds();
-                    }
-                    
-                    // Show notification for new refunds
-                    if (snapshot.docChanges().some(change => change.type === 'added')) {
-                        const newRefunds = snapshot.docChanges()
-                            .filter(change => change.type === 'added')
-                            .length;
-                        
-                        if (newRefunds > 0) {
-                            showToast(`🔄 ${newRefunds} new refund request${newRefunds > 1 ? 's' : ''} received!`, 'warning');
-                        }
-                    }
-                }, (error) => {
-                    console.error('Error in refund listener:', error);
-                });
-        }
-
-        // Load refunds
-        async function loadRefunds() {
-            if (!currentShop) return;
-            
-            try {
-                console.log('Loading refunds for shop:', currentShop.id);
-                showLoading(true);
-                
-                const snapshot = await db.collection('refunds')
-                    .where('shopId', '==', currentShop.id)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                refunds = [];
-                snapshot.forEach(doc => {
-                    refunds.push({ id: doc.id, ...doc.data() });
-                });
-                
-                console.log('Refunds loaded:', refunds.length);
-                
-                // Update refund stats on dashboard
-                updateRefundStats();
-                
-                // Render refunds if on refunds page
-                if (document.getElementById('refundsPage').classList.contains('active')) {
-                    renderRefunds();
-                }
-                
-            } catch (error) {
-                console.error("Error loading refunds:", error);
-                showToast('Error loading refunds: ' + error.message, 'error');
+                console.error('Error updating payment:', error);
+                showToast('Error updating payment: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }
         }
 
-        // Update refund statistics on dashboard
-        function updateRefundStats() {
-            if (refunds.length === 0) {
-                document.getElementById('refundStats').style.display = 'none';
-                return;
-            }
+        // Profile Management
+        function updateProfileForm() {
+            if (!currentShop) return;
             
-            document.getElementById('refundStats').style.display = 'block';
+            document.getElementById('shopName').value = currentShop.name || '';
+            document.getElementById('shopCategory').value = currentShop.category || 'groceries';
+            document.getElementById('shopDescription').value = currentShop.description || '';
+            document.getElementById('shopAddress').value = currentShop.address || '';
+            document.getElementById('shopPhone').value = currentShop.phone || '';
+            document.getElementById('shopOpenTime').value = currentShop.openTime || '09:00';
+            document.getElementById('shopCloseTime').value = currentShop.closeTime || '21:00';
+            document.getElementById('shopStatus').value = currentShop.status || 'open';
+            document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
             
-            const pendingCount = refunds.filter(r => r.status === 'pending').length;
-            const approvedCount = refunds.filter(r => r.status === 'approved').length;
-            const completedCount = refunds.filter(r => r.status === 'completed').length;
-            const rejectedCount = refunds.filter(r => r.status === 'rejected').length;
-            
-            const pendingAmount = refunds.filter(r => r.status === 'pending')
-                .reduce((sum, refund) => sum + (refund.refundAmount || 0), 0);
-            const totalAmount = refunds.reduce((sum, refund) => sum + (refund.refundAmount || 0), 0);
-            
-            document.getElementById('refundStatsGrid').innerHTML = `
-                <div class="refund-stat pending">
-                    <span class="refund-stat-value">${pendingCount}</span>
-                    <span class="refund-stat-label">Pending Refunds</span>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">₹${pendingAmount.toFixed(2)}</div>
-                </div>
-                <div class="refund-stat approved">
-                    <span class="refund-stat-value">${approvedCount}</span>
-                    <span class="refund-stat-label">Approved</span>
-                </div>
-                <div class="refund-stat completed">
-                    <span class="refund-stat-value">${completedCount}</span>
-                    <span class="refund-stat-label">Completed</span>
-                </div>
-                <div class="refund-stat">
-                    <span class="refund-stat-value">₹${totalAmount.toFixed(2)}</span>
-                    <span class="refund-stat-label">Total Refund Amount</span>
-                </div>
-            `;
-        }
-
-        // Filter refunds
-        function filterRefunds() {
-            const filterValue = document.getElementById('refundStatusFilter').value;
-            
-            if (filterValue === 'all') {
-                filteredRefunds = [...refunds];
-            } else {
-                filteredRefunds = refunds.filter(refund => refund.status === filterValue);
-            }
-            
-            renderRefunds();
-        }
-
-        // Render refunds table
-        function renderRefunds() {
-            const refundsList = document.getElementById('refundsList');
-            
-            if (filteredRefunds.length === 0) {
-                refundsList.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-exchange-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Refunds Found</h4>
-                            <p style="color: #999;">No refunds match the current filter</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let refundsHtml = '';
-            
-            filteredRefunds.forEach(refund => {
-                const createdDate = refund.createdAt ? 
-                    (refund.createdAt.toDate ? refund.createdAt.toDate() : new Date(refund.createdAt)).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                    }) : 
-                    'N/A';
-                
-                let statusBadge = '';
-                switch(refund.status) {
-                    case 'pending':
-                        statusBadge = '<span class="refund-badge refund-pending">Pending</span>';
-                        break;
-                    case 'approved':
-                        statusBadge = '<span class="refund-badge refund-approved">Approved</span>';
-                        break;
-                    case 'completed':
-                        statusBadge = '<span class="refund-badge refund-completed">Completed</span>';
-                        break;
-                    case 'rejected':
-                        statusBadge = '<span class="refund-badge refund-rejected">Rejected</span>';
-                        break;
+            // Set active service option
+            const serviceOptions = document.querySelectorAll('.service-option');
+            serviceOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-value') === (currentShop.deliveryType || 'both')) {
+                    option.classList.add('active');
                 }
-                
-                let actionButtons = '';
-                if (refund.status === 'pending') {
-                    actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'approved')">
-                            <i class="fas fa-check"></i> Approve
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'rejected')">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                    `;
-                } else if (refund.status === 'approved') {
-                    actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'completed')">
-                            <i class="fas fa-check-circle"></i> Mark Completed
-                        </button>
-                    `;
-                }
-                
-                refundsHtml += `
-                    <tr>
-                        <td><strong>#${refund.id.substring(0, 8)}</strong></td>
-                        <td><strong>#${generateShortOrderId(refund.orderId)}</strong></td>
-                        <td>${refund.customerName || 'Customer'}</td>
-                        <td><strong>₹${refund.refundAmount.toFixed(2)}</strong></td>
-                        <td>${refund.reason || 'N/A'}</td>
-                        <td>${statusBadge}</td>
-                        <td>${createdDate}</td>
-                        <td>${actionButtons}</td>
-                    </tr>
-                `;
             });
-            
-            refundsList.innerHTML = refundsHtml;
         }
 
-        // Create partial refund for rejected items
-        async function createPartialRefund(orderId, order, rejectedItems, refundAmount) {
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            
+            const profileData = {
+                name: document.getElementById('shopName').value.trim(),
+                category: document.getElementById('shopCategory').value,
+                description: document.getElementById('shopDescription').value.trim(),
+                address: document.getElementById('shopAddress').value.trim(),
+                phone: document.getElementById('shopPhone').value.trim(),
+                openTime: document.getElementById('shopOpenTime').value,
+                closeTime: document.getElementById('shopCloseTime').value,
+                status: document.getElementById('shopStatus').value,
+                deliveryType: document.getElementById('deliveryType').value,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (!profileData.name || !profileData.address || !profileData.phone) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
             try {
-                const customerId = order.customerId || order.userId || (data.user && data.user.id);
-                
-                const refundData = {
-                    orderId: orderId,
-                    customerId: customerId,
-                    shopId: currentShop.id,
-                    shopName: currentShop.name,
-                    refundAmount: refundAmount,
-                    reason: 'Partial order accepted - Items not available',
-                    notes: 'Automatic refund for rejected items in partial order',
-                    status: 'approved', // Auto-approve partial order refunds
-                    estimatedTime: '24-48 hours',
-                    isPartialOrderRefund: true,
-                    rejectedItems: rejectedItems,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                const refundRef = await db.collection('refunds').add(refundData);
-                
-                // Update order
-                await db.collection('orders').doc(orderId).update({
-                    refundStatus: 'approved',
-                    refundAmount: refundAmount,
-                    refundReason: 'Partial order refund',
-                    refundId: refundRef.id,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                console.log('Partial refund created for order:', orderId);
-                
+                showLoading(true);
+                await db.collection('shops').doc(currentShop.id).update(profileData);
+                currentShop = { ...currentShop, ...profileData };
+                showToast('Profile updated successfully!', 'success');
             } catch (error) {
-                console.error('Error creating partial refund:', error);
+                console.error('Error updating profile:', error);
+                showToast('Error updating profile: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
-        // Rest of the functions (Product Management, Profile Management, etc.) remain the same
-        // They are too long to include here but they should work as before
-
-        // Mobile UI Functions
-        function initializeMobileUI() {
-            console.log('Initializing mobile UI');
-            
-            window.addEventListener('scroll', () => {
-                const floatingBtn = document.getElementById('floatingOrdersBtn');
-                if (!floatingBtn) return;
-                
-                if (window.scrollY > 300) {
-                    floatingBtn.classList.add('active');
-                } else {
-                    floatingBtn.classList.remove('active');
-                }
+        // Service type selection
+        function setupServiceOptions() {
+            const serviceOptions = document.querySelectorAll('.service-option');
+            serviceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    document.getElementById('deliveryType').value = value;
+                    
+                    serviceOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
             });
         }
 
@@ -3236,6 +2360,9 @@
             // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             
+            // Profile form
+            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            
             // Navigation links
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -3256,41 +2383,15 @@
                 });
             }
             
+            // Product form submit
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProduct();
+            });
+            
             // Setup service options
             setupServiceOptions();
         });
-
-        // Service type selection
-        function setupServiceOptions() {
-            const serviceOptions = document.querySelectorAll('.service-option');
-            serviceOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    document.getElementById('deliveryType').value = value;
-                    
-                    serviceOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
-
-        // Quick functions that were defined inline
-        function showRefundModal(orderId) {
-            const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
-            if (!order) {
-                showToast('Order not found!', 'error');
-                return;
-            }
-            
-            // Simple implementation for now
-            alert(`Refund functionality for order #${order.shortId} will be implemented fully.`);
-        }
-
-        function updateRefundStatusModal(refundId, defaultStatus) {
-            // Simple implementation for now
-            alert(`Update refund status functionality will be implemented fully.`);
-        }
-
     </script>
 </body>
 </html>

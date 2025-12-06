@@ -1126,6 +1126,22 @@
                         </div>
                     </div>
                     
+                    <!-- Order Filter -->
+                    <div class="mb-3">
+                        <select id="orderStatusFilter" class="form-select" style="max-width: 200px;" onchange="filterOrders()">
+                            <option value="all">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="dispatched">Dispatched</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="picked_up">Picked Up</option>
+                            <option value="ready_for_pickup">Ready for Pickup</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -1398,6 +1414,7 @@
         let currentShop = null;
         let products = [];
         let orders = [];
+        let filteredOrders = [];
         let currentPartialOrderId = null;
         let partialOrderItems = [];
 
@@ -2001,7 +2018,7 @@
             }
         }
 
-        // Order Management
+        // Order Management - NEW FIXED VERSION
         async function loadOrders() {
             if (!currentShop) return;
             
@@ -2009,23 +2026,14 @@
                 console.log('Loading orders for shop:', currentShop.id);
                 showLoading(true);
                 
-                // Try both collections
-                let snapshot;
-                try {
-                    snapshot = await db.collection('orders')
-                        .where('shopId', '==', currentShop.id)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-                } catch (error) {
-                    // Try orderItems collection
-                    snapshot = await db.collection('orderItems')
-                        .where('shopId', '==', currentShop.id)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-                }
+                // Load orders from 'orders' collection (main orders)
+                const ordersSnapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .orderBy('createdAt', 'desc')
+                    .get();
                 
                 orders = [];
-                snapshot.forEach(doc => {
+                ordersSnapshot.forEach(doc => {
                     const data = doc.data();
                     // Ensure paymentMethod and paymentStatus exist
                     if (!data.paymentMethod) {
@@ -2034,20 +2042,48 @@
                     if (!data.paymentStatus) {
                         data.paymentStatus = 'pending'; // Default to pending
                     }
-                    orders.push({ id: doc.id, ...data });
+                    orders.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Generate short ID for display
+                        shortId: generateShortOrderId(doc.id)
+                    });
                 });
                 
                 console.log('Orders loaded:', orders.length);
-                renderOrders();
+                
+                // Apply filter
+                filterOrders();
                 updateOrdersSummary();
                 updateDashboardOrdersSummary();
                 
             } catch (error) {
                 console.error("Error loading orders:", error);
                 showToast('No orders found', 'info');
+                orders = [];
+                filteredOrders = [];
+                renderOrders();
             } finally {
                 showLoading(false);
             }
+        }
+
+        // Generate short order ID for display
+        function generateShortOrderId(orderId) {
+            return orderId.substring(0, 6).toUpperCase();
+        }
+
+        // Filter orders by status
+        function filterOrders() {
+            const filterValue = document.getElementById('orderStatusFilter').value;
+            
+            if (filterValue === 'all') {
+                filteredOrders = [...orders];
+            } else {
+                filteredOrders = orders.filter(order => order.status === filterValue);
+            }
+            
+            renderOrders();
         }
 
         function updateOrdersSummary() {
@@ -2075,13 +2111,13 @@
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             
-            if (orders.length === 0) {
+            if (filteredOrders.length === 0) {
                 ordersList.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 3rem;">
                             <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Orders Yet</h4>
-                            <p style="color: #999;">Orders from customers will appear here</p>
+                            <h4 style="color: #666;">No Orders Found</h4>
+                            <p style="color: #999;">No orders match the current filter</p>
                         </td>
                     </tr>
                 `;
@@ -2090,7 +2126,7 @@
             
             let ordersHtml = '';
             
-            orders.forEach(order => {
+            filteredOrders.forEach(order => {
                 try {
                     const orderDate = order.createdAt ? 
                         (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
@@ -2148,12 +2184,21 @@
                             statusClass = 'status-text';
                     }
                     
-                    // Order items display
+                    // Order items display - FIXED: Properly handle items array
                     let itemsDisplay = '';
                     if (order.items && Array.isArray(order.items)) {
-                        itemsDisplay = order.items.map(item => 
-                            `${item.quantity || 1}x ${item.name || 'Item'}`
-                        ).join(', ');
+                        // Group items by name for better display
+                        const itemMap = {};
+                        order.items.forEach(item => {
+                            if (!itemMap[item.name]) {
+                                itemMap[item.name] = { quantity: 0, price: item.price };
+                            }
+                            itemMap[item.name].quantity += (item.quantity || 1);
+                        });
+                        
+                        itemsDisplay = Object.entries(itemMap)
+                            .map(([name, data]) => `${data.quantity}x ${name}`)
+                            .join(', ');
                     } else if (order.productName) {
                         itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
                     } else {
@@ -2201,10 +2246,17 @@
                         }
                     }
                     
-                    // Order amount
-                    const orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
+                    // Order amount - FIXED: Calculate from items
+                    let orderAmount = 0;
+                    if (order.items && Array.isArray(order.items)) {
+                        orderAmount = order.items.reduce((total, item) => {
+                            return total + ((item.price || 0) * (item.quantity || 1));
+                        }, 0);
+                    } else {
+                        orderAmount = order.totalAmount || (order.price * (order.quantity || 1)) || 0;
+                    }
                     
-                    // Action buttons - ADD PAYMENT UPDATE BUTTON FOR DELIVERED/PICKED UP ORDERS
+                    // Action buttons
                     let actionButtons = '';
                     
                     switch(order.status) {
@@ -2297,7 +2349,7 @@
                     ordersHtml += `
                         <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
                             <td>
-                                <strong>#${order.id.slice(-6)}</strong>
+                                <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
                             </td>
                             <td>${customerInfo}</td>
                             <td title="${itemsDisplay}">
@@ -2324,18 +2376,10 @@
         // Auto-update payment status when order is delivered/picked up
         async function autoUpdatePaymentStatus(orderId, paymentStatus) {
             try {
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(orderId).update({
-                        paymentStatus: paymentStatus,
-                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    await db.collection('orderItems').doc(orderId).update({
-                        paymentStatus: paymentStatus,
-                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
+                await db.collection('orders').doc(orderId).update({
+                    paymentStatus: paymentStatus,
+                    paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 console.log(`Auto-updated payment status to ${paymentStatus} for order ${orderId}`);
             } catch (error) {
                 console.error('Error auto-updating payment status:', error);
@@ -2408,12 +2452,7 @@
                     updateData.utrNumber = utrNumber;
                 }
                 
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(orderId).update(updateData);
-                } catch (error) {
-                    await db.collection('orderItems').doc(orderId).update(updateData);
-                }
+                await db.collection('orders').doc(orderId).update(updateData);
                 
                 showToast('Payment status updated successfully!', 'success');
                 closePaymentUpdateModal();
@@ -2428,7 +2467,7 @@
             }
         }
 
-        // Partial Order Functions
+        // Partial Order Functions - FIXED
         function showPartialOrderModal(orderId) {
             console.log('Opening partial order modal for order:', orderId);
             
@@ -2578,31 +2617,16 @@
                 console.log('Updating order with partial items:', acceptedItems);
                 
                 // Update order status to confirmed with partial items
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(currentPartialOrderId).update({
-                        status: 'confirmed',
-                        isPartialOrder: true,
-                        partialItems: acceptedItems,
-                        acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
-                        rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
-                        totalAmount: newTotal,
-                        originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    console.log('Trying orderItems collection...');
-                    await db.collection('orderItems').doc(currentPartialOrderId).update({
-                        status: 'confirmed',
-                        isPartialOrder: true,
-                        partialItems: acceptedItems,
-                        acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
-                        rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
-                        totalAmount: newTotal,
-                        originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
+                await db.collection('orders').doc(currentPartialOrderId).update({
+                    status: 'confirmed',
+                    isPartialOrder: true,
+                    partialItems: acceptedItems,
+                    acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
+                    rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
+                    totalAmount: newTotal,
+                    originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 
                 showToast('Partial order accepted successfully!', 'success');
                 closePartialOrderModal();
@@ -2623,27 +2647,14 @@
             try {
                 showLoading(true);
                 
-                // Try both collections
-                try {
-                    await db.collection('orders').doc(orderId).update({
-                        status: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
-                    if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                        await autoUpdatePaymentStatus(orderId, 'paid');
-                    }
-                } catch (error) {
-                    await db.collection('orderItems').doc(orderId).update({
-                        status: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
-                    if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                        await autoUpdatePaymentStatus(orderId, 'paid');
-                    }
+                await db.collection('orders').doc(orderId).update({
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
+                if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                    await autoUpdatePaymentStatus(orderId, 'paid');
                 }
                 
                 showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');

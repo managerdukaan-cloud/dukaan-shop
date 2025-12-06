@@ -524,6 +524,64 @@
             color: #0c5460;
         }
 
+        /* Refund Badge Styles */
+        .refund-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .refund-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .refund-approved {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .refund-completed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .refund-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .refund-alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .refund-alert.warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        
+        .refund-alert.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+        
+        .refund-alert.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
         .form-group {
             margin-bottom: 1rem;
         }
@@ -834,6 +892,66 @@
             max-width: 400px;
         }
 
+        /* Refund Modal Styles */
+        .refund-modal {
+            max-width: 500px;
+        }
+
+        .refund-item-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .refund-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .refund-item:last-child {
+            border-bottom: none;
+        }
+
+        .refund-item-info {
+            flex: 1;
+        }
+
+        .refund-item-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .refund-item-price {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .refund-amount-input {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .refund-total {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 1px solid #e9ecef;
+        }
+
         /* Content Pages */
         .content-page {
             display: none;
@@ -982,6 +1100,55 @@
                 margin-bottom: 60px;
             }
         }
+
+        /* Refund Dashboard Stats */
+        .refund-stats {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .refund-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .refund-stat {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        .refund-stat.pending {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+
+        .refund-stat.approved {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+
+        .refund-stat.completed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .refund-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .refund-stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -1064,6 +1231,14 @@
                         </div>
                     </div>
 
+                    <!-- Refund Statistics -->
+                    <div class="refund-stats" id="refundStats" style="display: none;">
+                        <h4><i class="fas fa-exchange-alt"></i> Refund Management</h4>
+                        <div class="refund-stats-grid" id="refundStatsGrid">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
                     <!-- Dashboard Orders Summary -->
                     <div class="dashboard-orders-summary" id="dashboardOrdersSummary">
                         <h4><i class="fas fa-shopping-bag"></i> Order Management Summary</h4>
@@ -1078,6 +1253,9 @@
                         </button>
                         <button class="btn btn-outline" onclick="navigateToPage('orders')">
                             <i class="fas fa-shopping-bag"></i> View Orders
+                        </button>
+                        <button class="btn btn-warning" onclick="showRefundsPage()">
+                            <i class="fas fa-exchange-alt"></i> Refund Requests
                         </button>
                     </div>
                 </div>
@@ -1243,6 +1421,42 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- Refunds Page (New) -->
+                <div id="refundsPage" class="content-page">
+                    <h2 style="margin-bottom: 1rem; color: var(--primary);">Refund Management</h2>
+                    
+                    <!-- Refund Filter -->
+                    <div class="mb-3">
+                        <select id="refundStatusFilter" class="form-select" style="max-width: 200px;" onchange="filterRefunds()">
+                            <option value="all">All Refunds</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="completed">Completed</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Refund ID</th>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="refundsList">
+                                <!-- Refunds will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -1365,6 +1579,93 @@
         </div>
     </div>
 
+    <!-- Refund Modal -->
+    <div class="modal" id="refundModal">
+        <div class="modal-content refund-modal">
+            <div class="modal-header">
+                <h3>Initiate Refund</h3>
+                <button class="close-modal" onclick="closeRefundModal()">&times;</button>
+            </div>
+            <form id="refundForm">
+                <input type="hidden" id="refundOrderId">
+                <input type="hidden" id="refundCustomerId">
+                <input type="hidden" id="refundOrderTotal">
+                
+                <div class="refund-alert info">
+                    <i class="fas fa-info-circle"></i> Refunds will be processed within 24-48 hours.
+                </div>
+                
+                <div class="refund-item-list" id="refundItemsList">
+                    <!-- Items will be loaded here -->
+                </div>
+                
+                <div class="refund-total">
+                    Total Refund Amount: ₹<span id="refundTotalAmount">0</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Refund Reason</label>
+                    <select id="refundReason" required>
+                        <option value="">Select reason</option>
+                        <option value="Damaged item">Damaged item</option>
+                        <option value="Wrong item delivered">Wrong item delivered</option>
+                        <option value="Item not as described">Item not as described</option>
+                        <option value="Quality issue">Quality issue</option>
+                        <option value="Order cancelled">Order cancelled</option>
+                        <option value="Partial order accepted">Partial order accepted</option>
+                        <option value="Customer request">Customer request</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="otherReasonField" style="display: none;">
+                    <label>Please specify</label>
+                    <input type="text" id="otherRefundReason" placeholder="Enter reason">
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea id="refundNotes" rows="2" placeholder="Any additional information..."></textarea>
+                </div>
+            </form>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closeRefundModal()">Cancel</button>
+                <button class="btn btn-warning" onclick="processRefund()">Submit Refund Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Action Modal -->
+    <div class="modal" id="refundActionModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 id="refundActionTitle">Update Refund Status</h3>
+                <button class="close-modal" onclick="closeRefundActionModal()">&times;</button>
+            </div>
+            <form id="refundActionForm">
+                <input type="hidden" id="actionRefundId">
+                
+                <div class="form-group">
+                    <label>Refund Status</label>
+                    <select id="refundActionStatus">
+                        <option value="approved">Approve Refund</option>
+                        <option value="rejected">Reject Refund</option>
+                        <option value="completed">Mark as Completed</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="refundActionNotes" rows="2" placeholder="Add any notes..."></textarea>
+                </div>
+            </form>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closeRefundActionModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="updateRefundStatus()">Update</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1415,6 +1716,8 @@
         let products = [];
         let orders = [];
         let filteredOrders = [];
+        let refunds = [];
+        let filteredRefunds = [];
         let currentPartialOrderId = null;
         let partialOrderItems = [];
 
@@ -1482,9 +1785,10 @@
                     currentShop = { id: shopId, ...shopDoc.data() };
                     console.log('Shop loaded:', currentShop.name);
                     
-                    // Load products and orders
+                    // Load products, orders and refunds
                     await loadProducts();
                     await loadOrders();
+                    await loadRefunds();
                     updateProfileForm();
                     
                     showAppScreen();
@@ -1670,8 +1974,15 @@
                     case 'orders':
                         loadOrders();
                         break;
+                    case 'refunds':
+                        loadRefunds();
+                        break;
                 }
             }
+        }
+
+        function showRefundsPage() {
+            navigateToPage('refunds');
         }
 
         // Set active quick action button
@@ -1722,6 +2033,9 @@
                 
                 // Load dashboard orders summary
                 updateDashboardOrdersSummary();
+                
+                // Update refund stats
+                updateRefundStats();
                 
                 console.log('Dashboard stats updated');
                 
@@ -2019,138 +2333,75 @@
             }
         }
 
-        // ==================== ORDER MANAGEMENT - FIXED VERSION ====================
+        // ==================== ORDER MANAGEMENT ====================
         
-        // ==================== ORDER MANAGEMENT - FIXED VERSION ====================
-        
-async function loadOrders() {
-    if (!currentShop) return;
-    
-    try {
-        console.log('Loading orders for shop ID:', currentShop.id);
-        showLoading(true);
-        
-        // Reset orders array
-        orders = [];
-        
-        // TRY 1: Query by shopId
-        console.log('Trying query 1: where shopId ==', currentShop.id);
-        try {
-            const ordersSnapshot = await db.collection('orders')
-                .where('shopId', '==', currentShop.id)
-                .orderBy('createdAt', 'desc')
-                .get();
+        async function loadOrders() {
+            if (!currentShop) return;
             
-            console.log('Query 1 results:', ordersSnapshot.size, 'orders');
-            
-            ordersSnapshot.forEach(doc => {
-                const data = doc.data();
-                
-                // IMPORTANT FIX: Use orderId if exists, otherwise use Firestore ID
-                const displayOrderId = data.orderId || doc.id;
-                
-                console.log('Found order - Firestore ID:', doc.id, 'Order ID field:', data.orderId);
-                
-                orders.push({ 
-                    id: displayOrderId, // Use orderId field from customer
-                    firestoreId: doc.id, // Store Firestore ID separately
-                    ...data,
-                    shortId: generateShortOrderId(displayOrderId) // Generate from orderId
-                });
-            });
-        } catch (error) {
-            console.log('Query 1 error:', error.message);
-        }
-        
-        // TRY 2: Also check for orders where firestore ID matches orderId
-        if (orders.length === 0) {
-            console.log('Trying query 2: Check all orders and match IDs');
             try {
-                const allOrdersSnapshot = await db.collection('orders')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
+                console.log('Loading orders for shop ID:', currentShop.id);
+                showLoading(true);
                 
-                allOrdersSnapshot.forEach(doc => {
-                    const data = doc.data();
+                // Reset orders array
+                orders = [];
+                
+                // Query orders by shopId
+                console.log('Querying orders where shopId ==', currentShop.id);
+                try {
+                    const ordersSnapshot = await db.collection('orders')
+                        .where('shopId', '==', currentShop.id)
+                        .orderBy('createdAt', 'desc')
+                        .get();
                     
-                    // Check if this order belongs to current shop
-                    if (data.shopId === currentShop.id || data.shopName === currentShop.name) {
+                    console.log('Query results:', ordersSnapshot.size, 'orders');
+                    
+                    ordersSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        
+                        // IMPORTANT FIX: Use orderId if exists, otherwise use Firestore ID
                         const displayOrderId = data.orderId || doc.id;
                         
-                        // Avoid duplicates
-                        if (!orders.find(o => o.id === displayOrderId || o.firestoreId === doc.id)) {
-                            orders.push({ 
-                                id: displayOrderId,
-                                firestoreId: doc.id,
-                                ...data,
-                                shortId: generateShortOrderId(displayOrderId)
-                            });
-                        }
-                    }
-                });
+                        // FIXED: Get customerId consistently
+                        const customerId = data.customerId || data.userId || (data.user && data.user.id);
+                        
+                        orders.push({ 
+                            id: displayOrderId,
+                            firestoreId: doc.id,
+                            customerId: customerId, // Store customerId
+                            ...data,
+                            shortId: generateShortOrderId(displayOrderId)
+                        });
+                    });
+                } catch (error) {
+                    console.log('Query error:', error.message);
+                }
+                
+                console.log('Total orders loaded:', orders.length);
+                
+                if (orders.length === 0) {
+                    showToast('No orders found.', 'warning');
+                }
+                
+                // Apply filter
+                filterOrders();
+                updateOrdersSummary();
+                updateDashboardOrdersSummary();
+                
             } catch (error) {
-                console.log('Query 2 error:', error.message);
+                console.error("Error loading orders:", error);
+                showToast('Error loading orders: ' + error.message, 'error');
+                orders = [];
+                filteredOrders = [];
+                renderOrders();
+            } finally {
+                showLoading(false);
             }
         }
-        
-        console.log('Total orders loaded:', orders.length);
-        
-        // DEBUG: Show all order IDs for verification
-        console.log('=== ORDER ID MATCHING DEBUG ===');
-        orders.forEach((order, index) => {
-            console.log(`Order ${index + 1}:`);
-            console.log('  - Display ID (customer sees):', order.id);
-            console.log('  - Firestore ID:', order.firestoreId);
-            console.log('  - orderId field:', order.orderId);
-            console.log('  - Short ID:', order.shortId);
-            console.log('---');
-        });
-        
-        if (orders.length === 0) {
-            showToast('No orders found.', 'warning');
-        } else {
-            showToast(`Loaded ${orders.length} orders`, 'success');
+
+        function generateShortOrderId(orderId) {
+            if (!orderId) return 'N/A';
+            return orderId.substring(0, 6).toUpperCase();
         }
-        
-        // Apply filter
-        filterOrders();
-        updateOrdersSummary();
-        updateDashboardOrdersSummary();
-        
-    } catch (error) {
-        console.error("Error loading orders:", error);
-        showToast('Error loading orders: ' + error.message, 'error');
-        orders = [];
-        filteredOrders = [];
-        renderOrders();
-    } finally {
-        showLoading(false);
-    }
-}
-
-// Update generateShortOrderId to handle both types of IDs
-function generateShortOrderId(orderId) {
-    if (!orderId) return 'N/A';
-    
-    // If orderId is already short (6 chars), return as is
-    if (orderId.length === 6) return orderId.toUpperCase();
-    
-    // Otherwise take first 6 chars
-    return orderId.substring(0, 6).toUpperCase();
-}
-
-// Update renderOrders() to show BOTH IDs for debugging
-// In the table row, update the Order ID column:
-`
-<td>
-    <strong title="Customer sees: ${order.id}">#${order.shortId}</strong>
-    <br>
-    <small class="text-muted" title="Firestore ID: ${order.firestoreId}">
-        ${order.id !== order.firestoreId ? `(DB: ${order.firestoreId?.substring(0, 6) || 'N/A'})` : ''}
-    </small>
-</td>
-`;
 
         // Filter orders by status
         function filterOrders() {
@@ -2186,421 +2437,435 @@ function generateShortOrderId(orderId) {
                 }
             });
         }
+
         function renderOrders() {
-    const ordersList = document.getElementById('ordersList');
-    
-    if (filteredOrders.length === 0) {
-        ordersList.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                    <h4 style="color: #666;">No Orders Found</h4>
-                    <p style="color: #999;">No orders match the current filter</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    let ordersHtml = '';
-    
-    filteredOrders.forEach(order => {
-        try {
-            const orderDate = order.createdAt ? 
-                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) : 
-                'Recently';
+            const ordersList = document.getElementById('ordersList');
             
-            // Status text
-            let statusText = '';
-            let statusClass = '';
-            
-            switch(order.status) {
-                case 'pending':
-                    statusText = 'Pending';
-                    statusClass = 'status-text status-pending';
-                    break;
-                case 'confirmed':
-                    statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
-                    statusClass = 'status-text status-confirmed';
-                    break;
-                case 'preparing':
-                    statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
-                    statusClass = 'status-text status-preparing';
-                    break;
-                case 'dispatched':
-                    statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
-                    statusClass = 'status-text status-dispatched';
-                    break;
-                case 'delivered':
-                    statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
-                    statusClass = 'status-text status-delivered';
-                    break;
-                case 'ready_for_pickup':
-                    statusText = 'Ready for Pickup';
-                    statusClass = 'status-text status-ready_for_pickup';
-                    break;
-                case 'picked_up':
-                    statusText = 'Picked Up';
-                    statusClass = 'status-text status-picked_up';
-                    break;
-                case 'cancelled':
-                    statusText = 'Cancelled';
-                    statusClass = 'status-text status-cancelled';
-                    break;
-                case 'rejected':
-                    statusText = 'Rejected';
-                    statusClass = 'status-text status-rejected';
-                    break;
-                default:
-                    statusText = order.status || 'Unknown';
-                    statusClass = 'status-text';
+            if (filteredOrders.length === 0) {
+                ordersList.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h4 style="color: #666;">No Orders Found</h4>
+                            <p style="color: #999;">No orders match the current filter</p>
+                        </td>
+                    </tr>
+                `;
+                return;
             }
             
-            // Order items display - FIXED FOR PARTIAL ORDERS
-            let itemsDisplay = '';
-            let partialBadge = '';
+            let ordersHtml = '';
             
-            if (order.isPartialOrder) {
-                partialBadge = ' <span class="badge bg-warning">Partial</span>';
-                
-                // Show accepted items with ✓ and rejected with ✗
-                const acceptedItems = order.acceptedItems || [];
-                const rejectedItems = order.rejectedItems || [];
-                
-                let acceptedText = '';
-                let rejectedText = '';
-                
-                if (acceptedItems.length > 0) {
-                    acceptedText = acceptedItems.map(item => 
-                        `${item.quantity || 1}x ${item.name || 'Item'} ✓`
-                    ).join(', ');
-                }
-                
-                if (rejectedItems.length > 0) {
-                    rejectedText = rejectedItems.map(item => 
-                        `${item.quantity || 1}x ${item.name || 'Item'} ✗`
-                    ).join(', ');
-                }
-                
-                if (acceptedText && rejectedText) {
-                    itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
-                } else if (acceptedText) {
-                    itemsDisplay = acceptedText;
-                } else if (rejectedText) {
-                    itemsDisplay = `Rejected: ${rejectedText}`;
-                }
-            } else if (order.items && Array.isArray(order.items)) {
-                // Group items by name for better display
-                const itemMap = {};
-                order.items.forEach(item => {
-                    const itemName = item.name || item.productName || 'Item';
-                    if (!itemMap[itemName]) {
-                        itemMap[itemName] = { quantity: 0, price: item.price || 0 };
+            filteredOrders.forEach(order => {
+                try {
+                    const orderDate = order.createdAt ? 
+                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) : 
+                        'Recently';
+                    
+                    // Status text
+                    let statusText = '';
+                    let statusClass = '';
+                    
+                    switch(order.status) {
+                        case 'pending':
+                            statusText = 'Pending';
+                            statusClass = 'status-text status-pending';
+                            break;
+                        case 'confirmed':
+                            statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
+                            statusClass = 'status-text status-confirmed';
+                            break;
+                        case 'preparing':
+                            statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
+                            statusClass = 'status-text status-preparing';
+                            break;
+                        case 'dispatched':
+                            statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
+                            statusClass = 'status-text status-dispatched';
+                            break;
+                        case 'delivered':
+                            statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
+                            statusClass = 'status-text status-delivered';
+                            break;
+                        case 'ready_for_pickup':
+                            statusText = 'Ready for Pickup';
+                            statusClass = 'status-text status-ready_for_pickup';
+                            break;
+                        case 'picked_up':
+                            statusText = 'Picked Up';
+                            statusClass = 'status-text status-picked_up';
+                            break;
+                        case 'cancelled':
+                            statusText = 'Cancelled';
+                            statusClass = 'status-text status-cancelled';
+                            break;
+                        case 'rejected':
+                            statusText = 'Rejected';
+                            statusClass = 'status-text status-rejected';
+                            break;
+                        default:
+                            statusText = order.status || 'Unknown';
+                            statusClass = 'status-text';
                     }
-                    itemMap[itemName].quantity += (item.quantity || 1);
-                });
-                
-                itemsDisplay = Object.entries(itemMap)
-                    .map(([name, data]) => `${data.quantity}x ${name}`)
-                    .join(', ');
-            } else if (order.productName) {
-                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
-            } else {
-                itemsDisplay = 'No items';
-            }
-            
-            // Customer info
-            const customerInfo = order.customerName ? 
-                `${order.customerName}` : 
-                order.customerEmail || order.customerPhone || 'Customer';
-            
-            // Payment method
-            let paymentText = '';
-            const paymentMethod = order.paymentMethod || 'cod';
-            let paymentStatus = order.paymentStatus || 'pending';
-            
-            // AUTO-UPDATE: If order is delivered/picked up, mark as paid
-            if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
-                paymentStatus = 'paid';
-            }
-            
-            if (paymentMethod === 'cod') {
-                if (paymentStatus === 'paid') {
-                    paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
-                } else {
-                    paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
-                }
-            } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
-                if (paymentStatus === 'paid') {
-                    if (order.utrNumber) {
-                        paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                    
+                    // Order items display
+                    let itemsDisplay = '';
+                    let partialBadge = '';
+                    
+                    if (order.isPartialOrder) {
+                        partialBadge = ' <span class="badge bg-warning">Partial</span>';
+                        
+                        const acceptedItems = order.acceptedItems || [];
+                        const rejectedItems = order.rejectedItems || [];
+                        
+                        let acceptedText = '';
+                        let rejectedText = '';
+                        
+                        if (acceptedItems.length > 0) {
+                            acceptedText = acceptedItems.map(item => 
+                                `${item.quantity || 1}x ${item.name || 'Item'} ✓`
+                            ).join(', ');
+                        }
+                        
+                        if (rejectedItems.length > 0) {
+                            rejectedText = rejectedItems.map(item => 
+                                `${item.quantity || 1}x ${item.name || 'Item'} ✗`
+                            ).join(', ');
+                        }
+                        
+                        if (acceptedText && rejectedText) {
+                            itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
+                        } else if (acceptedText) {
+                            itemsDisplay = acceptedText;
+                        } else if (rejectedText) {
+                            itemsDisplay = `Rejected: ${rejectedText}`;
+                        }
+                    } else if (order.items && Array.isArray(order.items)) {
+                        const itemMap = {};
+                        order.items.forEach(item => {
+                            const itemName = item.name || item.productName || 'Item';
+                            if (!itemMap[itemName]) {
+                                itemMap[itemName] = { quantity: 0, price: item.price || 0 };
+                            }
+                            itemMap[itemName].quantity += (item.quantity || 1);
+                        });
+                        
+                        itemsDisplay = Object.entries(itemMap)
+                            .map(([name, data]) => `${data.quantity}x ${name}`)
+                            .join(', ');
+                    } else if (order.productName) {
+                        itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
                     } else {
-                        paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
+                        itemsDisplay = 'No items';
                     }
-                } else {
-                    paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
-                }
-            } else {
-                if (paymentStatus === 'paid') {
-                    paymentText = `<span class="payment-text payment-paid">PAID</span>`;
-                } else {
-                    paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
-                }
-            }
-            
-            // Order amount - FIXED: For partial orders, show accepted total
-            let orderAmount = 0;
-            if (order.isPartialOrder) {
-                orderAmount = order.acceptedTotal || order.total || 0;
-            } else {
-                orderAmount = order.total || order.totalAmount || 0;
-            }
-            
-            // Action buttons
-            let actionButtons = '';
-            const firestoreId = order.firestoreId || order.id;
-            
-            // IMPORTANT: Order status progression logic
-            if (order.status === 'pending') {
-                actionButtons = `
-                    <div style="display: flex; gap: 5px; flex-direction: column;">
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
-                            <i class="fas fa-check"></i> Accept All
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
-                            <i class="fas fa-check-double"></i> Accept Partial
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                    </div>
-                `;
-            } else if (order.status === 'confirmed') {
-                actionButtons = `
-                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                        <i class="fas fa-utensils"></i> Start Preparing
-                    </button>
-                `;
-            } else if (order.status === 'preparing') {
-                actionButtons = `
-                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
-                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                    </button>
-                `;
-            } else if (order.status === 'dispatched') {
-                actionButtons = `
-                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
-                        <i class="fas fa-check-circle"></i> Mark as Delivered
-                    </button>
-                `;
-            } else if (order.status === 'delivered' || order.status === 'picked_up') {
-                if (paymentStatus === 'pending') {
-                    actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${firestoreId}', ${orderAmount})">
-                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                        </button>
+                    
+                    // Customer info
+                    const customerInfo = order.customerName ? 
+                        `${order.customerName}` : 
+                        order.customerEmail || order.customerPhone || 'Customer';
+                    
+                    // Payment method
+                    let paymentText = '';
+                    const paymentMethod = order.paymentMethod || 'cod';
+                    let paymentStatus = order.paymentStatus || 'pending';
+                    
+                    // AUTO-UPDATE: If order is delivered/picked up, mark as paid
+                    if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                        paymentStatus = 'paid';
+                    }
+                    
+                    if (paymentMethod === 'cod') {
+                        if (paymentStatus === 'paid') {
+                            paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
+                        } else {
+                            paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
+                        }
+                    } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
+                        if (paymentStatus === 'paid') {
+                            if (order.utrNumber) {
+                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                            } else {
+                                paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
+                            }
+                        } else {
+                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                        }
+                    } else {
+                        if (paymentStatus === 'paid') {
+                            paymentText = `<span class="payment-text payment-paid">PAID</span>`;
+                        } else {
+                            paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
+                        }
+                    }
+                    
+                    // Order amount
+                    let orderAmount = 0;
+                    if (order.isPartialOrder) {
+                        orderAmount = order.acceptedTotal || order.total || 0;
+                    } else {
+                        orderAmount = order.total || order.totalAmount || 0;
+                    }
+                    
+                    // Action buttons
+                    let actionButtons = '';
+                    const firestoreId = order.firestoreId || order.id;
+                    
+                    // IMPORTANT: Check for refund status
+                    let refundBadge = '';
+                    if (order.refundStatus === 'pending') {
+                        refundBadge = `<span class="refund-badge refund-pending">Refund Pending</span>`;
+                    } else if (order.refundStatus === 'approved') {
+                        refundBadge = `<span class="refund-badge refund-approved">Refund Approved</span>`;
+                    } else if (order.refundStatus === 'completed') {
+                        refundBadge = `<span class="refund-badge refund-completed">Refund Completed</span>`;
+                    } else if (order.refundStatus === 'rejected') {
+                        refundBadge = `<span class="refund-badge refund-rejected">Refund Rejected</span>`;
+                    }
+                    
+                    if (order.status === 'pending') {
+                        actionButtons = `
+                            <div style="display: flex; gap: 5px; flex-direction: column;">
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
+                                    <i class="fas fa-check"></i> Accept All
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
+                                    <i class="fas fa-check-double"></i> Accept Partial
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        `;
+                    } else if (order.status === 'confirmed') {
+                        actionButtons = `
+                            <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                                <i class="fas fa-utensils"></i> Start Preparing
+                            </button>
+                        `;
+                    } else if (order.status === 'preparing') {
+                        actionButtons = `
+                            <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
+                                <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                            </button>
+                        `;
+                    } else if (order.status === 'dispatched') {
+                        actionButtons = `
+                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
+                                <i class="fas fa-check-circle"></i> Mark as Delivered
+                            </button>
+                        `;
+                    } else if (order.status === 'delivered' || order.status === 'picked_up') {
+                        if (paymentStatus === 'pending') {
+                            actionButtons = `
+                                <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${firestoreId}', ${orderAmount})">
+                                    <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                                </button>
+                            `;
+                        } else {
+                            // Add refund button for delivered orders
+                            if (!order.refundStatus || order.refundStatus === 'rejected') {
+                                actionButtons = `
+                                    <div style="display: flex; gap: 5px; flex-direction: column;">
+                                        <button class="btn btn-warning btn-sm" onclick="showRefundModal('${firestoreId}')">
+                                            <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                        </button>
+                                    </div>
+                                `;
+                            } else {
+                                actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
+                            }
+                        }
+                    } else if (order.status === 'cancelled' || order.status === 'rejected') {
+                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                    }
+                    
+                    ordersHtml += `
+                        <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                            <td>
+                                <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
+                                ${partialBadge}
+                                ${refundBadge}
+                            </td>
+                            <td>${customerInfo}</td>
+                            <td title="${itemsDisplay}">
+                                ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                            </td>
+                            <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+                            <td>
+                                <span class="${statusClass}">${statusText}</span>
+                            </td>
+                            <td>${paymentText}</td>
+                            <td>${orderDate}</td>
+                            <td>${actionButtons}</td>
+                        </tr>
                     `;
-                } else {
-                    actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
+                    
+                } catch (error) {
+                    console.error('Error rendering order:', order, error);
                 }
-            } else if (order.status === 'cancelled' || order.status === 'rejected') {
-                actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-            }
+            });
             
-            ordersHtml += `
-                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-                    <td>
-                        <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
-                        ${partialBadge}
-                    </td>
-                    <td>${customerInfo}</td>
-                    <td title="${itemsDisplay}">
-                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-                    </td>
-                    <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
-                    <td>
-                        <span class="${statusClass}">${statusText}</span>
-                    </td>
-                    <td>${paymentText}</td>
-                    <td>${orderDate}</td>
-                    <td>${actionButtons}</td>
-                </tr>
-            `;
-            
-        } catch (error) {
-            console.error('Error rendering order:', order, error);
+            ordersList.innerHTML = ordersHtml;
         }
-    });
-    
-    ordersList.innerHTML = ordersHtml;
-}
 
         // Partial Order Functions
         function showPartialOrderModal(orderId) {
-    console.log('Opening partial order modal for order:', orderId);
-    
-    const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
-    if (!order) {
-        showToast('Order not found!', 'error');
-        return;
-    }
-    
-    currentPartialOrderId = order.firestoreId || order.id;
-    partialOrderItems = [];
-    
-    // Prepare items for partial order
-    let itemsHtml = '';
-    let originalTotal = 0;
-    
-    if (order.items && Array.isArray(order.items)) {
-        order.items.forEach((item, index) => {
-            const maxQuantity = item.quantity || 1;
-            const price = item.price || 0;
-            const itemTotal = price * maxQuantity;
-            originalTotal += itemTotal;
+            console.log('Opening partial order modal for order:', orderId);
             
-            partialOrderItems.push({
-                id: item.id,
-                name: item.name || 'Item',
-                price: price,
-                originalQuantity: maxQuantity,
-                acceptedQuantity: maxQuantity, // Default accept all
-                image: item.image,
-                shopId: item.shopId,
-                shopName: item.shopName
-            });
+            const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
+            if (!order) {
+                showToast('Order not found!', 'error');
+                return;
+            }
             
-            itemsHtml += `
-                <div class="item-quantity-control">
-                    <div class="item-info">
-                        <div class="item-name">${item.name || 'Item'}</div>
-                        <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
-                        <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
+            currentPartialOrderId = order.firestoreId || order.id;
+            partialOrderItems = [];
+            
+            // Prepare items for partial order
+            let itemsHtml = '';
+            let originalTotal = 0;
+            
+            if (order.items && Array.isArray(order.items)) {
+                order.items.forEach((item, index) => {
+                    const maxQuantity = item.quantity || 1;
+                    const price = item.price || 0;
+                    const itemTotal = price * maxQuantity;
+                    originalTotal += itemTotal;
+                    
+                    partialOrderItems.push({
+                        id: item.id,
+                        name: item.name || 'Item',
+                        price: price,
+                        originalQuantity: maxQuantity,
+                        acceptedQuantity: maxQuantity,
+                        image: item.image,
+                        shopId: item.shopId,
+                        shopName: item.shopName
+                    });
+                    
+                    itemsHtml += `
+                        <div class="item-quantity-control">
+                            <div class="item-info">
+                                <div class="item-name">${item.name || 'Item'}</div>
+                                <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
+                                <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
+                            </div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
+                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
+                    `;
+                });
+            } else {
+                const maxQuantity = order.quantity || 1;
+                const price = order.price || 0;
+                const itemTotal = price * maxQuantity;
+                originalTotal += itemTotal;
+                
+                partialOrderItems.push({
+                    id: order.id,
+                    name: order.productName || 'Product',
+                    price: price,
+                    originalQuantity: maxQuantity,
+                    acceptedQuantity: maxQuantity,
+                    image: order.image
+                });
+                
+                itemsHtml += `
+                    <div class="item-quantity-control">
+                        <div class="item-info">
+                            <div class="item-name">${order.productName || 'Product'}</div>
+                            <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
+                            <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changePartialQuantity(0, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
+                            <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="quantity-controls">
-                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
-                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                    <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
+                `;
+            }
+            
+            document.getElementById('partialOrderItems').innerHTML = itemsHtml;
+            updatePartialOrderTotal();
+            
+            document.getElementById('partialOrderTotal').innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>Original Total: ₹${originalTotal.toFixed(2)}</strong><br>
+                        <strong>New Total: ₹<span id="partialOrderTotalAmount">${originalTotal.toFixed(2)}</span></strong>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="text-success" id="savingsDisplay" style="${originalTotal === originalTotal ? 'display: none;' : ''}">
+                            Savings: ₹${(originalTotal - originalTotal).toFixed(2)}
+                        </div>
                     </div>
                 </div>
-                <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
             `;
-        });
-    } else {
-        // Single item order
-        const maxQuantity = order.quantity || 1;
-        const price = order.price || 0;
-        const itemTotal = price * maxQuantity;
-        originalTotal += itemTotal;
-        
-        partialOrderItems.push({
-            id: order.id,
-            name: order.productName || 'Product',
-            price: price,
-            originalQuantity: maxQuantity,
-            acceptedQuantity: maxQuantity,
-            image: order.image
-        });
-        
-        itemsHtml += `
-            <div class="item-quantity-control">
-                <div class="item-info">
-                    <div class="item-name">${order.productName || 'Product'}</div>
-                    <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
-                    <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
-                </div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn" onclick="changePartialQuantity(0, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
-                    <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
-        `;
-    }
-    
-    document.getElementById('partialOrderItems').innerHTML = itemsHtml;
-    updatePartialOrderTotal();
-    
-    // Show original and new total
-    document.getElementById('partialOrderTotal').innerHTML = `
-        <div style="display: flex; justify-content: space-between;">
-            <div>
-                <strong>Original Total: ₹${originalTotal.toFixed(2)}</strong><br>
-                <strong>New Total: ₹<span id="partialOrderTotalAmount">${originalTotal.toFixed(2)}</span></strong>
-            </div>
-            <div style="text-align: right;">
-                <div class="text-success" id="savingsDisplay" style="${originalTotal === originalTotal ? 'display: none;' : ''}">
-                    Savings: ₹${(originalTotal - originalTotal).toFixed(2)}
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('partialOrderModal').classList.add('active');
-    
-    console.log('Partial order modal opened successfully');
-}
+            
+            document.getElementById('partialOrderModal').classList.add('active');
+        }
 
         function changePartialQuantity(index, change) {
-    if (index < 0 || index >= partialOrderItems.length) return;
-    
-    const item = partialOrderItems[index];
-    const newQuantity = item.acceptedQuantity + change;
-    
-    // Allow quantity from 0 to originalQuantity
-    if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
-        item.acceptedQuantity = newQuantity;
-        document.getElementById(`partialQty${index}`).textContent = newQuantity;
-        
-        // Update total amount
-        updatePartialOrderTotal();
-        
-        // Show/hide minus button
-        const minusBtn = document.querySelector(`button[onclick="changePartialQuantity(${index}, -1)"]`);
-        if (minusBtn) {
-            minusBtn.disabled = newQuantity === 0;
+            if (index < 0 || index >= partialOrderItems.length) return;
+            
+            const item = partialOrderItems[index];
+            const newQuantity = item.acceptedQuantity + change;
+            
+            if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
+                item.acceptedQuantity = newQuantity;
+                document.getElementById(`partialQty${index}`).textContent = newQuantity;
+                
+                updatePartialOrderTotal();
+                
+                const minusBtn = document.querySelector(`button[onclick="changePartialQuantity(${index}, -1)"]`);
+                if (minusBtn) {
+                    minusBtn.disabled = newQuantity === 0;
+                }
+            }
         }
-    }
-}
 
-function updatePartialOrderTotal() {
-    let totalAmount = 0;
-    let originalTotal = 0;
-    
-    partialOrderItems.forEach(item => {
-        totalAmount += (item.price || 0) * item.acceptedQuantity;
-        originalTotal += (item.price || 0) * item.originalQuantity;
-    });
-    
-    document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
-    
-    // Update savings display
-    const savingsDisplay = document.getElementById('savingsDisplay');
-    if (savingsDisplay) {
-        const savings = originalTotal - totalAmount;
-        if (savings > 0) {
-            savingsDisplay.innerHTML = `Savings: ₹${savings.toFixed(2)}`;
-            savingsDisplay.style.display = 'block';
-        } else {
-            savingsDisplay.style.display = 'none';
+        function updatePartialOrderTotal() {
+            let totalAmount = 0;
+            let originalTotal = 0;
+            
+            partialOrderItems.forEach(item => {
+                totalAmount += (item.price || 0) * item.acceptedQuantity;
+                originalTotal += (item.price || 0) * item.originalQuantity;
+            });
+            
+            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
+            
+            const savingsDisplay = document.getElementById('savingsDisplay');
+            if (savingsDisplay) {
+                const savings = originalTotal - totalAmount;
+                if (savings > 0) {
+                    savingsDisplay.innerHTML = `Savings: ₹${savings.toFixed(2)}`;
+                    savingsDisplay.style.display = 'block';
+                } else {
+                    savingsDisplay.style.display = 'none';
+                }
+            }
         }
-    }
-}
 
         function closePartialOrderModal() {
             document.getElementById('partialOrderModal').classList.remove('active');
@@ -2609,262 +2874,125 @@ function updatePartialOrderTotal() {
         }
 
         async function confirmPartialOrder() {
-    console.log('Confirming partial order for:', currentPartialOrderId);
-    
-    if (!currentPartialOrderId) {
-        showToast('No order selected!', 'error');
-        return;
-    }
-    
-    // Check if at least one item has quantity > 0
-    const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
-    
-    if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
-        return;
-    }
-    
-    try {
-        showLoading(true);
-        
-        // Get original order
-        const orderDoc = await db.collection('orders').doc(currentPartialOrderId).get();
-        const originalOrder = orderDoc.data();
-        
-        // Calculate original and accepted totals
-        let originalTotal = 0;
-        let acceptedTotal = 0;
-        let acceptedItemsArray = [];
-        let rejectedItemsArray = [];
-        
-        partialOrderItems.forEach(item => {
-            const itemTotal = (item.price || 0) * (item.originalQuantity || 1);
-            const acceptedItemTotal = (item.price || 0) * item.acceptedQuantity;
-            originalTotal += itemTotal;
-            acceptedTotal += acceptedItemTotal;
+            console.log('Confirming partial order for:', currentPartialOrderId);
             
-            if (item.acceptedQuantity > 0) {
-                acceptedItemsArray.push({
-                    ...item,
-                    quantity: item.acceptedQuantity,
-                    accepted: true
-                });
-            } else {
-                rejectedItemsArray.push({
-                    ...item,
-                    quantity: item.originalQuantity,
-                    accepted: false,
-                    reason: 'Out of stock/Not available'
-                });
-            }
-        });
-        
-        // Update order with partial acceptance
-        const updateData = {
-            status: 'confirmed',
-            isPartialOrder: true,
-            partialAccepted: true,
-            acceptedItems: acceptedItemsArray,
-            rejectedItems: rejectedItemsArray,
-            acceptedTotal: acceptedTotal,
-            originalTotal: originalTotal,
-            total: acceptedTotal, // Update total to accepted amount
-            totalAmount: acceptedTotal,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            partialAcceptedAt: new Date().toISOString()
-        };
-        
-        // If no items accepted, reject the order
-        if (acceptedItemsArray.length === 0) {
-            updateData.status = 'rejected';
-            updateData.rejectionReason = 'All items out of stock';
-        }
-        
-        console.log('Updating order with partial acceptance:', updateData);
-        
-        await db.collection('orders').doc(currentPartialOrderId).update(updateData);
-        
-        // Create notification for customer
-        await createPartialOrderNotification(currentPartialOrderId, originalOrder, acceptedItemsArray, rejectedItemsArray);
-        
-        showToast('Partial order processed successfully!', 'success');
-        closePartialOrderModal();
-        await loadOrders();
-        await loadDashboardData();
-        
-    } catch (error) {
-        console.error('Error accepting partial order:', error);
-        showToast('Error accepting partial order: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-// Create notification for customer about partial order
-async function createPartialOrderNotification(orderId, order, acceptedItems, rejectedItems, acceptedTotal) {
-    try {
-        let message = '';
-        let title = '';
-        let refundAmount = 0;
-        
-        // Calculate original total
-        const originalTotal = order.total || order.totalAmount || 0;
-        
-        if (acceptedItems.length > 0 && rejectedItems.length > 0) {
-            title = 'Order Partially Accepted';
-            refundAmount = originalTotal - acceptedTotal;
-            
-            const acceptedNames = acceptedItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
-            const rejectedNames = rejectedItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
-            
-            if (refundAmount > 0) {
-                message = `Your order #${orderId.substring(0, 6)} has been partially accepted. 
-                ✅ Accepted: ${acceptedNames} 
-                ❌ Not available: ${rejectedNames}
-                💰 Refund amount: ₹${refundAmount.toFixed(2)} will be processed in 3-5 working days.
-                New order total: ₹${acceptedTotal.toFixed(2)}`;
-            } else {
-                message = `Your order #${orderId.substring(0, 6)} has been partially accepted. 
-                ✅ Accepted: ${acceptedNames} 
-                ❌ Not available: ${rejectedNames}
-                New order total: ₹${acceptedTotal.toFixed(2)}`;
+            if (!currentPartialOrderId) {
+                showToast('No order selected!', 'error');
+                return;
             }
             
-        } else if (acceptedItems.length > 0) {
-            title = 'Order Accepted';
-            message = `Your order #${orderId.substring(0, 6)} has been accepted. Total: ₹${acceptedTotal.toFixed(2)}`;
-        } else {
-            title = 'Order Rejected';
-            refundAmount = originalTotal;
-            message = `Your order #${orderId.substring(0, 6)} has been rejected - all items are unavailable. 
-            💰 Full refund of ₹${refundAmount.toFixed(2)} will be processed in 3-5 working days.`;
-        }
-        
-        const notificationData = {
-            orderId: orderId,
-            customerId: order.customerId,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            shopId: currentShop.id,
-            shopName: currentShop.name,
-            type: 'order_update',
-            title: title,
-            message: message,
-            acceptedItems: acceptedItems,
-            rejectedItems: rejectedItems,
-            acceptedTotal: acceptedTotal,
-            originalTotal: originalTotal,
-            refundAmount: refundAmount,
-            isRefund: refundAmount > 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            read: false
-        };
-        
-        await db.collection('notifications').add(notificationData);
-        console.log('Refund notification created for customer');
-        
-        // Also update order with refund info
-        if (refundAmount > 0) {
-            await db.collection('orders').doc(orderId).update({
-                refundAmount: refundAmount,
-                refundRequired: true,
-                refundStatus: 'pending',
-                refundRequestedAt: new Date().toISOString()
-            });
-        }
-        
-    } catch (error) {
-        console.error('Error creating refund notification:', error);
-    }
-}
-
-        // Update Order Status with cancellation restriction
-        async function updateOrderStatus(firestoreId, newStatus) {
-    if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
-    
-    try {
-        showLoading(true);
-        
-        // Get current order data
-        const orderDoc = await db.collection('orders').doc(firestoreId).get();
-        const currentOrder = orderDoc.data();
-        
-        // Prepare update data
-        const updateData = {
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        // Special handling for partial orders
-        if (currentOrder.isPartialOrder) {
-            if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                // For partial orders, mark which items were delivered
-                updateData.partialDelivered = true;
-                updateData.deliveredItems = currentOrder.acceptedItems || [];
-                updateData.undeliveredItems = currentOrder.rejectedItems || [];
+            const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
+            
+            if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
+                return;
+            }
+            
+            try {
+                showLoading(true);
                 
-                // Create notification for customer
-                if (currentOrder.customerId) {
-                    await createDeliveryNotification(
-                        firestoreId,
-                        currentOrder,
-                        newStatus,
-                        currentOrder.acceptedItems,
-                        currentOrder.acceptedTotal
-                    );
+                const orderDoc = await db.collection('orders').doc(currentPartialOrderId).get();
+                const originalOrder = orderDoc.data();
+                
+                let originalTotal = 0;
+                let acceptedTotal = 0;
+                let acceptedItemsArray = [];
+                let rejectedItemsArray = [];
+                
+                partialOrderItems.forEach(item => {
+                    const itemTotal = (item.price || 0) * (item.originalQuantity || 1);
+                    const acceptedItemTotal = (item.price || 0) * item.acceptedQuantity;
+                    originalTotal += itemTotal;
+                    acceptedTotal += acceptedItemTotal;
+                    
+                    if (item.acceptedQuantity > 0) {
+                        acceptedItemsArray.push({
+                            ...item,
+                            quantity: item.acceptedQuantity,
+                            accepted: true
+                        });
+                    } else {
+                        rejectedItemsArray.push({
+                            ...item,
+                            quantity: item.originalQuantity,
+                            accepted: false,
+                            reason: 'Out of stock/Not available'
+                        });
+                    }
+                });
+                
+                const updateData = {
+                    status: 'confirmed',
+                    isPartialOrder: true,
+                    partialAccepted: true,
+                    acceptedItems: acceptedItemsArray,
+                    rejectedItems: rejectedItemsArray,
+                    acceptedTotal: acceptedTotal,
+                    originalTotal: originalTotal,
+                    total: acceptedTotal,
+                    totalAmount: acceptedTotal,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    partialAcceptedAt: new Date().toISOString()
+                };
+                
+                if (acceptedItemsArray.length === 0) {
+                    updateData.status = 'rejected';
+                    updateData.rejectionReason = 'All items out of stock';
                 }
+                
+                console.log('Updating order with partial acceptance:', updateData);
+                
+                await db.collection('orders').doc(currentPartialOrderId).update(updateData);
+                
+                // Create refund for rejected items
+                if (rejectedItemsArray.length > 0 && originalTotal > acceptedTotal) {
+                    await createPartialRefund(currentPartialOrderId, originalOrder, rejectedItemsArray, originalTotal - acceptedTotal);
+                }
+                
+                showToast('Partial order processed successfully!', 'success');
+                closePartialOrderModal();
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error accepting partial order:', error);
+                showToast('Error accepting partial order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
         }
-        
-        await db.collection('orders').doc(firestoreId).update(updateData);
-        
-        // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
-        if (newStatus === 'delivered' || newStatus === 'picked_up') {
-            await autoUpdatePaymentStatus(firestoreId, 'paid');
-        }
-        
-        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
-        await loadOrders();
-        await loadDashboardData();
-        
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showToast('Error updating order: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
 
-// Create delivery notification
-async function createDeliveryNotification(orderId, order, status, deliveredItems, total) {
-    try {
-        const statusText = status === 'delivered' ? 'delivered' : 'picked up';
-        const title = `Order ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}`;
-        const message = `Your order #${orderId.substring(0, 6)} has been ${statusText}.`;
-        
-        const notificationData = {
-            orderId: orderId,
-            customerId: order.customerId,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            shopId: currentShop.id,
-            shopName: currentShop.name,
-            type: 'order_delivered',
-            title: title,
-            message: message,
-            deliveredItems: deliveredItems,
-            total: total,
-            status: status,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            read: false
-        };
-        
-        await db.collection('notifications').add(notificationData);
-        console.log('Delivery notification created');
-    } catch (error) {
-        console.error('Error creating delivery notification:', error);
-    }
-}
-        // Auto-update payment status when order is delivered/picked up
+        // Update Order Status
+        async function updateOrderStatus(firestoreId, newStatus) {
+            if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
+            
+            try {
+                showLoading(true);
+                
+                const updateData = {
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('orders').doc(firestoreId).update(updateData);
+                
+                // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
+                if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                    await autoUpdatePaymentStatus(firestoreId, 'paid');
+                }
+                
+                showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
+                await loadOrders();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showToast('Error updating order: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Auto-update payment status
         async function autoUpdatePaymentStatus(firestoreId, paymentStatus) {
             try {
                 await db.collection('orders').doc(firestoreId).update({
@@ -2885,10 +3013,9 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
             document.getElementById('paymentUpdateOrderId').value = firestoreId;
             document.getElementById('paymentOrderTotal').value = `₹${orderAmount.toFixed(2)}`;
             document.getElementById('paymentUpdateMethod').value = order.paymentMethod || 'cod';
-            document.getElementById('paymentUpdateStatus').value = 'paid'; // Default to paid
+            document.getElementById('paymentUpdateStatus').value = 'paid';
             document.getElementById('paymentUtrNumber').value = order.utrNumber || '';
             
-            // Show/hide UTR field based on payment method
             const paymentMethod = document.getElementById('paymentUpdateMethod');
             const utrField = document.getElementById('utrField');
             const qrInfo = document.getElementById('qrInfo');
@@ -2901,7 +3028,6 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
                 qrInfo.style.display = 'none';
             }
             
-            // Add event listener for payment method change
             paymentMethod.onchange = function() {
                 if (this.value === 'qr' || this.value === 'online') {
                     utrField.style.display = 'block';
@@ -2958,6 +3084,533 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
             }
         }
 
+        // ==================== REFUND MANAGEMENT SYSTEM ====================
+
+        // Load refunds
+        async function loadRefunds() {
+            if (!currentShop) return;
+            
+            try {
+                console.log('Loading refunds for shop:', currentShop.id);
+                showLoading(true);
+                
+                const snapshot = await db.collection('refunds')
+                    .where('shopId', '==', currentShop.id)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                refunds = [];
+                snapshot.forEach(doc => {
+                    refunds.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log('Refunds loaded:', refunds.length);
+                
+                // Update refund stats on dashboard
+                updateRefundStats();
+                
+                // Render refunds if on refunds page
+                if (document.getElementById('refundsPage').classList.contains('active')) {
+                    renderRefunds();
+                }
+                
+            } catch (error) {
+                console.error("Error loading refunds:", error);
+                showToast('Error loading refunds: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update refund statistics on dashboard
+        function updateRefundStats() {
+            if (refunds.length === 0) {
+                document.getElementById('refundStats').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('refundStats').style.display = 'block';
+            
+            const pendingCount = refunds.filter(r => r.status === 'pending').length;
+            const approvedCount = refunds.filter(r => r.status === 'approved').length;
+            const completedCount = refunds.filter(r => r.status === 'completed').length;
+            const rejectedCount = refunds.filter(r => r.status === 'rejected').length;
+            
+            const pendingAmount = refunds.filter(r => r.status === 'pending')
+                .reduce((sum, refund) => sum + (refund.refundAmount || 0), 0);
+            const totalAmount = refunds.reduce((sum, refund) => sum + (refund.refundAmount || 0), 0);
+            
+            document.getElementById('refundStatsGrid').innerHTML = `
+                <div class="refund-stat pending">
+                    <span class="refund-stat-value">${pendingCount}</span>
+                    <span class="refund-stat-label">Pending Refunds</span>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">₹${pendingAmount.toFixed(2)}</div>
+                </div>
+                <div class="refund-stat approved">
+                    <span class="refund-stat-value">${approvedCount}</span>
+                    <span class="refund-stat-label">Approved</span>
+                </div>
+                <div class="refund-stat completed">
+                    <span class="refund-stat-value">${completedCount}</span>
+                    <span class="refund-stat-label">Completed</span>
+                </div>
+                <div class="refund-stat">
+                    <span class="refund-stat-value">₹${totalAmount.toFixed(2)}</span>
+                    <span class="refund-stat-label">Total Refund Amount</span>
+                </div>
+            `;
+        }
+
+        // Filter refunds
+        function filterRefunds() {
+            const filterValue = document.getElementById('refundStatusFilter').value;
+            
+            if (filterValue === 'all') {
+                filteredRefunds = [...refunds];
+            } else {
+                filteredRefunds = refunds.filter(refund => refund.status === filterValue);
+            }
+            
+            renderRefunds();
+        }
+
+        // Render refunds table
+        function renderRefunds() {
+            const refundsList = document.getElementById('refundsList');
+            
+            if (filteredRefunds.length === 0) {
+                refundsList.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-exchange-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h4 style="color: #666;">No Refunds Found</h4>
+                            <p style="color: #999;">No refunds match the current filter</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let refundsHtml = '';
+            
+            filteredRefunds.forEach(refund => {
+                const createdDate = refund.createdAt ? 
+                    (refund.createdAt.toDate ? refund.createdAt.toDate() : new Date(refund.createdAt)).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                    }) : 
+                    'N/A';
+                
+                let statusBadge = '';
+                switch(refund.status) {
+                    case 'pending':
+                        statusBadge = '<span class="refund-badge refund-pending">Pending</span>';
+                        break;
+                    case 'approved':
+                        statusBadge = '<span class="refund-badge refund-approved">Approved</span>';
+                        break;
+                    case 'completed':
+                        statusBadge = '<span class="refund-badge refund-completed">Completed</span>';
+                        break;
+                    case 'rejected':
+                        statusBadge = '<span class="refund-badge refund-rejected">Rejected</span>';
+                        break;
+                }
+                
+                let actionButtons = '';
+                if (refund.status === 'pending') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'approved')">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'rejected')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    `;
+                } else if (refund.status === 'approved') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="updateRefundStatusModal('${refund.id}', 'completed')">
+                            <i class="fas fa-check-circle"></i> Mark Completed
+                        </button>
+                    `;
+                }
+                
+                refundsHtml += `
+                    <tr>
+                        <td><strong>#${refund.id.substring(0, 8)}</strong></td>
+                        <td><strong>#${generateShortOrderId(refund.orderId)}</strong></td>
+                        <td>${refund.customerName || 'Customer'}</td>
+                        <td><strong>₹${refund.refundAmount.toFixed(2)}</strong></td>
+                        <td>${refund.reason || 'N/A'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${createdDate}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            });
+            
+            refundsList.innerHTML = refundsHtml;
+        }
+
+        // Show refund modal
+        async function showRefundModal(orderId) {
+            const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
+            if (!order) {
+                showToast('Order not found!', 'error');
+                return;
+            }
+            
+            // Check if refund already exists
+            const existingRefund = refunds.find(r => r.orderId === order.id);
+            if (existingRefund) {
+                showToast(`Refund already ${existingRefund.status} for this order`, 'warning');
+                return;
+            }
+            
+            document.getElementById('refundOrderId').value = order.id;
+            document.getElementById('refundCustomerId').value = order.customerId;
+            document.getElementById('refundOrderTotal').value = order.total || order.totalAmount || 0;
+            
+            let itemsHtml = '';
+            let totalRefundAmount = 0;
+            
+            // Get items from order
+            const orderItems = order.items || (order.productName ? [{
+                id: order.id,
+                name: order.productName,
+                price: order.price || 0,
+                quantity: order.quantity || 1
+            }] : []);
+            
+            orderItems.forEach((item, index) => {
+                const maxRefund = (item.price || 0) * (item.quantity || 1);
+                itemsHtml += `
+                    <div class="refund-item">
+                        <div class="refund-item-info">
+                            <div class="refund-item-name">${item.name || item.productName || 'Item'}</div>
+                            <div class="refund-item-price">Price: ₹${(item.price || 0).toFixed(2)} × ${item.quantity || 1}</div>
+                            <div class="refund-item-price">Max refund: ₹${maxRefund.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <input type="number" 
+                                   class="refund-amount-input" 
+                                   id="refundAmount${index}"
+                                   min="0" 
+                                   max="${maxRefund}"
+                                   step="0.01"
+                                   value="${maxRefund}"
+                                   onchange="calculateRefundTotal()">
+                        </div>
+                    </div>
+                `;
+                totalRefundAmount += maxRefund;
+            });
+            
+            document.getElementById('refundItemsList').innerHTML = itemsHtml;
+            document.getElementById('refundTotalAmount').textContent = totalRefundAmount.toFixed(2);
+            
+            // Setup reason change listener
+            document.getElementById('refundReason').onchange = function() {
+                if (this.value === 'Other') {
+                    document.getElementById('otherReasonField').style.display = 'block';
+                } else {
+                    document.getElementById('otherReasonField').style.display = 'none';
+                }
+            };
+            
+            document.getElementById('refundModal').classList.add('active');
+        }
+
+        function calculateRefundTotal() {
+            let total = 0;
+            const inputs = document.querySelectorAll('.refund-amount-input');
+            inputs.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            document.getElementById('refundTotalAmount').textContent = total.toFixed(2);
+        }
+
+        function closeRefundModal() {
+            document.getElementById('refundModal').classList.remove('active');
+        }
+
+        // Process refund
+        async function processRefund() {
+            const orderId = document.getElementById('refundOrderId').value;
+            const customerId = document.getElementById('refundCustomerId').value;
+            const orderTotal = parseFloat(document.getElementById('refundOrderTotal').value);
+            let reason = document.getElementById('refundReason').value;
+            
+            if (reason === 'Other') {
+                reason = document.getElementById('otherRefundReason').value.trim();
+            }
+            
+            if (!reason) {
+                showToast('Please select a refund reason', 'error');
+                return;
+            }
+            
+            // Calculate refund amount from inputs
+            let refundAmount = 0;
+            const inputs = document.querySelectorAll('.refund-amount-input');
+            inputs.forEach(input => {
+                refundAmount += parseFloat(input.value) || 0;
+            });
+            
+            if (refundAmount <= 0) {
+                showToast('Please enter a valid refund amount', 'error');
+                return;
+            }
+            
+            if (refundAmount > orderTotal) {
+                showToast('Refund amount cannot exceed order total', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                // Create refund document
+                const refundData = {
+                    orderId: orderId,
+                    customerId: customerId,
+                    shopId: currentShop.id,
+                    shopName: currentShop.name,
+                    refundAmount: refundAmount,
+                    reason: reason,
+                    notes: document.getElementById('refundNotes').value.trim(),
+                    status: 'pending',
+                    estimatedTime: '24-48 hours',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const refundRef = await db.collection('refunds').add(refundData);
+                
+                // Update order with refund status
+                await db.collection('orders').doc(orderId).update({
+                    refundStatus: 'pending',
+                    refundAmount: refundAmount,
+                    refundReason: reason,
+                    refundId: refundRef.id,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Create notification for customer
+                await createRefundNotification(refundRef.id, orderId, customerId, refundAmount, reason);
+                
+                showToast('Refund request submitted successfully!', 'success');
+                closeRefundModal();
+                
+                // Reload data
+                await loadOrders();
+                await loadRefunds();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error processing refund:', error);
+                showToast('Error processing refund: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Create partial refund for rejected items
+        async function createPartialRefund(orderId, order, rejectedItems, refundAmount) {
+            try {
+                const customerId = order.customerId || order.userId || (order.user && order.user.id);
+                
+                const refundData = {
+                    orderId: orderId,
+                    customerId: customerId,
+                    shopId: currentShop.id,
+                    shopName: currentShop.name,
+                    refundAmount: refundAmount,
+                    reason: 'Partial order accepted - Items not available',
+                    notes: 'Automatic refund for rejected items in partial order',
+                    status: 'approved', // Auto-approve partial order refunds
+                    estimatedTime: '24-48 hours',
+                    isPartialOrderRefund: true,
+                    rejectedItems: rejectedItems,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const refundRef = await db.collection('refunds').add(refundData);
+                
+                // Update order
+                await db.collection('orders').doc(orderId).update({
+                    refundStatus: 'approved',
+                    refundAmount: refundAmount,
+                    refundReason: 'Partial order refund',
+                    refundId: refundRef.id,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Create notification
+                await createRefundNotification(refundRef.id, orderId, customerId, refundAmount, 'Partial order refund');
+                
+                console.log('Partial refund created for order:', orderId);
+                
+            } catch (error) {
+                console.error('Error creating partial refund:', error);
+            }
+        }
+
+        // Create refund notification for customer
+        async function createRefundNotification(refundId, orderId, customerId, refundAmount, reason) {
+            try {
+                const notificationData = {
+                    orderId: orderId,
+                    refundId: refundId,
+                    customerId: customerId,
+                    shopId: currentShop.id,
+                    shopName: currentShop.name,
+                    type: 'refund_request',
+                    title: 'Refund Request Submitted',
+                    message: `Your refund request for order #${orderId.substring(0, 6)} has been submitted. Amount: ₹${refundAmount.toFixed(2)}`,
+                    refundAmount: refundAmount,
+                    reason: reason,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                };
+                
+                await db.collection('notifications').add(notificationData);
+                console.log('Refund notification created for customer:', customerId);
+                
+            } catch (error) {
+                console.error('Error creating refund notification:', error);
+            }
+        }
+
+        // Update refund status modal
+        function updateRefundStatusModal(refundId, defaultStatus) {
+            const refund = refunds.find(r => r.id === refundId);
+            if (!refund) return;
+            
+            document.getElementById('actionRefundId').value = refundId;
+            document.getElementById('refundActionStatus').value = defaultStatus;
+            document.getElementById('refundActionNotes').value = '';
+            
+            let title = 'Update Refund Status';
+            if (defaultStatus === 'approved') title = 'Approve Refund';
+            if (defaultStatus === 'rejected') title = 'Reject Refund';
+            if (defaultStatus === 'completed') title = 'Mark as Completed';
+            
+            document.getElementById('refundActionTitle').textContent = title;
+            document.getElementById('refundActionModal').classList.add('active');
+        }
+
+        function closeRefundActionModal() {
+            document.getElementById('refundActionModal').classList.remove('active');
+        }
+
+        // Update refund status
+        async function updateRefundStatus() {
+            const refundId = document.getElementById('actionRefundId').value;
+            const status = document.getElementById('refundActionStatus').value;
+            const notes = document.getElementById('refundActionNotes').value.trim();
+            
+            const refund = refunds.find(r => r.id === refundId);
+            if (!refund) {
+                showToast('Refund not found!', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                const updateData = {
+                    status: status,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (notes) {
+                    updateData.adminNotes = notes;
+                }
+                
+                if (status === 'completed') {
+                    updateData.completedAt = new Date().toISOString();
+                }
+                
+                // Update refund
+                await db.collection('refunds').doc(refundId).update(updateData);
+                
+                // Update order
+                await db.collection('orders').doc(refund.orderId).update({
+                    refundStatus: status,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Create notification for customer
+                await createRefundStatusNotification(refundId, refund.orderId, refund.customerId, status, refund.refundAmount, notes);
+                
+                showToast(`Refund ${status} successfully!`, 'success');
+                closeRefundActionModal();
+                
+                // Reload data
+                await loadOrders();
+                await loadRefunds();
+                await loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating refund status:', error);
+                showToast('Error updating refund status: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Create refund status notification for customer
+        async function createRefundStatusNotification(refundId, orderId, customerId, status, refundAmount, notes) {
+            try {
+                let title = '';
+                let message = '';
+                
+                switch(status) {
+                    case 'approved':
+                        title = 'Refund Approved';
+                        message = `Your refund request for order #${orderId.substring(0, 6)} has been approved. Amount: ₹${refundAmount.toFixed(2)} will be processed in 24-48 hours.`;
+                        break;
+                    case 'rejected':
+                        title = 'Refund Rejected';
+                        message = `Your refund request for order #${orderId.substring(0, 6)} has been rejected.`;
+                        break;
+                    case 'completed':
+                        title = 'Refund Completed';
+                        message = `Your refund of ₹${refundAmount.toFixed(2)} for order #${orderId.substring(0, 6)} has been processed successfully.`;
+                        break;
+                }
+                
+                if (notes) {
+                    message += ` Notes: ${notes}`;
+                }
+                
+                const notificationData = {
+                    orderId: orderId,
+                    refundId: refundId,
+                    customerId: customerId,
+                    shopId: currentShop.id,
+                    shopName: currentShop.name,
+                    type: 'refund_update',
+                    title: title,
+                    message: message,
+                    refundAmount: refundAmount,
+                    status: status,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                };
+                
+                await db.collection('notifications').add(notificationData);
+                console.log('Refund status notification created for customer');
+                
+            } catch (error) {
+                console.error('Error creating refund status notification:', error);
+            }
+        }
+
         // Profile Management
         function updateProfileForm() {
             if (!currentShop) return;
@@ -2972,7 +3625,6 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
             document.getElementById('shopStatus').value = currentShop.status || 'open';
             document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
             
-            // Set active service option
             const serviceOptions = document.querySelectorAll('.service-option');
             serviceOptions.forEach(option => {
                 option.classList.remove('active');
@@ -3034,7 +3686,6 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
         function initializeMobileUI() {
             console.log('Initializing mobile UI');
             
-            // Show/hide floating button based on scroll
             window.addEventListener('scroll', () => {
                 const floatingBtn = document.getElementById('floatingOrdersBtn');
                 if (!floatingBtn) return;
@@ -3090,7 +3741,6 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
             if (productSearch) {
                 productSearch.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
-                    // Filter products logic can be added here
                     console.log('Searching for:', searchTerm);
                 });
             }
@@ -3110,6 +3760,12 @@ async function createDeliveryNotification(orderId, order, status, deliveredItems
                     e.preventDefault();
                     confirmPartialOrder();
                 }
+            });
+            
+            // Refund form
+            document.getElementById('refundForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                processRefund();
             });
         });
     </script>

@@ -2244,338 +2244,420 @@ async function loadOrders() {
             });
         }
         function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
+    const ordersList = document.getElementById('ordersList');
+    
+    if (filteredOrders.length === 0) {
+        ordersList.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #666;">No Orders Found</h4>
+                    <p style="color: #999;">No orders match the current filter</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let ordersHtml = '';
+    
+    filteredOrders.forEach(order => {
+        try {
+            const orderDate = order.createdAt ? 
+                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 
+                'Recently';
             
-            if (filteredOrders.length === 0) {
-                ordersList.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Orders Found</h4>
-                            <p style="color: #999;">No orders match the current filter</p>
-                            <small class="text-muted">Debug: Found ${orders.length} total orders</small>
-                        </td>
-                    </tr>
-                `;
-                return;
+            // Status text
+            let statusText = '';
+            let statusClass = '';
+            
+            switch(order.status) {
+                case 'pending':
+                    statusText = 'Pending';
+                    statusClass = 'status-text status-pending';
+                    break;
+                case 'confirmed':
+                    statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
+                    statusClass = 'status-text status-confirmed';
+                    break;
+                case 'preparing':
+                    statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
+                    statusClass = 'status-text status-preparing';
+                    break;
+                case 'dispatched':
+                    statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
+                    statusClass = 'status-text status-dispatched';
+                    break;
+                case 'delivered':
+                    statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
+                    statusClass = 'status-text status-delivered';
+                    break;
+                case 'ready_for_pickup':
+                    statusText = 'Ready for Pickup';
+                    statusClass = 'status-text status-ready_for_pickup';
+                    break;
+                case 'picked_up':
+                    statusText = 'Picked Up';
+                    statusClass = 'status-text status-picked_up';
+                    break;
+                case 'cancelled':
+                    statusText = 'Cancelled';
+                    statusClass = 'status-text status-cancelled';
+                    break;
+                case 'rejected':
+                    statusText = 'Rejected';
+                    statusClass = 'status-text status-rejected';
+                    break;
+                default:
+                    statusText = order.status || 'Unknown';
+                    statusClass = 'status-text';
             }
             
-            let ordersHtml = '';
+            // Order items display - FIXED FOR PARTIAL ORDERS
+            let itemsDisplay = '';
+            let partialBadge = '';
             
-            filteredOrders.forEach(order => {
-                try {
-                    const orderDate = order.createdAt ? 
-                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }) : 
-                        'Recently';
-                    
-                    // Status text
-                    let statusText = '';
-                    let statusClass = '';
-                    
-                    switch(order.status) {
-                        case 'pending':
-                            statusText = 'Pending';
-                            statusClass = 'status-text status-pending';
-                            break;
-                        case 'confirmed':
-                            statusText = 'Confirmed';
-                            statusClass = 'status-text status-confirmed';
-                            break;
-                        case 'preparing':
-                            statusText = 'Preparing';
-                            statusClass = 'status-text status-preparing';
-                            break;
-                        case 'dispatched':
-                            statusText = 'Dispatched';
-                            statusClass = 'status-text status-dispatched';
-                            break;
-                        case 'delivered':
-                            statusText = 'Delivered';
-                            statusClass = 'status-text status-delivered';
-                            break;
-                        case 'ready_for_pickup':
-                            statusText = 'Ready for Pickup';
-                            statusClass = 'status-text status-ready_for_pickup';
-                            break;
-                        case 'picked_up':
-                            statusText = 'Picked Up';
-                            statusClass = 'status-text status-picked_up';
-                            break;
-                        case 'cancelled':
-                            statusText = 'Cancelled';
-                            statusClass = 'status-text status-cancelled';
-                            break;
-                        case 'rejected':
-                            statusText = 'Rejected';
-                            statusClass = 'status-text status-rejected';
-                            break;
-                        default:
-                            statusText = order.status || 'Unknown';
-                            statusClass = 'status-text';
-                    }
-                    
-                    // Order items display
-                    let itemsDisplay = '';
-                    if (order.items && Array.isArray(order.items)) {
-                        // Group items by name for better display
-                        const itemMap = {};
-                        order.items.forEach(item => {
-                            const itemName = item.name || item.productName || 'Item';
-                            if (!itemMap[itemName]) {
-                                itemMap[itemName] = { quantity: 0, price: item.price || 0 };
-                            }
-                            itemMap[itemName].quantity += (item.quantity || 1);
-                        });
-                        
-                        itemsDisplay = Object.entries(itemMap)
-                            .map(([name, data]) => `${data.quantity}x ${name}`)
-                            .join(', ');
-                    } else if (order.productName) {
-                        itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
-                    } else {
-                        itemsDisplay = 'No items';
-                    }
-                    
-                    // Customer info
-                    const customerInfo = order.customerName ? 
-                        `${order.customerName}` : 
-                        order.customerEmail || order.customerPhone || 'Customer';
-                    
-                    // Payment method
-                    let paymentText = '';
-                    const paymentMethod = order.paymentMethod || 'cod';
-                    let paymentStatus = order.paymentStatus || 'pending';
-                    
-                    // AUTO-UPDATE: If order is delivered/picked up, mark as paid
-                    if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
-                        paymentStatus = 'paid';
-                    }
-                    
-                    if (paymentMethod === 'cod') {
-                        if (paymentStatus === 'paid') {
-                            paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
-                        } else {
-                            paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
-                        }
-                    } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
-                        if (paymentStatus === 'paid') {
-                            if (order.utrNumber) {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
-                            } else {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
-                            }
-                        } else {
-                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
-                        }
-                    } else {
-                        if (paymentStatus === 'paid') {
-                            paymentText = `<span class="payment-text payment-paid">PAID</span>`;
-                        } else {
-                            paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
-                        }
-                    }
-                    
-                    // Order amount
-                    let orderAmount = order.total || order.totalAmount || 0;
-                    
-                    // Action buttons - BASED ON STATUS
-                    let actionButtons = '';
-                    const firestoreId = order.firestoreId || order.id;
-                    
-                    // IMPORTANT: Order status progression logic
-                    if (order.status === 'pending') {
-                        actionButtons = `
-                            <div style="display: flex; gap: 5px; flex-direction: column;">
-                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
-                                    <i class="fas fa-check"></i> Accept All
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
-                                    <i class="fas fa-check-double"></i> Accept Partial
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
-                                    <i class="fas fa-times"></i> Reject
-                                </button>
-                            </div>
-                        `;
-                    } else if (order.status === 'confirmed') {
-                        actionButtons = `
-                            <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                                <i class="fas fa-utensils"></i> Start Preparing
-                            </button>
-                        `;
-                    } else if (order.status === 'preparing') {
-                        actionButtons = `
-                            <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
-                                <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                            </button>
-                        `;
-                    } else if (order.status === 'dispatched') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
-                                <i class="fas fa-check-circle"></i> Mark as Delivered
-                            </button>
-                        `;
-                    } else if (order.status === 'delivered' || order.status === 'picked_up') {
-                        if (paymentStatus === 'pending') {
-                            actionButtons = `
-                                <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${firestoreId}', ${orderAmount})">
-                                    <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                                </button>
-                            `;
-                        } else {
-                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
-                        }
-                    } else if (order.status === 'cancelled' || order.status === 'rejected') {
-                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-                    }
-                    
-                    // Update the renderOrders() function - Order ID display part
-ordersHtml += `
-    <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-        <td>
-            <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
-            ${order.orderId ? `<br><small>Customer ID: #${order.orderId.substring(0, 6)}</small>` : ''}
-        </td>
-        <td>${customerInfo}</td>
-        <td title="${itemsDisplay}">
-            ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-        </td>
-        <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
-        <td>
-            <span class="${statusClass}">${statusText}</span>
-        </td>
-        <td>${paymentText}</td>
-        <td>${orderDate}</td>
-        <td>${actionButtons}</td>
-    </tr>
-`;
-                    
-                } catch (error) {
-                    console.error('Error rendering order:', order, error);
+            if (order.isPartialOrder) {
+                partialBadge = ' <span class="badge bg-warning">Partial</span>';
+                
+                // Show accepted items with ✓ and rejected with ✗
+                const acceptedItems = order.acceptedItems || [];
+                const rejectedItems = order.rejectedItems || [];
+                
+                let acceptedText = '';
+                let rejectedText = '';
+                
+                if (acceptedItems.length > 0) {
+                    acceptedText = acceptedItems.map(item => 
+                        `${item.quantity || 1}x ${item.name || 'Item'} ✓`
+                    ).join(', ');
                 }
-            });
+                
+                if (rejectedItems.length > 0) {
+                    rejectedText = rejectedItems.map(item => 
+                        `${item.quantity || 1}x ${item.name || 'Item'} ✗`
+                    ).join(', ');
+                }
+                
+                if (acceptedText && rejectedText) {
+                    itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
+                } else if (acceptedText) {
+                    itemsDisplay = acceptedText;
+                } else if (rejectedText) {
+                    itemsDisplay = `Rejected: ${rejectedText}`;
+                }
+            } else if (order.items && Array.isArray(order.items)) {
+                // Group items by name for better display
+                const itemMap = {};
+                order.items.forEach(item => {
+                    const itemName = item.name || item.productName || 'Item';
+                    if (!itemMap[itemName]) {
+                        itemMap[itemName] = { quantity: 0, price: item.price || 0 };
+                    }
+                    itemMap[itemName].quantity += (item.quantity || 1);
+                });
+                
+                itemsDisplay = Object.entries(itemMap)
+                    .map(([name, data]) => `${data.quantity}x ${name}`)
+                    .join(', ');
+            } else if (order.productName) {
+                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
+            } else {
+                itemsDisplay = 'No items';
+            }
             
-            ordersList.innerHTML = ordersHtml;
+            // Customer info
+            const customerInfo = order.customerName ? 
+                `${order.customerName}` : 
+                order.customerEmail || order.customerPhone || 'Customer';
+            
+            // Payment method
+            let paymentText = '';
+            const paymentMethod = order.paymentMethod || 'cod';
+            let paymentStatus = order.paymentStatus || 'pending';
+            
+            // AUTO-UPDATE: If order is delivered/picked up, mark as paid
+            if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                paymentStatus = 'paid';
+            }
+            
+            if (paymentMethod === 'cod') {
+                if (paymentStatus === 'paid') {
+                    paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
+                } else {
+                    paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
+                }
+            } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
+                if (paymentStatus === 'paid') {
+                    if (order.utrNumber) {
+                        paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                    } else {
+                        paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
+                    }
+                } else {
+                    paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                }
+            } else {
+                if (paymentStatus === 'paid') {
+                    paymentText = `<span class="payment-text payment-paid">PAID</span>`;
+                } else {
+                    paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
+                }
+            }
+            
+            // Order amount - FIXED: For partial orders, show accepted total
+            let orderAmount = 0;
+            if (order.isPartialOrder) {
+                orderAmount = order.acceptedTotal || order.total || 0;
+            } else {
+                orderAmount = order.total || order.totalAmount || 0;
+            }
+            
+            // Action buttons
+            let actionButtons = '';
+            const firestoreId = order.firestoreId || order.id;
+            
+            // IMPORTANT: Order status progression logic
+            if (order.status === 'pending') {
+                actionButtons = `
+                    <div style="display: flex; gap: 5px; flex-direction: column;">
+                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
+                            <i class="fas fa-check"></i> Accept All
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
+                            <i class="fas fa-check-double"></i> Accept Partial
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                `;
+            } else if (order.status === 'confirmed') {
+                actionButtons = `
+                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                        <i class="fas fa-utensils"></i> Start Preparing
+                    </button>
+                `;
+            } else if (order.status === 'preparing') {
+                actionButtons = `
+                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
+                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                    </button>
+                `;
+            } else if (order.status === 'dispatched') {
+                actionButtons = `
+                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
+                        <i class="fas fa-check-circle"></i> Mark as Delivered
+                    </button>
+                `;
+            } else if (order.status === 'delivered' || order.status === 'picked_up') {
+                if (paymentStatus === 'pending') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="showPaymentUpdateModal('${firestoreId}', ${orderAmount})">
+                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
+                }
+            } else if (order.status === 'cancelled' || order.status === 'rejected') {
+                actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+            }
+            
+            ordersHtml += `
+                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                    <td>
+                        <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
+                        ${partialBadge}
+                    </td>
+                    <td>${customerInfo}</td>
+                    <td title="${itemsDisplay}">
+                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                    </td>
+                    <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+                    <td>
+                        <span class="${statusClass}">${statusText}</span>
+                    </td>
+                    <td>${paymentText}</td>
+                    <td>${orderDate}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+            `;
+            
+        } catch (error) {
+            console.error('Error rendering order:', order, error);
         }
+    });
+    
+    ordersList.innerHTML = ordersHtml;
+}
 
         // Partial Order Functions
-        function showPartialOrderModal(firestoreId) {
-            console.log('Opening partial order modal for order:', firestoreId);
+        function showPartialOrderModal(orderId) {
+    console.log('Opening partial order modal for order:', orderId);
+    
+    const order = orders.find(o => o.firestoreId === orderId || o.id === orderId);
+    if (!order) {
+        showToast('Order not found!', 'error');
+        return;
+    }
+    
+    currentPartialOrderId = order.firestoreId || order.id;
+    partialOrderItems = [];
+    
+    // Prepare items for partial order
+    let itemsHtml = '';
+    let originalTotal = 0;
+    
+    if (order.items && Array.isArray(order.items)) {
+        order.items.forEach((item, index) => {
+            const maxQuantity = item.quantity || 1;
+            const price = item.price || 0;
+            const itemTotal = price * maxQuantity;
+            originalTotal += itemTotal;
             
-            const order = orders.find(o => o.firestoreId === firestoreId || o.id === firestoreId);
-            if (!order) {
-                showToast('Order not found!', 'error');
-                return;
-            }
+            partialOrderItems.push({
+                id: item.id,
+                name: item.name || 'Item',
+                price: price,
+                originalQuantity: maxQuantity,
+                acceptedQuantity: maxQuantity, // Default accept all
+                image: item.image,
+                shopId: item.shopId,
+                shopName: item.shopName
+            });
             
-            currentPartialOrderId = firestoreId;
-            partialOrderItems = [];
-            
-            // Prepare items for partial order
-            let itemsHtml = '';
-            let totalAmount = 0;
-            
-            if (order.items && Array.isArray(order.items)) {
-                order.items.forEach((item, index) => {
-                    const maxQuantity = item.quantity || 1;
-                    const price = item.price || 0;
-                    partialOrderItems.push({
-                        ...item,
-                        originalQuantity: maxQuantity,
-                        acceptedQuantity: maxQuantity, // Default accept all
-                        price: price
-                    });
-                    
-                    totalAmount += price * maxQuantity;
-                    
-                    itemsHtml += `
-                        <div class="item-quantity-control">
-                            <div class="item-info">
-                                <div class="item-name">${item.name || 'Item'}</div>
-                                <div class="item-price">Price: ₹${price.toFixed(2)}</div>
-                            </div>
-                            <div class="quantity-controls">
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="max-quantity">Max: ${maxQuantity} (Can set to 0 if not available)</div>
-                    `;
-                });
-            } else {
-                // Single item order
-                const maxQuantity = order.quantity || 1;
-                const price = order.price || 0;
-                partialOrderItems.push({
-                    name: order.productName || 'Product',
-                    price: price,
-                    originalQuantity: maxQuantity,
-                    acceptedQuantity: maxQuantity
-                });
-                
-                totalAmount += price * maxQuantity;
-                
-                itemsHtml += `
-                    <div class="item-quantity-control">
-                        <div class="item-info">
-                            <div class="item-name">${order.productName || 'Product'}</div>
-                            <div class="item-price">Price: ₹${price.toFixed(2)}</div>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="quantity-btn" onclick="changePartialQuantity(0, -1)">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
-                            <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
+            itemsHtml += `
+                <div class="item-quantity-control">
+                    <div class="item-info">
+                        <div class="item-name">${item.name || 'Item'}</div>
+                        <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
+                        <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
                     </div>
-                    <div class="max-quantity">Max: ${maxQuantity} (Can set to 0 if not available)</div>
-                `;
-            }
-            
-            document.getElementById('partialOrderItems').innerHTML = itemsHtml;
-            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
-            document.getElementById('partialOrderModal').classList.add('active');
-            
-            console.log('Partial order modal opened successfully');
-        }
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="quantity-display" id="partialQty${index}">${maxQuantity}</span>
+                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
+            `;
+        });
+    } else {
+        // Single item order
+        const maxQuantity = order.quantity || 1;
+        const price = order.price || 0;
+        const itemTotal = price * maxQuantity;
+        originalTotal += itemTotal;
+        
+        partialOrderItems.push({
+            id: order.id,
+            name: order.productName || 'Product',
+            price: price,
+            originalQuantity: maxQuantity,
+            acceptedQuantity: maxQuantity,
+            image: order.image
+        });
+        
+        itemsHtml += `
+            <div class="item-quantity-control">
+                <div class="item-info">
+                    <div class="item-name">${order.productName || 'Product'}</div>
+                    <div class="item-price">Price: ₹${price.toFixed(2)} each</div>
+                    <div class="item-total">Total: ₹${itemTotal.toFixed(2)}</div>
+                </div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="changePartialQuantity(0, -1)" ${maxQuantity === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="quantity-display" id="partialQty0">${maxQuantity}</span>
+                    <button class="quantity-btn" onclick="changePartialQuantity(0, 1)">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="max-quantity">Max: ${maxQuantity} (Set to 0 if not available)</div>
+        `;
+    }
+    
+    document.getElementById('partialOrderItems').innerHTML = itemsHtml;
+    updatePartialOrderTotal();
+    
+    // Show original and new total
+    document.getElementById('partialOrderTotal').innerHTML = `
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <strong>Original Total: ₹${originalTotal.toFixed(2)}</strong><br>
+                <strong>New Total: ₹<span id="partialOrderTotalAmount">${originalTotal.toFixed(2)}</span></strong>
+            </div>
+            <div style="text-align: right;">
+                <div class="text-success" id="savingsDisplay" style="${originalTotal === originalTotal ? 'display: none;' : ''}">
+                    Savings: ₹${(originalTotal - originalTotal).toFixed(2)}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('partialOrderModal').classList.add('active');
+    
+    console.log('Partial order modal opened successfully');
+}
 
         function changePartialQuantity(index, change) {
-            if (index < 0 || index >= partialOrderItems.length) return;
-            
-            const item = partialOrderItems[index];
-            const newQuantity = item.acceptedQuantity + change;
-            
-            // Allow quantity from 0 to originalQuantity
-            if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
-                item.acceptedQuantity = newQuantity;
-                document.getElementById(`partialQty${index}`).textContent = newQuantity;
-                
-                // Update total amount
-                updatePartialOrderTotal();
-            }
+    if (index < 0 || index >= partialOrderItems.length) return;
+    
+    const item = partialOrderItems[index];
+    const newQuantity = item.acceptedQuantity + change;
+    
+    // Allow quantity from 0 to originalQuantity
+    if (newQuantity >= 0 && newQuantity <= item.originalQuantity) {
+        item.acceptedQuantity = newQuantity;
+        document.getElementById(`partialQty${index}`).textContent = newQuantity;
+        
+        // Update total amount
+        updatePartialOrderTotal();
+        
+        // Show/hide minus button
+        const minusBtn = document.querySelector(`button[onclick="changePartialQuantity(${index}, -1)"]`);
+        if (minusBtn) {
+            minusBtn.disabled = newQuantity === 0;
         }
+    }
+}
 
-        function updatePartialOrderTotal() {
-            let totalAmount = 0;
-            partialOrderItems.forEach(item => {
-                totalAmount += (item.price || 0) * item.acceptedQuantity;
-            });
-            document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
+function updatePartialOrderTotal() {
+    let totalAmount = 0;
+    let originalTotal = 0;
+    
+    partialOrderItems.forEach(item => {
+        totalAmount += (item.price || 0) * item.acceptedQuantity;
+        originalTotal += (item.price || 0) * item.originalQuantity;
+    });
+    
+    document.getElementById('partialOrderTotalAmount').textContent = totalAmount.toFixed(2);
+    
+    // Update savings display
+    const savingsDisplay = document.getElementById('savingsDisplay');
+    if (savingsDisplay) {
+        const savings = originalTotal - totalAmount;
+        if (savings > 0) {
+            savingsDisplay.innerHTML = `Savings: ₹${savings.toFixed(2)}`;
+            savingsDisplay.style.display = 'block';
+        } else {
+            savingsDisplay.style.display = 'none';
         }
+    }
+}
 
         function closePartialOrderModal() {
             document.getElementById('partialOrderModal').classList.remove('active');
@@ -2584,114 +2666,210 @@ ordersHtml += `
         }
 
         async function confirmPartialOrder() {
-            console.log('Confirming partial order for:', currentPartialOrderId);
+    console.log('Confirming partial order for:', currentPartialOrderId);
+    
+    if (!currentPartialOrderId) {
+        showToast('No order selected!', 'error');
+        return;
+    }
+    
+    // Check if at least one item has quantity > 0
+    const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
+    
+    if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        // Get original order
+        const orderDoc = await db.collection('orders').doc(currentPartialOrderId).get();
+        const originalOrder = orderDoc.data();
+        
+        // Calculate original and accepted totals
+        let originalTotal = 0;
+        let acceptedTotal = 0;
+        let acceptedItemsArray = [];
+        let rejectedItemsArray = [];
+        
+        partialOrderItems.forEach(item => {
+            const itemTotal = (item.price || 0) * (item.originalQuantity || 1);
+            const acceptedItemTotal = (item.price || 0) * item.acceptedQuantity;
+            originalTotal += itemTotal;
+            acceptedTotal += acceptedItemTotal;
             
-            if (!currentPartialOrderId) {
-                showToast('No order selected!', 'error');
-                return;
-            }
-            
-            // Check if at least one item has quantity > 0
-            const hasAcceptedItems = partialOrderItems.some(item => item.acceptedQuantity > 0);
-            
-            if (!hasAcceptedItems && !confirm('You have set all quantities to 0. Are you sure you want to accept this order with 0 items?')) {
-                return;
-            }
-            
-            try {
-                showLoading(true);
-                
-                // Prepare accepted items
-                const acceptedItems = partialOrderItems.map(item => ({
+            if (item.acceptedQuantity > 0) {
+                acceptedItemsArray.push({
                     ...item,
                     quantity: item.acceptedQuantity,
-                    accepted: item.acceptedQuantity > 0
-                }));
-                
-                // Calculate new total
-                const newTotal = acceptedItems.reduce((sum, item) => sum + (item.price * item.acceptedQuantity), 0);
-                
-                console.log('Updating order with partial items');
-                
-                // Update order status to confirmed with partial items
-                await db.collection('orders').doc(currentPartialOrderId).update({
-                    status: 'confirmed',
-                    isPartialOrder: true,
-                    partialItems: acceptedItems,
-                    acceptedItems: acceptedItems.filter(item => item.acceptedQuantity > 0),
-                    rejectedItems: acceptedItems.filter(item => item.acceptedQuantity === 0),
-                    totalAmount: newTotal,
-                    originalTotal: partialOrderItems.reduce((sum, item) => sum + (item.price * item.originalQuantity), 0),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    accepted: true
                 });
-                
-                showToast('Partial order accepted successfully!', 'success');
-                closePartialOrderModal();
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error accepting partial order:', error);
-                showToast('Error accepting partial order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
+            } else {
+                rejectedItemsArray.push({
+                    ...item,
+                    quantity: item.originalQuantity,
+                    accepted: false,
+                    reason: 'Out of stock/Not available'
+                });
             }
+        });
+        
+        // Update order with partial acceptance
+        const updateData = {
+            status: 'confirmed',
+            isPartialOrder: true,
+            partialAccepted: true,
+            acceptedItems: acceptedItemsArray,
+            rejectedItems: rejectedItemsArray,
+            acceptedTotal: acceptedTotal,
+            originalTotal: originalTotal,
+            total: acceptedTotal, // Update total to accepted amount
+            totalAmount: acceptedTotal,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            partialAcceptedAt: new Date().toISOString()
+        };
+        
+        // If no items accepted, reject the order
+        if (acceptedItemsArray.length === 0) {
+            updateData.status = 'rejected';
+            updateData.rejectionReason = 'All items out of stock';
         }
+        
+        console.log('Updating order with partial acceptance:', updateData);
+        
+        await db.collection('orders').doc(currentPartialOrderId).update(updateData);
+        
+        // Create notification for customer
+        await createPartialOrderNotification(currentPartialOrderId, originalOrder, acceptedItemsArray, rejectedItemsArray);
+        
+        showToast('Partial order processed successfully!', 'success');
+        closePartialOrderModal();
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error accepting partial order:', error);
+        showToast('Error accepting partial order: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Create notification for customer about partial order
+async function createPartialOrderNotification(orderId, order, acceptedItems, rejectedItems) {
+    try {
+        const notificationData = {
+            orderId: orderId,
+            customerId: order.customerId,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            shopId: currentShop.id,
+            shopName: currentShop.name,
+            type: 'partial_order_accepted',
+            title: 'Order Partially Accepted',
+            message: `Your order #${orderId.substring(0, 6)} has been partially accepted.`,
+            acceptedItems: acceptedItems,
+            rejectedItems: rejectedItems,
+            acceptedTotal: acceptedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            read: false
+        };
+        
+        await db.collection('notifications').add(notificationData);
+        console.log('Partial order notification created');
+    } catch (error) {
+        console.error('Error creating notification:', error);
+    }
+}
 
         // Update Order Status with cancellation restriction
         async function updateOrderStatus(firestoreId, newStatus) {
-            if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
-            
-            try {
-                showLoading(true);
+    if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
+    
+    try {
+        showLoading(true);
+        
+        // Get current order data
+        const orderDoc = await db.collection('orders').doc(firestoreId).get();
+        const currentOrder = orderDoc.data();
+        
+        // Prepare update data
+        const updateData = {
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Special handling for partial orders
+        if (currentOrder.isPartialOrder) {
+            if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                // For partial orders, mark which items were delivered
+                updateData.partialDelivered = true;
+                updateData.deliveredItems = currentOrder.acceptedItems || [];
+                updateData.undeliveredItems = currentOrder.rejectedItems || [];
                 
-                // Check if we're trying to cancel an order that's already being processed
-                if (newStatus === 'cancelled') {
-                    // Get current order
-                    const orderDoc = await db.collection('orders').doc(firestoreId).get();
-                    const currentOrder = orderDoc.data();
-                    
-                    // If order is already confirmed or beyond, prevent cancellation
-                    if (currentOrder.status === 'confirmed' || 
-                        currentOrder.status === 'preparing' || 
-                        currentOrder.status === 'dispatched') {
-                        
-                        if (!confirm('This order is already being processed. Are you sure you want to cancel it?')) {
-                            showLoading(false);
-                            return;
-                        }
-                    }
+                // Create notification for customer
+                if (currentOrder.customerId) {
+                    await createDeliveryNotification(
+                        firestoreId,
+                        currentOrder,
+                        newStatus,
+                        currentOrder.acceptedItems,
+                        currentOrder.acceptedTotal
+                    );
                 }
-                
-                await db.collection('orders').doc(firestoreId).update({
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // If order is cancelled, add cancelled timestamp
-                if (newStatus === 'cancelled') {
-                    await db.collection('orders').doc(firestoreId).update({
-                        cancelledAt: new Date().toISOString()
-                    });
-                }
-                
-                // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
-                if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                    await autoUpdatePaymentStatus(firestoreId, 'paid');
-                }
-                
-                showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error updating order:', error);
-                showToast('Error updating order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
             }
         }
+        
+        await db.collection('orders').doc(firestoreId).update(updateData);
+        
+        // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
+        if (newStatus === 'delivered' || newStatus === 'picked_up') {
+            await autoUpdatePaymentStatus(firestoreId, 'paid');
+        }
+        
+        showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast('Error updating order: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
+// Create delivery notification
+async function createDeliveryNotification(orderId, order, status, deliveredItems, total) {
+    try {
+        const statusText = status === 'delivered' ? 'delivered' : 'picked up';
+        const title = `Order ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}`;
+        const message = `Your order #${orderId.substring(0, 6)} has been ${statusText}.`;
+        
+        const notificationData = {
+            orderId: orderId,
+            customerId: order.customerId,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            shopId: currentShop.id,
+            shopName: currentShop.name,
+            type: 'order_delivered',
+            title: title,
+            message: message,
+            deliveredItems: deliveredItems,
+            total: total,
+            status: status,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            read: false
+        };
+        
+        await db.collection('notifications').add(notificationData);
+        console.log('Delivery notification created');
+    } catch (error) {
+        console.error('Error creating delivery notification:', error);
+    }
+}
         // Auto-update payment status when order is delivered/picked up
         async function autoUpdatePaymentStatus(firestoreId, paymentStatus) {
             try {

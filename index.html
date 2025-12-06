@@ -2031,6 +2031,9 @@ async function loadOrders() {
         console.log('Shop Name:', currentShop.name);
         showLoading(true);
         
+        // Reset orders array
+        orders = [];
+        
         // TRY 1: Query by shopId
         console.log('Trying query 1: where shopId ==', currentShop.id);
         try {
@@ -2055,7 +2058,7 @@ async function loadOrders() {
         }
         
         // TRY 2: Query by shopName (fallback)
-        if (orders.length === 0) {
+        if (orders.length === 0 && currentShop.name) {
             console.log('Trying query 2: where shopName ==', currentShop.name);
             try {
                 const ordersByNameSnapshot = await db.collection('orders')
@@ -2082,17 +2085,63 @@ async function loadOrders() {
             }
         }
         
-        // TRY 3: Debug - Check ALL orders to see what's in database
+        // TRY 3: Check for hardcoded shopId from customer app
+        if (orders.length === 0) {
+            console.log('Trying query 3: Check for hardcoded shopId');
+            try {
+                // Yeh wahi shopId hai jo customer app mein hardcoded hai
+                const hardcodedShopIds = [
+                    "3L4tnPYwm9SBZuNIXEcip9ab4aD3", // Amazing Deals
+                    currentShop.id // Current shopId bhi try karo
+                ];
+                
+                // Unique shopIds ke liye
+                const uniqueShopIds = [...new Set(hardcodedShopIds.filter(id => id))];
+                
+                for (const shopId of uniqueShopIds) {
+                    console.log('Checking shopId:', shopId);
+                    const hardcodedOrdersSnapshot = await db.collection('orders')
+                        .where('shopId', '==', shopId)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+                    
+                    console.log(`Found ${hardcodedOrdersSnapshot.size} orders for shopId: ${shopId}`);
+                    
+                    hardcodedOrdersSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Avoid duplicates
+                        if (!orders.find(o => o.id === doc.id)) {
+                            orders.push({ 
+                                id: doc.id, 
+                                ...data,
+                                shortId: generateShortOrderId(doc.id)
+                            });
+                        }
+                    });
+                }
+                
+                // Agar orders mil gaye to shop ko update karo
+                if (orders.length > 0) {
+                    console.log('INFO: Loaded orders from hardcoded shopIds');
+                }
+            } catch (error) {
+                console.log('Query 3 error:', error.message);
+            }
+        }
+        
+        // TRY 4: Debug - Check ALL orders to see what's in database
         if (orders.length === 0) {
             console.log('DEBUG: Checking ALL orders in database...');
             try {
                 const allOrdersSnapshot = await db.collection('orders')
                     .orderBy('createdAt', 'desc')
-                    .limit(10)
+                    .limit(50)
                     .get();
                 
                 console.log('Total orders in database:', allOrdersSnapshot.size);
                 console.log('=== ALL ORDERS DEBUG INFO ===');
+                
+                // Show ALL orders in table for debugging
                 allOrdersSnapshot.forEach(doc => {
                     const data = doc.data();
                     console.log('Order ID:', doc.id);
@@ -2102,7 +2151,30 @@ async function loadOrders() {
                     console.log('  - status:', data.status);
                     console.log('  - total:', data.total);
                     console.log('---');
+                    
+                    // Add all orders to list for debugging
+                    orders.push({ 
+                        id: doc.id, 
+                        ...data,
+                        shortId: generateShortOrderId(doc.id),
+                        isDebugOrder: true
+                    });
                 });
+                
+                if (allOrdersSnapshot.size > 0) {
+                    console.log('WARNING: Your shopId/shopName does not match any orders in database.');
+                    console.log('Please check if customer app is using correct shopId.');
+                    console.log('Current shopId:', currentShop.id);
+                    console.log('Current shopName:', currentShop.name);
+                    
+                    // Show debug info to user
+                    const debugInfo = `Found ${allOrdersSnapshot.size} total orders in database, but none match your shop. 
+                    Your Shop ID: ${currentShop.id}
+                    Your Shop Name: ${currentShop.name}
+                    Check console for details.`;
+                    
+                    showToast(debugInfo, 'warning');
+                }
             } catch (error) {
                 console.log('DEBUG query error:', error.message);
             }
@@ -2171,7 +2243,6 @@ async function loadOrders() {
                 }
             });
         }
-
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             

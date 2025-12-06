@@ -2028,7 +2028,6 @@ async function loadOrders() {
     
     try {
         console.log('Loading orders for shop ID:', currentShop.id);
-        console.log('Shop Name:', currentShop.name);
         showLoading(true);
         
         // Reset orders array
@@ -2046,38 +2045,48 @@ async function loadOrders() {
             
             ordersSnapshot.forEach(doc => {
                 const data = doc.data();
-                console.log('Found order with shopId:', data.shopId, 'shopName:', data.shopName);
+                
+                // IMPORTANT FIX: Use orderId if exists, otherwise use Firestore ID
+                const displayOrderId = data.orderId || doc.id;
+                
+                console.log('Found order - Firestore ID:', doc.id, 'Order ID field:', data.orderId);
+                
                 orders.push({ 
-                    id: doc.id, 
+                    id: displayOrderId, // Use orderId field from customer
+                    firestoreId: doc.id, // Store Firestore ID separately
                     ...data,
-                    shortId: generateShortOrderId(doc.id)
+                    shortId: generateShortOrderId(displayOrderId) // Generate from orderId
                 });
             });
         } catch (error) {
             console.log('Query 1 error:', error.message);
         }
         
-        // TRY 2: Query by shopName (fallback)
-        if (orders.length === 0 && currentShop.name) {
-            console.log('Trying query 2: where shopName ==', currentShop.name);
+        // TRY 2: Also check for orders where firestore ID matches orderId
+        if (orders.length === 0) {
+            console.log('Trying query 2: Check all orders and match IDs');
             try {
-                const ordersByNameSnapshot = await db.collection('orders')
-                    .where('shopName', '==', currentShop.name)
+                const allOrdersSnapshot = await db.collection('orders')
                     .orderBy('createdAt', 'desc')
+                    .limit(50)
                     .get();
                 
-                console.log('Query 2 results:', ordersByNameSnapshot.size, 'orders');
-                
-                ordersByNameSnapshot.forEach(doc => {
+                allOrdersSnapshot.forEach(doc => {
                     const data = doc.data();
-                    console.log('Found order with shopName:', data.shopName);
-                    // Avoid duplicates
-                    if (!orders.find(o => o.id === doc.id)) {
-                        orders.push({ 
-                            id: doc.id, 
-                            ...data,
-                            shortId: generateShortOrderId(doc.id)
-                        });
+                    
+                    // Check if this order belongs to current shop
+                    if (data.shopId === currentShop.id || data.shopName === currentShop.name) {
+                        const displayOrderId = data.orderId || doc.id;
+                        
+                        // Avoid duplicates
+                        if (!orders.find(o => o.id === displayOrderId || o.firestoreId === doc.id)) {
+                            orders.push({ 
+                                id: displayOrderId,
+                                firestoreId: doc.id,
+                                ...data,
+                                shortId: generateShortOrderId(displayOrderId)
+                            });
+                        }
                     }
                 });
             } catch (error) {
@@ -2085,105 +2094,21 @@ async function loadOrders() {
             }
         }
         
-        // TRY 3: Check for hardcoded shopId from customer app
-        if (orders.length === 0) {
-            console.log('Trying query 3: Check for hardcoded shopId');
-            try {
-                // Yeh wahi shopId hai jo customer app mein hardcoded hai
-                const hardcodedShopIds = [
-                    "3L4tnPYwm9SBZuNIXEcip9ab4aD3", // Amazing Deals
-                    currentShop.id // Current shopId bhi try karo
-                ];
-                
-                // Unique shopIds ke liye
-                const uniqueShopIds = [...new Set(hardcodedShopIds.filter(id => id))];
-                
-                for (const shopId of uniqueShopIds) {
-                    console.log('Checking shopId:', shopId);
-                    const hardcodedOrdersSnapshot = await db.collection('orders')
-                        .where('shopId', '==', shopId)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-                    
-                    console.log(`Found ${hardcodedOrdersSnapshot.size} orders for shopId: ${shopId}`);
-                    
-                    hardcodedOrdersSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        // Avoid duplicates
-                        if (!orders.find(o => o.id === doc.id)) {
-                            orders.push({ 
-                                id: doc.id, 
-                                ...data,
-                                shortId: generateShortOrderId(doc.id)
-                            });
-                        }
-                    });
-                }
-                
-                // Agar orders mil gaye to shop ko update karo
-                if (orders.length > 0) {
-                    console.log('INFO: Loaded orders from hardcoded shopIds');
-                }
-            } catch (error) {
-                console.log('Query 3 error:', error.message);
-            }
-        }
-        
-        // TRY 4: Debug - Check ALL orders to see what's in database
-        if (orders.length === 0) {
-            console.log('DEBUG: Checking ALL orders in database...');
-            try {
-                const allOrdersSnapshot = await db.collection('orders')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
-                
-                console.log('Total orders in database:', allOrdersSnapshot.size);
-                console.log('=== ALL ORDERS DEBUG INFO ===');
-                
-                // Show ALL orders in table for debugging
-                allOrdersSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    console.log('Order ID:', doc.id);
-                    console.log('  - shopId:', data.shopId);
-                    console.log('  - shopName:', data.shopName);
-                    console.log('  - customerName:', data.customerName);
-                    console.log('  - status:', data.status);
-                    console.log('  - total:', data.total);
-                    console.log('---');
-                    
-                    // Add all orders to list for debugging
-                    orders.push({ 
-                        id: doc.id, 
-                        ...data,
-                        shortId: generateShortOrderId(doc.id),
-                        isDebugOrder: true
-                    });
-                });
-                
-                if (allOrdersSnapshot.size > 0) {
-                    console.log('WARNING: Your shopId/shopName does not match any orders in database.');
-                    console.log('Please check if customer app is using correct shopId.');
-                    console.log('Current shopId:', currentShop.id);
-                    console.log('Current shopName:', currentShop.name);
-                    
-                    // Show debug info to user
-                    const debugInfo = `Found ${allOrdersSnapshot.size} total orders in database, but none match your shop. 
-                    Your Shop ID: ${currentShop.id}
-                    Your Shop Name: ${currentShop.name}
-                    Check console for details.`;
-                    
-                    showToast(debugInfo, 'warning');
-                }
-            } catch (error) {
-                console.log('DEBUG query error:', error.message);
-            }
-        }
-        
         console.log('Total orders loaded:', orders.length);
         
+        // DEBUG: Show all order IDs for verification
+        console.log('=== ORDER ID MATCHING DEBUG ===');
+        orders.forEach((order, index) => {
+            console.log(`Order ${index + 1}:`);
+            console.log('  - Display ID (customer sees):', order.id);
+            console.log('  - Firestore ID:', order.firestoreId);
+            console.log('  - orderId field:', order.orderId);
+            console.log('  - Short ID:', order.shortId);
+            console.log('---');
+        });
+        
         if (orders.length === 0) {
-            showToast('No orders found. Check console for debug info.', 'warning');
+            showToast('No orders found.', 'warning');
         } else {
             showToast(`Loaded ${orders.length} orders`, 'success');
         }
@@ -2204,10 +2129,28 @@ async function loadOrders() {
     }
 }
 
-        // Generate short order ID for display
-        function generateShortOrderId(orderId) {
-            return orderId.substring(0, 6).toUpperCase();
-        }
+// Update generateShortOrderId to handle both types of IDs
+function generateShortOrderId(orderId) {
+    if (!orderId) return 'N/A';
+    
+    // If orderId is already short (6 chars), return as is
+    if (orderId.length === 6) return orderId.toUpperCase();
+    
+    // Otherwise take first 6 chars
+    return orderId.substring(0, 6).toUpperCase();
+}
+
+// Update renderOrders() to show BOTH IDs for debugging
+// In the table row, update the Order ID column:
+`
+<td>
+    <strong title="Customer sees: ${order.id}">#${order.shortId}</strong>
+    <br>
+    <small class="text-muted" title="Firestore ID: ${order.firestoreId}">
+        ${order.id !== order.firestoreId ? `(DB: ${order.firestoreId?.substring(0, 6) || 'N/A'})` : ''}
+    </small>
+</td>
+`;
 
         // Filter orders by status
         function filterOrders() {
@@ -2757,8 +2700,45 @@ function updatePartialOrderTotal() {
 }
 
 // Create notification for customer about partial order
-async function createPartialOrderNotification(orderId, order, acceptedItems, rejectedItems) {
+async function createPartialOrderNotification(orderId, order, acceptedItems, rejectedItems, acceptedTotal) {
     try {
+        let message = '';
+        let title = '';
+        let refundAmount = 0;
+        
+        // Calculate original total
+        const originalTotal = order.total || order.totalAmount || 0;
+        
+        if (acceptedItems.length > 0 && rejectedItems.length > 0) {
+            title = 'Order Partially Accepted';
+            refundAmount = originalTotal - acceptedTotal;
+            
+            const acceptedNames = acceptedItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+            const rejectedNames = rejectedItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+            
+            if (refundAmount > 0) {
+                message = `Your order #${orderId.substring(0, 6)} has been partially accepted. 
+                ✅ Accepted: ${acceptedNames} 
+                ❌ Not available: ${rejectedNames}
+                💰 Refund amount: ₹${refundAmount.toFixed(2)} will be processed in 3-5 working days.
+                New order total: ₹${acceptedTotal.toFixed(2)}`;
+            } else {
+                message = `Your order #${orderId.substring(0, 6)} has been partially accepted. 
+                ✅ Accepted: ${acceptedNames} 
+                ❌ Not available: ${rejectedNames}
+                New order total: ₹${acceptedTotal.toFixed(2)}`;
+            }
+            
+        } else if (acceptedItems.length > 0) {
+            title = 'Order Accepted';
+            message = `Your order #${orderId.substring(0, 6)} has been accepted. Total: ₹${acceptedTotal.toFixed(2)}`;
+        } else {
+            title = 'Order Rejected';
+            refundAmount = originalTotal;
+            message = `Your order #${orderId.substring(0, 6)} has been rejected - all items are unavailable. 
+            💰 Full refund of ₹${refundAmount.toFixed(2)} will be processed in 3-5 working days.`;
+        }
+        
         const notificationData = {
             orderId: orderId,
             customerId: order.customerId,
@@ -2766,20 +2746,34 @@ async function createPartialOrderNotification(orderId, order, acceptedItems, rej
             customerEmail: order.customerEmail,
             shopId: currentShop.id,
             shopName: currentShop.name,
-            type: 'partial_order_accepted',
-            title: 'Order Partially Accepted',
-            message: `Your order #${orderId.substring(0, 6)} has been partially accepted.`,
+            type: 'order_update',
+            title: title,
+            message: message,
             acceptedItems: acceptedItems,
             rejectedItems: rejectedItems,
-            acceptedTotal: acceptedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+            acceptedTotal: acceptedTotal,
+            originalTotal: originalTotal,
+            refundAmount: refundAmount,
+            isRefund: refundAmount > 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             read: false
         };
         
         await db.collection('notifications').add(notificationData);
-        console.log('Partial order notification created');
+        console.log('Refund notification created for customer');
+        
+        // Also update order with refund info
+        if (refundAmount > 0) {
+            await db.collection('orders').doc(orderId).update({
+                refundAmount: refundAmount,
+                refundRequired: true,
+                refundStatus: 'pending',
+                refundRequestedAt: new Date().toISOString()
+            });
+        }
+        
     } catch (error) {
-        console.error('Error creating notification:', error);
+        console.error('Error creating refund notification:', error);
     }
 }
 

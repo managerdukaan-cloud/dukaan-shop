@@ -2435,24 +2435,26 @@ async function loadOrders() {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
                     }
                     
-                    ordersHtml += `
-                        <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-                            <td>
-                                <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
-                            </td>
-                            <td>${customerInfo}</td>
-                            <td title="${itemsDisplay}">
-                                ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-                            </td>
-                            <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
-                            <td>
-                                <span class="${statusClass}">${statusText}</span>
-                            </td>
-                            <td>${paymentText}</td>
-                            <td>${orderDate}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
+                    // Update the renderOrders() function - Order ID display part
+ordersHtml += `
+    <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+        <td>
+            <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
+            ${order.orderId ? `<br><small>Customer ID: #${order.orderId.substring(0, 6)}</small>` : ''}
+        </td>
+        <td>${customerInfo}</td>
+        <td title="${itemsDisplay}">
+            ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+        </td>
+        <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+        <td>
+            <span class="${statusClass}">${statusText}</span>
+        </td>
+        <td>${paymentText}</td>
+        <td>${orderDate}</td>
+        <td>${actionButtons}</td>
+    </tr>
+`;
                     
                 } catch (error) {
                     console.error('Error rendering order:', order, error);

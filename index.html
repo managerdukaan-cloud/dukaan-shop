@@ -1587,8 +1587,6 @@
             appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
         };
 
-        console.log('Firebase Config:', firebaseConfig);
-
         // Initialize Firebase
         let auth = null;
         let db = null;
@@ -1605,31 +1603,21 @@
         // Initialize App
         function initApp() {
             try {
-                console.log('Initializing Firebase...');
-                
                 // Check if Firebase is already initialized
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
-                    console.log('Firebase initialized successfully');
                 } else {
-                    firebase.app(); // If already initialized, use that instance
-                    console.log('Using existing Firebase instance');
+                    firebase.app();
                 }
                 
                 auth = firebase.auth();
                 db = firebase.firestore();
-                
-                console.log('Firebase services initialized');
 
                 // Check if user is already logged in
                 auth.onAuthStateChanged(async (user) => {
-                    console.log('Auth state changed. User:', user ? user.email : 'null');
-                    
                     if (user) {
-                        console.log('User logged in:', user.email);
                         await loadShopData(user.uid);
                     } else {
-                        console.log('No user logged in');
                         showAuthScreen();
                     }
                 });
@@ -1643,18 +1631,13 @@
         // Load Shop Data
         async function loadShopData(shopId) {
             try {
-                console.log('Loading shop data for ID:', shopId);
                 showLoading(true);
                 
-                // Try to get shop document
                 const shopDoc = await db.collection('shops').doc(shopId).get();
-                console.log('Shop document exists:', shopDoc.exists);
                 
                 if (shopDoc.exists) {
                     currentShop = { id: shopId, ...shopDoc.data() };
-                    console.log('Shop loaded:', currentShop.name);
                     
-                    // Load products and orders
                     await loadProducts();
                     await loadOrders();
                     await loadRefunds();
@@ -1664,10 +1647,7 @@
                     showToast('Welcome back to your shop!', 'success');
                     
                 } else {
-                    console.log('Shop document not found in Firestore');
                     showToast('Shop profile not found. Please contact admin to create your shop.', 'error');
-                    
-                    // Auto-create a shop if doesn't exist
                     await createShopForUser(shopId);
                 }
             } catch (error) {
@@ -1681,14 +1661,8 @@
         // Create shop for user if doesn't exist
         async function createShopForUser(userId) {
             try {
-                console.log('Creating shop for user:', userId);
-                
-                // Get user email
                 const user = auth.currentUser;
-                if (!user) {
-                    console.log('No user found');
-                    return;
-                }
+                if (!user) return;
                 
                 const shopData = {
                     name: user.email.split('@')[0] + ' Shop',
@@ -1707,7 +1681,6 @@
                 
                 await db.collection('shops').doc(userId).set(shopData);
                 currentShop = { id: userId, ...shopData };
-                console.log('Shop created:', currentShop.name);
                 
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
@@ -1730,21 +1703,15 @@
                 return;
             }
 
-            console.log('Attempting login with email:', email);
-
             try {
                 showLoading(true);
                 
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                console.log('Login successful:', user.email);
-                
                 await loadShopData(user.uid);
                 
             } catch (error) {
-                console.error("Login error:", error);
-                
                 let errorMessage = 'Login failed. ';
                 
                 switch(error.code) {
@@ -1791,20 +1758,15 @@
         function showAuthScreen() {
             document.getElementById('authScreen').style.display = 'block';
             document.getElementById('appScreen').style.display = 'none';
-            console.log('Showing auth screen');
         }
 
         function showAppScreen() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appScreen').style.display = 'block';
-            console.log('Showing app screen');
-            
-            // Navigate to dashboard
             navigateToPage('dashboard');
         }
 
         function logout() {
-            console.log('Logging out...');
             auth.signOut();
             showAuthScreen();
             showToast('Logged out successfully', 'info');
@@ -1812,19 +1774,14 @@
 
         // Navigation
         function navigateToPage(page) {
-            console.log('Navigating to page:', page);
-            
-            // Hide all pages
             document.querySelectorAll('.content-page').forEach(pageElement => {
                 pageElement.classList.remove('active');
             });
             
-            // Show selected page
             const pageElement = document.getElementById(page + 'Page');
             if (pageElement) {
                 pageElement.classList.add('active');
                 
-                // Load data for the page
                 switch(page) {
                     case 'dashboard':
                         loadDashboardData();
@@ -1855,34 +1812,19 @@
             if (!currentShop) return;
             
             try {
-                console.log('Loading dashboard data');
-                
-                // Update dashboard stats
                 document.getElementById('totalProducts').textContent = products.length;
                 
                 const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
                 document.getElementById('pendingOrders').textContent = pendingOrdersCount;
                 
-                const today = new Date().toDateString();
-                const todayOrdersCount = orders.filter(order => {
-                    const orderDate = order.createdAt ? 
-                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toDateString() : 
-                        '';
-                    return orderDate === today;
-                }).length;
-                
                 const totalRevenue = orders.filter(o => o.status === 'delivered' || o.status === 'picked_up')
                     .reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
                 document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
                 
-                // Pending refunds
                 const pendingRefundsCount = refunds.filter(refund => refund.status === 'pending').length;
                 document.getElementById('pendingRefunds').textContent = pendingRefundsCount;
                 
-                // Load dashboard orders summary
                 updateDashboardOrdersSummary();
-                
-                console.log('Dashboard stats updated');
                 
             } catch (error) {
                 console.error("Error loading dashboard:", error);
@@ -1895,24 +1837,12 @@
             
             if (!statsContainer) return;
             
-            // Calculate order statistics
             const pendingCount = orders.filter(o => o.status === 'pending').length;
             const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
             const preparingCount = orders.filter(o => o.status === 'preparing').length;
-            const dispatchedCount = orders.filter(o => o.status === 'dispatched').length;
             const deliveredCount = orders.filter(o => o.status === 'delivered').length;
-            const pickupReadyCount = orders.filter(o => o.status === 'ready_for_pickup').length;
             const pickedUpCount = orders.filter(o => o.status === 'picked_up').length;
             const cancelledCount = orders.filter(o => o.status === 'cancelled' || o.status === 'rejected').length;
-            
-            // Calculate today's pending orders
-            const today = new Date().toDateString();
-            const todayPendingCount = orders.filter(order => {
-                const orderDate = order.createdAt ? 
-                    (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toDateString() : 
-                    '';
-                return orderDate === today && order.status === 'pending';
-            }).length;
             
             statsContainer.innerHTML = `
                 <div class="dashboard-stat pending">
@@ -1932,10 +1862,6 @@
                     <span class="dashboard-stat-label">Completed</span>
                 </div>
                 <div class="dashboard-stat">
-                    <span class="dashboard-stat-value">${todayPendingCount}</span>
-                    <span class="dashboard-stat-label">Today's Pending</span>
-                </div>
-                <div class="dashboard-stat">
                     <span class="dashboard-stat-value">${cancelledCount}</span>
                     <span class="dashboard-stat-label">Cancelled/Rejected</span>
                 </div>
@@ -1947,7 +1873,6 @@
             if (!currentShop) return;
             
             try {
-                console.log('Loading products for shop:', currentShop.id);
                 showLoading(true);
                 
                 const snapshot = await db.collection('products')
@@ -1959,7 +1884,6 @@
                     products.push({ id: doc.id, ...doc.data() });
                 });
                 
-                console.log('Products loaded:', products.length);
                 renderProducts();
                 
             } catch (error) {
@@ -1988,8 +1912,7 @@
             }
             
             let productsHtml = '';
-            products.forEach((product, index) => {
-                // Determine stock status
+            products.forEach((product) => {
                 let stockClass = 'in-stock';
                 let stockText = '';
                 let stockIcon = 'check-circle';
@@ -2008,7 +1931,6 @@
                     stockIcon = 'times-circle';
                 }
 
-                // Calculate discount if MRP exists
                 let discountBadge = '';
                 if (product.mrp && product.mrp > product.price) {
                     const discountPercent = Math.round(((product.mrp - product.price) / product.mrp) * 100);
@@ -2128,8 +2050,6 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            console.log('Saving product:', productData);
-            
             try {
                 showLoading(true);
                 if (productId) {
@@ -2176,29 +2096,17 @@
             if (!currentShop) return;
             
             try {
-                console.log('Loading orders for shop ID:', currentShop.id);
                 showLoading(true);
-                
-                // Reset orders array
                 orders = [];
                 
-                // Try different approaches to find orders
-                console.log('Trying to find orders in different ways...');
-                
-                // Query 1: Try without composite index first (simple query)
-                console.log('Query 1: Simple query');
                 try {
                     const allOrdersSnapshot = await db.collection('orders')
                         .orderBy('createdAt', 'desc')
                         .limit(100)
                         .get();
                     
-                    console.log('Query 1 results:', allOrdersSnapshot.size, 'orders total in database');
-                    
                     allOrdersSnapshot.forEach(doc => {
                         const data = doc.data();
-                        
-                        // Check if this order belongs to current shop
                         const isOurOrder = data.shopId === currentShop.id || 
                                           data.shopName === currentShop.name ||
                                           (data.items && data.items.some(item => item.shopId === currentShop.id));
@@ -2207,45 +2115,24 @@
                             const orderIdFromCustomer = data.orderId || doc.id;
                             const customerId = data.customerId || data.userId || (data.user && data.user.id);
                             
-                            // Check if order already exists
                             if (!orders.find(o => o.firestoreId === doc.id)) {
                                 orders.push({ 
                                     id: orderIdFromCustomer,
                                     firestoreId: doc.id,
                                     customerId: customerId,
                                     ...data,
-                                    shortId: generateShortOrderId(orderIdFromCustomer) // यहाँ फिक्स किया गया
+                                    shortId: generateShortOrderId(orderIdFromCustomer)
                                 });
                             }
                         }
                     });
                 } catch (error) {
-                    console.log('Query 1 error:', error.message);
+                    console.log('Query error:', error.message);
                 }
                 
-                console.log('Total orders loaded after all queries:', orders.length);
+                // Load refund status for each order
+                await updateOrdersWithRefundInfo();
                 
-                // Debug: Show all found orders
-                console.log('=== ALL ORDERS FOUND ===');
-                orders.forEach((order, index) => {
-                    console.log(`Order ${index + 1}:`);
-                    console.log('  - ID:', order.id);
-                    console.log('  - Firestore ID:', order.firestoreId);
-                    console.log('  - Shop ID:', order.shopId);
-                    console.log('  - Shop Name:', order.shopName);
-                    console.log('  - Status:', order.status);
-                    console.log('  - Items:', order.items ? order.items.length : 0);
-                    console.log('---');
-                });
-                
-                if (orders.length === 0) {
-                    console.log('No orders found for this shop');
-                    showToast('No orders found. Make sure your shop is correctly set up.', 'info');
-                } else {
-                    showToast(`Loaded ${orders.length} orders`, 'success');
-                }
-                
-                // Apply filter
                 filterOrders();
                 updateOrdersSummary();
                 updateDashboardOrdersSummary();
@@ -2263,7 +2150,6 @@
 
         function generateShortOrderId(orderId) {
             if (!orderId) return 'N/A';
-            // Customer app में last 6 characters show होते हैं, इसलिए shop app में भी last 6 characters ही show करें
             return orderId.substring(orderId.length - 6).toUpperCase();
         }
 
@@ -2290,7 +2176,6 @@
             document.getElementById('preparingSummary').textContent = preparingCount;
             document.getElementById('totalSummary').textContent = orders.length;
             
-            // Update badges
             const badges = document.querySelectorAll('.orders-badge, .badge');
             badges.forEach(badge => {
                 if (pendingCount > 0) {
@@ -2429,7 +2314,7 @@
                         itemsDisplay = 'No items';
                     }
                     
-                    // Customer info - इसे फिक्स किया गया है
+                    // Customer info
                     const customerName = order.customerName || order.name || order.userName || 
                                        (order.user && order.user.name) || 
                                        (order.customer && order.customer.name) || 
@@ -2440,17 +2325,11 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    const customerAddress = order.customerAddress || order.address || 
-                                          (order.user && order.user.address) ||
-                                          (order.customer && order.customer.address) ||
-                                          'N/A';
-                    
                     // Payment method
                     let paymentText = '';
                     const paymentMethod = order.paymentMethod || 'cod';
                     let paymentStatus = order.paymentStatus || 'pending';
                     
-                    // AUTO-UPDATE: If order is delivered/picked up, mark as paid
                     if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
                         paymentStatus = 'paid';
                     }
@@ -2544,32 +2423,34 @@
                                     <i class="fas fa-exchange-alt"></i> Initiate Refund
                                 </button>
                             `;
-                        } else {
-                            // Show refund status if refund exists
-                            let refundStatusText = '';
-                            let refundStatusClass = '';
-                            switch(order.refundStatus) {
-                                case 'pending':
-                                    refundStatusText = 'Refund Pending';
-                                    refundStatusClass = 'status-text status-refund_pending';
-                                    break;
-                                case 'completed':
-                                    refundStatusText = 'Refunded';
-                                    refundStatusClass = 'status-text status-refund_completed';
-                                    break;
-                                case 'rejected':
-                                    refundStatusText = 'Refund Rejected';
-                                    refundStatusClass = 'status-text status-refund_rejected';
-                                    break;
-                            }
-                            actionButtons += `
-                                <div class="mt-1">
-                                    <span class="${refundStatusClass}">${refundStatusText}</span>
-                                </div>
-                            `;
                         }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                    }
+                    
+                    // Add refund status if refund exists
+                    if (hasRefund) {
+                        let refundStatusText = '';
+                        let refundStatusClass = '';
+                        switch(order.refundStatus) {
+                            case 'pending':
+                                refundStatusText = 'Refund Pending';
+                                refundStatusClass = 'status-text status-refund_pending';
+                                break;
+                            case 'completed':
+                                refundStatusText = 'Refunded';
+                                refundStatusClass = 'status-text status-refund_completed';
+                                break;
+                            case 'rejected':
+                                refundStatusText = 'Refund Rejected';
+                                refundStatusClass = 'status-text status-refund_rejected';
+                                break;
+                        }
+                        actionButtons += `
+                            <div class="mt-1">
+                                <span class="${refundStatusClass}">${refundStatusText}</span>
+                            </div>
+                        `;
                     }
                     
                     // Add view details button
@@ -2623,7 +2504,6 @@
                 
                 await db.collection('orders').doc(firestoreId).update(updateData);
                 
-                // AUTO-UPDATE PAYMENT: If order is delivered/picked up, mark payment as paid
                 if (newStatus === 'delivered' || newStatus === 'picked_up') {
                     await db.collection('orders').doc(firestoreId).update({
                         paymentStatus: 'paid',
@@ -2896,12 +2776,11 @@
             if (!currentShop) return;
             
             try {
-                console.log('Loading refunds for shop ID:', currentShop.id);
                 showLoading(true);
                 
                 refunds = [];
                 
-                // Query refunds collection
+                // Query refunds collection by shopId
                 const refundsSnapshot = await db.collection('refunds')
                     .where('shopId', '==', currentShop.id)
                     .orderBy('initiatedAt', 'desc')
@@ -2912,14 +2791,11 @@
                     refunds.push({ 
                         id: doc.id, 
                         ...refundData,
-                        shortId: 'REF-' + doc.id.substring(doc.id.length - 6).toUpperCase() // Short ID for display
+                        shortId: 'REF-' + (refundData.refundId ? refundData.refundId.substring(refundData.refundId.length - 6) : doc.id.substring(doc.id.length - 6)).toUpperCase()
                     });
                 });
                 
                 console.log('Refunds loaded:', refunds.length);
-                
-                // Also update orders with refund info
-                await updateOrdersWithRefundInfo();
                 
                 // Filter refunds
                 filterRefunds();
@@ -2942,10 +2818,12 @@
             // Update orders array with refund information
             for (let i = 0; i < orders.length; i++) {
                 const order = orders[i];
+                
+                // Try to find refund for this order
                 const orderRefunds = refunds.filter(r => r.orderId === order.id);
                 
                 if (orderRefunds.length > 0) {
-                    const latestRefund = orderRefunds[0]; // Get latest refund
+                    const latestRefund = orderRefunds[0];
                     orders[i].refundStatus = latestRefund.status;
                     orders[i].refundAmount = latestRefund.amount;
                     orders[i].refundId = latestRefund.id;
@@ -3056,7 +2934,7 @@
                     
                     refundsHtml += `
                         <tr>
-                            <td><strong>${refund.shortId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</strong></td>
+                            <td><strong>${refund.shortId}</strong></td>
                             <td>${refund.orderId || 'N/A'}</td>
                             <td>${refund.customerName || 'Customer'}</td>
                             <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
@@ -3166,10 +3044,8 @@
                     const quantity = parseInt(quantityInput.value) || 0;
                     total += price * quantity;
                     
-                    // Enable quantity input
                     quantityInput.disabled = false;
                 } else {
-                    // Disable quantity input
                     const quantityInput = document.getElementById(`quantity_${index}`);
                     quantityInput.disabled = true;
                 }
@@ -3200,24 +3076,6 @@
                 return;
             }
             
-            // Get selected items
-            const refundItems = [];
-            const checkboxes = document.querySelectorAll('.refund-checkbox:checked');
-            
-            checkboxes.forEach((checkbox, index) => {
-                const quantityInput = document.getElementById(`quantity_${index}`);
-                if (quantityInput && !quantityInput.disabled) {
-                    const quantity = parseInt(quantityInput.value) || 0;
-                    if (quantity > 0) {
-                        refundItems.push({
-                            price: parseFloat(checkbox.dataset.price) || 0,
-                            quantity: quantity,
-                            maxQuantity: parseInt(checkbox.dataset.quantity) || 0
-                        });
-                    }
-                }
-            });
-            
             if (!confirm(`Initiate refund of ₹${amount.toFixed(2)} for order ${orderId}?`)) {
                 return;
             }
@@ -3225,7 +3083,6 @@
             try {
                 showLoading(true);
                 
-                // Generate refund ID
                 const refundId = 'REF' + Date.now().toString().slice(-8);
                 
                 const refundData = {
@@ -3238,7 +3095,6 @@
                     amount: amount,
                     reason: reason,
                     notes: notes,
-                    items: refundItems,
                     status: 'pending',
                     paymentMethod: currentRefundOrder?.paymentMethod || 'cod',
                     initiatedBy: currentShop.id,
@@ -3263,7 +3119,6 @@
                 showToast('Refund initiated successfully!', 'success');
                 closeInitiateRefundModal();
                 
-                // Reload data
                 await loadRefunds();
                 await loadOrders();
                 await loadDashboardData();
@@ -3293,16 +3148,14 @@
                     updateData.rejectedAt = firebase.firestore.FieldValue.serverTimestamp();
                 }
                 
-                // Update refund in Firestore
                 await db.collection('refunds').doc(refundId).update(updateData);
                 
-                // Also update the order with refund status
                 const refundDoc = await db.collection('refunds').doc(refundId).get();
                 if (refundDoc.exists) {
                     const refundData = refundDoc.data();
                     const orderId = refundData.orderId;
                     
-                    // Find the order in Firestore and update it
+                    // Find and update the order
                     const orderQuery = await db.collection('orders').where('orderId', '==', orderId).get();
                     if (!orderQuery.empty) {
                         const orderDoc = orderQuery.docs[0];
@@ -3481,8 +3334,6 @@
         // ==================== PARTIAL ORDER FUNCTIONS ====================
         
         function showPartialOrderModal(orderId) {
-            console.log('Opening partial order modal for:', orderId);
-            
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
                 showToast('Order not found', 'error');
@@ -3490,11 +3341,8 @@
             }
             
             currentPartialOrderId = orderId;
-            
-            // Clone the items for editing
             partialOrderItems = JSON.parse(JSON.stringify(order.items || []));
             
-            // Render the items in the modal
             const itemsContainer = document.getElementById('partialOrderItems');
             let itemsHtml = '<p>Adjust quantities of items you can fulfill:</p>';
             
@@ -3518,7 +3366,6 @@
                         <div class="max-quantity">Max available: ${maxQuantity}</div>
                     `;
                     
-                    // Initialize selected quantity
                     if (!item.selectedQuantity) {
                         item.selectedQuantity = maxQuantity;
                     }
@@ -3537,18 +3384,15 @@
             const maxQuantity = partialOrderItems[index].quantity || 1;
             let newQuantity = (partialOrderItems[index].selectedQuantity || maxQuantity) + change;
             
-            // Clamp between 0 and maxQuantity
             newQuantity = Math.max(0, Math.min(newQuantity, maxQuantity));
             
             partialOrderItems[index].selectedQuantity = newQuantity;
             
-            // Update the display
             const quantityDisplay = document.querySelectorAll('.quantity-display')[index];
             if (quantityDisplay) {
                 quantityDisplay.textContent = newQuantity;
             }
             
-            // Update buttons state
             const minusBtn = document.querySelectorAll('.quantity-btn')[index * 2];
             const plusBtn = document.querySelectorAll('.quantity-btn')[index * 2 + 1];
             
@@ -3578,7 +3422,6 @@
         async function confirmPartialOrder() {
             if (!currentPartialOrderId) return;
             
-            // Calculate accepted and rejected items
             const acceptedItems = [];
             const rejectedItems = [];
             let acceptedTotal = 0;
@@ -3653,7 +3496,6 @@
             document.getElementById('shopStatus').value = currentShop.status || 'open';
             document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
             
-            // Set active service option
             const serviceOptions = document.querySelectorAll('.service-option');
             serviceOptions.forEach(option => {
                 option.classList.remove('active');
@@ -3727,18 +3569,11 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded');
-            
-            // Initialize app
             initApp();
             
-            // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // Profile form
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
             
-            // Navigation links
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -3749,22 +3584,18 @@
                 });
             });
             
-            // Product search
             const productSearch = document.getElementById('productSearch');
             if (productSearch) {
                 productSearch.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
-                    console.log('Searching for:', searchTerm);
                 });
             }
             
-            // Product form submit
             document.getElementById('productForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 saveProduct();
             });
             
-            // Setup service options
             setupServiceOptions();
         });
     </script>

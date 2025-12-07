@@ -2188,303 +2188,308 @@
         }
 
         function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
+    const ordersList = document.getElementById('ordersList');
+    
+    if (filteredOrders.length === 0) {
+        ordersList.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #666;">No Orders Found</h4>
+                    <p style="color: #999;">No orders match the current filter</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let ordersHtml = '';
+    
+    filteredOrders.forEach(order => {
+        try {
+            const orderDate = order.createdAt ? 
+                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 
+                'Recently';
             
-            if (filteredOrders.length === 0) {
-                ordersList.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Orders Found</h4>
-                            <p style="color: #999;">No orders match the current filter</p>
-                        </td>
-                    </tr>
-                `;
-                return;
+            // Status text
+            let statusText = '';
+            let statusClass = '';
+            
+            switch(order.status) {
+                case 'pending':
+                    statusText = 'Pending';
+                    statusClass = 'status-text status-pending';
+                    break;
+                case 'confirmed':
+                    statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
+                    statusClass = 'status-text status-confirmed';
+                    break;
+                case 'preparing':
+                    statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
+                    statusClass = 'status-text status-preparing';
+                    break;
+                case 'dispatched':
+                    statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
+                    statusClass = 'status-text status-dispatched';
+                    break;
+                case 'delivered':
+                    statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
+                    statusClass = 'status-text status-delivered';
+                    break;
+                case 'ready_for_pickup':
+                    statusText = 'Ready for Pickup';
+                    statusClass = 'status-text status-ready_for_pickup';
+                    break;
+                case 'picked_up':
+                    statusText = 'Picked Up';
+                    statusClass = 'status-text status-picked_up';
+                    break;
+                case 'cancelled':
+                    statusText = 'Cancelled';
+                    statusClass = 'status-text status-cancelled';
+                    break;
+                case 'rejected':
+                    statusText = 'Rejected';
+                    statusClass = 'status-text status-rejected';
+                    break;
+                default:
+                    statusText = order.status || 'Unknown';
+                    statusClass = 'status-text';
             }
             
-            let ordersHtml = '';
+            // Order items display
+            let itemsDisplay = '';
+            let partialBadge = '';
             
-            filteredOrders.forEach(order => {
-                try {
-                    const orderDate = order.createdAt ? 
-                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }) : 
-                        'Recently';
-                    
-                    // Status text
-                    let statusText = '';
-                    let statusClass = '';
-                    
-                    switch(order.status) {
-                        case 'pending':
-                            statusText = 'Pending';
-                            statusClass = 'status-text status-pending';
-                            break;
-                        case 'confirmed':
-                            statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
-                            statusClass = 'status-text status-confirmed';
-                            break;
-                        case 'preparing':
-                            statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
-                            statusClass = 'status-text status-preparing';
-                            break;
-                        case 'dispatched':
-                            statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
-                            statusClass = 'status-text status-dispatched';
-                            break;
-                        case 'delivered':
-                            statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
-                            statusClass = 'status-text status-delivered';
-                            break;
-                        case 'ready_for_pickup':
-                            statusText = 'Ready for Pickup';
-                            statusClass = 'status-text status-ready_for_pickup';
-                            break;
-                        case 'picked_up':
-                            statusText = 'Picked Up';
-                            statusClass = 'status-text status-picked_up';
-                            break;
-                        case 'cancelled':
-                            statusText = 'Cancelled';
-                            statusClass = 'status-text status-cancelled';
-                            break;
-                        case 'rejected':
-                            statusText = 'Rejected';
-                            statusClass = 'status-text status-rejected';
-                            break;
-                        default:
-                            statusText = order.status || 'Unknown';
-                            statusClass = 'status-text';
+            if (order.isPartialOrder) {
+                partialBadge = ' <span class="badge bg-warning">Partial</span>';
+                
+                const acceptedItems = order.acceptedItems || [];
+                const rejectedItems = order.rejectedItems || [];
+                
+                let acceptedText = '';
+                let rejectedText = '';
+                
+                if (acceptedItems.length > 0) {
+                    acceptedText = acceptedItems.map(item => 
+                        `${item.quantity || 1}x ${item.name || 'Item'} ✓`
+                    ).join(', ');
+                }
+                
+                if (rejectedItems.length > 0) {
+                    rejectedText = rejectedItems.map(item => 
+                        `${item.quantity || 1}x ${item.name || 'Item'} ✗`
+                    ).join(', ');
+                }
+                
+                if (acceptedText && rejectedText) {
+                    itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
+                } else if (acceptedText) {
+                    itemsDisplay = acceptedText;
+                } else if (rejectedText) {
+                    itemsDisplay = `Rejected: ${rejectedText}`;
+                }
+            } else if (order.items && Array.isArray(order.items)) {
+                const itemMap = {};
+                order.items.forEach(item => {
+                    const itemName = item.name || item.productName || 'Item';
+                    if (!itemMap[itemName]) {
+                        itemMap[itemName] = { quantity: 0, price: item.price || 0 };
                     }
-                    
-                    // Order items display
-                    let itemsDisplay = '';
-                    let partialBadge = '';
-                    
-                    if (order.isPartialOrder) {
-                        partialBadge = ' <span class="badge bg-warning">Partial</span>';
-                        
-                        const acceptedItems = order.acceptedItems || [];
-                        const rejectedItems = order.rejectedItems || [];
-                        
-                        let acceptedText = '';
-                        let rejectedText = '';
-                        
-                        if (acceptedItems.length > 0) {
-                            acceptedText = acceptedItems.map(item => 
-                                `${item.quantity || 1}x ${item.name || 'Item'} ✓`
-                            ).join(', ');
-                        }
-                        
-                        if (rejectedItems.length > 0) {
-                            rejectedText = rejectedItems.map(item => 
-                                `${item.quantity || 1}x ${item.name || 'Item'} ✗`
-                            ).join(', ');
-                        }
-                        
-                        if (acceptedText && rejectedText) {
-                            itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
-                        } else if (acceptedText) {
-                            itemsDisplay = acceptedText;
-                        } else if (rejectedText) {
-                            itemsDisplay = `Rejected: ${rejectedText}`;
-                        }
-                    } else if (order.items && Array.isArray(order.items)) {
-                        const itemMap = {};
-                        order.items.forEach(item => {
-                            const itemName = item.name || item.productName || 'Item';
-                            if (!itemMap[itemName]) {
-                                itemMap[itemName] = { quantity: 0, price: item.price || 0 };
-                            }
-                            itemMap[itemName].quantity += (item.quantity || 1);
-                        });
-                        
-                        itemsDisplay = Object.entries(itemMap)
-                            .map(([name, data]) => `${data.quantity}x ${name}`)
-                            .join(', ');
-                    } else if (order.productName) {
-                        itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
+                    itemMap[itemName].quantity += (item.quantity || 1);
+                });
+                
+                itemsDisplay = Object.entries(itemMap)
+                    .map(([name, data]) => `${data.quantity}x ${name}`)
+                    .join(', ');
+            } else if (order.productName) {
+                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
+            } else {
+                itemsDisplay = 'No items';
+            }
+            
+            // Customer info
+            const customerName = order.customerName || order.name || order.userName || 
+                               (order.user && order.user.name) || 
+                               (order.customer && order.customer.name) || 
+                               'Customer';
+            
+            const customerPhone = order.customerPhone || order.phone || 
+                                (order.user && order.user.phone) ||
+                                (order.customer && order.customer.phone) || 
+                                'N/A';
+            
+            // Payment method
+            let paymentText = '';
+            const paymentMethod = order.paymentMethod || 'cod';
+            let paymentStatus = order.paymentStatus || 'pending';
+            
+            if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                paymentStatus = 'paid';
+            }
+            
+            if (paymentMethod === 'cod') {
+                if (paymentStatus === 'paid') {
+                    paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
+                } else {
+                    paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
+                }
+            } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
+                if (paymentStatus === 'paid') {
+                    if (order.utrNumber) {
+                        paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
                     } else {
-                        itemsDisplay = 'No items';
+                        paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
                     }
-                    
-                    // Customer info
-                    const customerName = order.customerName || order.name || order.userName || 
-                                       (order.user && order.user.name) || 
-                                       (order.customer && order.customer.name) || 
-                                       'Customer';
-                    
-                    const customerPhone = order.customerPhone || order.phone || 
-                                        (order.user && order.user.phone) ||
-                                        (order.customer && order.customer.phone) || 
-                                        'N/A';
-                    
-                    // Payment method
-                    let paymentText = '';
-                    const paymentMethod = order.paymentMethod || 'cod';
-                    let paymentStatus = order.paymentStatus || 'pending';
-                    
-                    if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
-                        paymentStatus = 'paid';
-                    }
-                    
-                    if (paymentMethod === 'cod') {
-                        if (paymentStatus === 'paid') {
-                            paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
-                        } else {
-                            paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
-                        }
-                    } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
-                        if (paymentStatus === 'paid') {
-                            if (order.utrNumber) {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
-                            } else {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
-                            }
-                        } else {
-                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
-                        }
-                    } else {
-                        if (paymentStatus === 'paid') {
-                            paymentText = `<span class="payment-text payment-paid">PAID</span>`;
-                        } else {
-                            paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
-                        }
-                    }
-                    
-                    // Order amount
-                    let orderAmount = 0;
-                    if (order.isPartialOrder) {
-                        orderAmount = order.acceptedTotal || order.total || 0;
-                    } else {
-                        orderAmount = order.total || order.totalAmount || 0;
-                    }
-                    
-                    // Action buttons
-                    let actionButtons = '';
-                    const firestoreId = order.firestoreId || order.id;
-                    
-                    // Check if order has refund
-                    const hasRefund = order.refundStatus && order.refundStatus !== 'none';
-                    
-                    if (order.status === 'pending') {
-                        actionButtons = `
-                            <div style="display: flex; gap: 5px; flex-direction: column;">
-                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
-                                    <i class="fas fa-check"></i> Accept All
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
-                                    <i class="fas fa-check-double"></i> Accept Partial
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
-                                    <i class="fas fa-times"></i> Reject
-                                </button>
-                            </div>
-                        `;
-                    } else if (order.status === 'confirmed') {
-                        actionButtons = `
-                            <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                                <i class="fas fa-utensils"></i> Start Preparing
-                            </button>
-                        `;
-                    } else if (order.status === 'preparing') {
-                        actionButtons = `
-                            <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
-                                <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                            </button>
-                        `;
-                    } else if (order.status === 'dispatched') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
-                                <i class="fas fa-check-circle"></i> Mark as Delivered
-                            </button>
-                        `;
-                    } else if (order.status === 'delivered' || order.status === 'picked_up') {
-                        if (paymentStatus === 'pending') {
-                            actionButtons = `
-                                <button class="btn btn-success btn-sm" onclick="markAsPaid('${firestoreId}', ${orderAmount})">
-                                    <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                                </button>
-                            `;
-                        } else {
-                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
-                        }
-                        
-                        // Add refund button for delivered orders (only if no refund exists)
-if (!hasRefund || order.refundStatus === 'none') {
-    actionButtons += `
-        <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
-            <i class="fas fa-exchange-alt"></i> Initiate Refund
-        </button>
-    `;
-} else {
-    // Show refund status if refund exists
-    let refundStatusText = '';
-    let refundStatusClass = '';
-    switch(order.refundStatus) {
-        case 'pending':
-            refundStatusText = 'Refund Pending';
-            refundStatusClass = 'status-text status-refund_pending';
-            break;
-        case 'completed':
-            refundStatusText = 'Refunded';
-            refundStatusClass = 'status-text status-refund_completed';
-            break;
-        case 'rejected':
-            refundStatusText = 'Refund Rejected';
-            refundStatusClass = 'status-text status-refund_rejected';
-            break;
-    }
-    actionButtons += `
-        <div class="mt-1">
-            <span class="${refundStatusClass}">${refundStatusText}</span>
-        </div>
-    `;
-}
-                    
-                    // Add view details button
-                    actionButtons += `
-                        <button class="btn btn-info btn-sm mt-1" onclick="viewOrderDetails('${firestoreId}')">
-                            <i class="fas fa-eye"></i> View Details
+                } else {
+                    paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                }
+            } else {
+                if (paymentStatus === 'paid') {
+                    paymentText = `<span class="payment-text payment-paid">PAID</span>`;
+                } else {
+                    paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
+                }
+            }
+            
+            // Order amount
+            let orderAmount = 0;
+            if (order.isPartialOrder) {
+                orderAmount = order.acceptedTotal || order.total || 0;
+            } else {
+                orderAmount = order.total || order.totalAmount || 0;
+            }
+            
+            // Action buttons
+            let actionButtons = '';
+            const firestoreId = order.firestoreId || order.id;
+            
+            // Check if order has refund
+            const hasRefund = order.refundStatus && order.refundStatus !== 'none';
+            
+            if (order.status === 'pending') {
+                actionButtons = `
+                    <div style="display: flex; gap: 5px; flex-direction: column;">
+                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
+                            <i class="fas fa-check"></i> Accept All
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
+                            <i class="fas fa-check-double"></i> Accept Partial
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                `;
+            } else if (order.status === 'confirmed') {
+                actionButtons = `
+                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                        <i class="fas fa-utensils"></i> Start Preparing
+                    </button>
+                `;
+            } else if (order.status === 'preparing') {
+                actionButtons = `
+                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
+                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                    </button>
+                `;
+            } else if (order.status === 'dispatched') {
+                actionButtons = `
+                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
+                        <i class="fas fa-check-circle"></i> Mark as Delivered
+                    </button>
+                `;
+            } else if (order.status === 'delivered' || order.status === 'picked_up') {
+                if (paymentStatus === 'pending') {
+                    actionButtons = `
+                        <button class="btn btn-success btn-sm" onclick="markAsPaid('${firestoreId}', ${orderAmount})">
+                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
                         </button>
                     `;
-                    
-                    ordersHtml += `
-                        <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-                            <td>
-                                <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
-                                ${partialBadge}
-                            </td>
-                            <td>
-                                <div><strong>${customerName}</strong></div>
-                                <small class="text-muted">${customerPhone}</small>
-                            </td>
-                            <td title="${itemsDisplay}">
-                                ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-                            </td>
-                            <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
-                            <td>
-                                <span class="${statusClass}">${statusText}</span>
-                            </td>
-                            <td>${paymentText}</td>
-                            <td>${orderDate}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
-                    
-                } catch (error) {
-                    console.error('Error rendering order:', order, error);
+                } else {
+                    actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                 }
-            });
+                
+                // Add refund button for delivered orders (only if no refund exists)
+                if (!hasRefund || order.refundStatus === 'none') {
+                    actionButtons += `
+                        <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
+                            <i class="fas fa-exchange-alt"></i> Initiate Refund
+                        </button>
+                    `;
+                }
+            } else if (order.status === 'cancelled' || order.status === 'rejected') {
+                actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+            }
             
-            ordersList.innerHTML = ordersHtml;
+            // Add refund status if refund exists
+            if (hasRefund) {
+                let refundStatusText = '';
+                let refundStatusClass = '';
+                switch(order.refundStatus) {
+                    case 'pending':
+                        refundStatusText = 'Refund Pending';
+                        refundStatusClass = 'status-text status-refund_pending';
+                        break;
+                    case 'completed':
+                        refundStatusText = 'Refunded';
+                        refundStatusClass = 'status-text status-refund_completed';
+                        break;
+                    case 'rejected':
+                        refundStatusText = 'Refund Rejected';
+                        refundStatusClass = 'status-text status-refund_rejected';
+                        break;
+                }
+                actionButtons += `
+                    <div class="mt-1">
+                        <span class="${refundStatusClass}">${refundStatusText}</span>
+                    </div>
+                `;
+            }
+            
+            // Add view details button
+            actionButtons += `
+                <button class="btn btn-info btn-sm mt-1" onclick="viewOrderDetails('${firestoreId}')">
+                    <i class="fas fa-eye"></i> View Details
+                </button>
+            `;
+            
+            ordersHtml += `
+                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                    <td>
+                        <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
+                        ${partialBadge}
+                    </td>
+                    <td>
+                        <div><strong>${customerName}</strong></div>
+                        <small class="text-muted">${customerPhone}</small>
+                    </td>
+                    <td title="${itemsDisplay}">
+                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                    </td>
+                    <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+                    <td>
+                        <span class="${statusClass}">${statusText}</span>
+                    </td>
+                    <td>${paymentText}</td>
+                    <td>${orderDate}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+            `;
+            
+        } catch (error) {
+            console.error('Error rendering order:', order, error);
         }
+    });
+    
+    ordersList.innerHTML = ordersHtml;
+}
 
         async function updateOrderStatus(firestoreId, newStatus) {
             if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;

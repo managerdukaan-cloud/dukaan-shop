@@ -2768,68 +2768,153 @@ if (!hasRefund || order.refundStatus === 'none') {
             }
         }
 
-        // ==================== REFUND MANAGEMENT ====================
+        // Load refunds function - FIXED VERSION
+async function loadRefunds() {
+    if (!currentShop) return;
+    
+    try {
+        console.log('Loading refunds for shop:', currentShop.id);
+        showLoading(true);
         
-        async function loadRefunds() {
-            if (!currentShop) return;
+        refunds = [];
+        
+        // Query refunds collection by shopId
+        try {
+            const refundsSnapshot = await db.collection('refunds')
+                .where('shopId', '==', currentShop.id)
+                .orderBy('initiatedAt', 'desc')
+                .get();
             
+            console.log(`Found ${refundsSnapshot.size} refunds in Firestore`);
+            
+            refundsSnapshot.forEach(doc => {
+                const refundData = doc.data();
+                console.log(`Refund found: ${doc.id}`, refundData);
+                
+                refunds.push({ 
+                    id: doc.id, 
+                    ...refundData,
+                    shortId: 'REF-' + (refundData.refundId ? 
+                        refundData.refundId.substring(refundData.refundId.length - 6) : 
+                        doc.id.substring(doc.id.length - 6)).toUpperCase()
+                });
+            });
+        } catch (error) {
+            console.error('Error querying refunds:', error);
+            
+            // Try alternative query without orderBy
             try {
-                showLoading(true);
-                
-                refunds = [];
-                
-                // Query refunds collection by shopId
+                console.log('Trying alternative query...');
                 const refundsSnapshot = await db.collection('refunds')
                     .where('shopId', '==', currentShop.id)
-                    .orderBy('initiatedAt', 'desc')
                     .get();
+                
+                console.log(`Alternative query found ${refundsSnapshot.size} refunds`);
                 
                 refundsSnapshot.forEach(doc => {
                     const refundData = doc.data();
                     refunds.push({ 
                         id: doc.id, 
                         ...refundData,
-                        shortId: 'REF-' + (refundData.refundId ? refundData.refundId.substring(refundData.refundId.length - 6) : doc.id.substring(doc.id.length - 6)).toUpperCase()
+                        shortId: 'REF-' + (refundData.refundId ? 
+                            refundData.refundId.substring(refundData.refundId.length - 6) : 
+                            doc.id.substring(doc.id.length - 6)).toUpperCase()
                     });
                 });
                 
-                console.log('Refunds loaded:', refunds.length);
+                // Sort manually by date
+                refunds.sort((a, b) => {
+                    const dateA = a.initiatedAt ? (a.initiatedAt.toDate ? a.initiatedAt.toDate() : new Date(a.initiatedAt)) : new Date(0);
+                    const dateB = b.initiatedAt ? (b.initiatedAt.toDate ? b.initiatedAt.toDate() : new Date(b.initiatedAt)) : new Date(0);
+                    return dateB - dateA;
+                });
                 
-                // Filter refunds
-                filterRefunds();
+            } catch (secondError) {
+                console.error('Alternative query also failed:', secondError);
+            }
+        }
+        
+        // If still no refunds, check if there are any refunds at all in collection
+        if (refunds.length === 0) {
+            console.log('No refunds found for shop. Checking entire refunds collection...');
+            
+            try {
+                const allRefundsSnapshot = await db.collection('refunds').limit(10).get();
+                console.log(`Total refunds in collection: ${allRefundsSnapshot.size}`);
                 
-                // Update refund stats
-                updateRefundStats();
-                
+                allRefundsSnapshot.forEach(doc => {
+                    const refundData = doc.data();
+                    console.log(`Refund ${doc.id}:`, {
+                        shopId: refundData.shopId,
+                        shopName: refundData.shopName,
+                        orderId: refundData.orderId,
+                        status: refundData.status
+                    });
+                });
             } catch (error) {
-                console.error("Error loading refunds:", error);
-                showToast('Error loading refunds: ' + error.message, 'error');
-                refunds = [];
-                filteredRefunds = [];
-                renderRefunds();
-            } finally {
-                showLoading(false);
+                console.error('Error checking all refunds:', error);
             }
         }
+        
+        console.log('Final refunds loaded:', refunds.length);
+        
+        // Debug: Show what we found
+        if (refunds.length > 0) {
+            console.log('Refunds found:');
+            refunds.forEach((refund, index) => {
+                console.log(`${index + 1}. ID: ${refund.id}, Order: ${refund.orderId}, Status: ${refund.status}, Amount: ${refund.amount}`);
+            });
+        }
+        
+        // Filter refunds
+        filterRefunds();
+        
+        // Update refund stats
+        updateRefundStats();
+        
+        // Also update orders with refund info
+        await updateOrdersWithRefundInfo();
+        
+    } catch (error) {
+        console.error("Error loading refunds:", error);
+        showToast('Error loading refunds: ' + error.message, 'error');
+        refunds = [];
+        filteredRefunds = [];
+        renderRefunds();
+    } finally {
+        showLoading(false);
+    }
+}
 
-        async function updateOrdersWithRefundInfo() {
-            // Update orders array with refund information
-            for (let i = 0; i < orders.length; i++) {
-                const order = orders[i];
-                
-                // Try to find refund for this order
-                const orderRefunds = refunds.filter(r => r.orderId === order.id);
-                
-                if (orderRefunds.length > 0) {
-                    const latestRefund = orderRefunds[0];
-                    orders[i].refundStatus = latestRefund.status;
-                    orders[i].refundAmount = latestRefund.amount;
-                    orders[i].refundId = latestRefund.id;
-                } else {
-                    orders[i].refundStatus = 'none';
-                }
-            }
+// Update orders with refund info - FIXED VERSION
+async function updateOrdersWithRefundInfo() {
+    console.log('Updating orders with refund info...');
+    
+    // Update orders array with refund information
+    for (let i = 0; i < orders.length; i++) {
+        const order = orders[i];
+        
+        // Try to find refund for this order
+        const orderRefunds = refunds.filter(r => 
+            r.orderId === order.id || 
+            r.orderId === order.orderId ||
+            (order.orderId && r.orderId === order.orderId)
+        );
+        
+        if (orderRefunds.length > 0) {
+            const latestRefund = orderRefunds[0];
+            orders[i].refundStatus = latestRefund.status;
+            orders[i].refundAmount = latestRefund.amount;
+            orders[i].refundId = latestRefund.id;
+            console.log(`Order ${order.id} has refund: ${latestRefund.status}`);
+        } else {
+            orders[i].refundStatus = 'none';
         }
+    }
+    
+    // Re-render orders to show refund status
+    renderOrders();
+}
 
         function filterRefunds() {
             const filterValue = document.getElementById('refundStatusFilter').value;
@@ -2857,101 +2942,120 @@ if (!hasRefund || order.refundStatus === 'none') {
         }
 
         function renderRefunds() {
-            const refundsList = document.getElementById('refundsList');
+    const refundsList = document.getElementById('refundsList');
+    
+    console.log('Rendering refunds. Filtered count:', filteredRefunds.length);
+    
+    if (filteredRefunds.length === 0) {
+        refundsList.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-exchange-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #666;">No Refunds Found</h4>
+                    <p style="color: #999;">No refunds match the current filter</p>
+                    <button class="btn btn-primary mt-2" onclick="navigateToPage('orders')">
+                        <i class="fas fa-shopping-bag"></i> Go to Orders
+                    </button>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    let refundsHtml = '';
+    
+    filteredRefunds.forEach((refund, index) => {
+        try {
+            console.log(`Rendering refund ${index + 1}:`, refund);
             
-            if (filteredRefunds.length === 0) {
-                refundsList.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem;">
-                            <i class="fas fa-exchange-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                            <h4 style="color: #666;">No Refunds Found</h4>
-                            <p style="color: #999;">No refunds match the current filter</p>
-                        </td>
-                    </tr>
-                `;
-                return;
+            const initiatedDate = refund.initiatedAt ? 
+                (refund.initiatedAt.toDate ? 
+                    refund.initiatedAt.toDate().toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 
+                    new Date(refund.initiatedAt).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })) : 
+                'N/A';
+            
+            // Status text
+            let statusText = '';
+            let statusClass = '';
+            
+            switch(refund.status) {
+                case 'pending':
+                    statusText = 'Pending';
+                    statusClass = 'status-text status-refund_pending';
+                    break;
+                case 'completed':
+                    statusText = 'Completed';
+                    statusClass = 'status-text status-refund_completed';
+                    break;
+                case 'rejected':
+                    statusText = 'Rejected';
+                    statusClass = 'status-text status-refund_rejected';
+                    break;
+                default:
+                    statusText = refund.status || 'Unknown';
+                    statusClass = 'status-text';
             }
             
-            let refundsHtml = '';
+            // Action buttons
+            let actionButtons = '';
             
-            filteredRefunds.forEach(refund => {
-                try {
-                    const initiatedDate = refund.initiatedAt ? 
-                        (refund.initiatedAt.toDate ? refund.initiatedAt.toDate() : new Date(refund.initiatedAt)).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }) : 
-                        'N/A';
-                    
-                    // Status text
-                    let statusText = '';
-                    let statusClass = '';
-                    
-                    switch(refund.status) {
-                        case 'pending':
-                            statusText = 'Pending';
-                            statusClass = 'status-text status-refund_pending';
-                            break;
-                        case 'completed':
-                            statusText = 'Completed';
-                            statusClass = 'status-text status-refund_completed';
-                            break;
-                        case 'rejected':
-                            statusText = 'Rejected';
-                            statusClass = 'status-text status-refund_rejected';
-                            break;
-                        default:
-                            statusText = refund.status || 'Unknown';
-                            statusClass = 'status-text';
-                    }
-                    
-                    // Action buttons
-                    let actionButtons = '';
-                    
-                    if (refund.status === 'pending') {
-                        actionButtons = `
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn btn-success btn-sm" onclick="updateRefundStatus('${refund.id}', 'completed')">
-                                    <i class="fas fa-check"></i> Complete
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="updateRefundStatus('${refund.id}', 'rejected')">
-                                    <i class="fas fa-times"></i> Reject
-                                </button>
-                            </div>
-                        `;
-                    }
-                    
-                    actionButtons += `
-                        <button class="btn btn-info btn-sm mt-1" onclick="viewRefundDetails('${refund.id}')">
-                            <i class="fas fa-eye"></i> View
+            if (refund.status === 'pending') {
+                actionButtons = `
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-success btn-sm" onclick="updateRefundStatus('${refund.id}', 'completed')">
+                            <i class="fas fa-check"></i> Complete
                         </button>
-                    `;
-                    
-                    refundsHtml += `
-                        <tr>
-                            <td><strong>${refund.shortId}</strong></td>
-                            <td>${refund.orderId || 'N/A'}</td>
-                            <td>${refund.customerName || 'Customer'}</td>
-                            <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
-                            <td>${refund.reason || 'No reason specified'}</td>
-                            <td>
-                                <span class="${statusClass}">${statusText}</span>
-                            </td>
-                            <td>${initiatedDate}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
-                    
-                } catch (error) {
-                    console.error('Error rendering refund:', refund, error);
-                }
-            });
+                        <button class="btn btn-danger btn-sm" onclick="updateRefundStatus('${refund.id}', 'rejected')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                `;
+            } else {
+                actionButtons = `
+                    <span class="text-muted">No actions available</span>
+                `;
+            }
             
-            refundsList.innerHTML = refundsHtml;
+            actionButtons += `
+                <button class="btn btn-info btn-sm mt-1" onclick="viewRefundDetails('${refund.id}')">
+                    <i class="fas fa-eye"></i> View
+                </button>
+            `;
+            
+            refundsHtml += `
+                <tr>
+                    <td><strong>${refund.shortId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</strong></td>
+                    <td>${refund.orderId || 'N/A'}</td>
+                    <td>${refund.customerName || 'Customer'}</td>
+                    <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
+                    <td>${refund.reason || 'No reason specified'}</td>
+                    <td>
+                        <span class="${statusClass}">${statusText}</span>
+                    </td>
+                    <td>${initiatedDate}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+            `;
+            
+        } catch (error) {
+            console.error('Error rendering refund:', refund, error);
         }
+    });
+    
+    refundsList.innerHTML = refundsHtml;
+}
 
         // Show initiate refund modal - UPDATED VERSION
 function showInitiateRefundModal(orderId) {
@@ -3167,54 +3271,119 @@ function showInitiateRefundModal(orderId) {
     }
 }
 
-        async function updateRefundStatus(refundId, newStatus) {
-            if (!confirm(`Are you sure you want to ${newStatus} this refund?`)) return;
-            
-            try {
-                showLoading(true);
-                
-                const updateData = {
-                    status: newStatus,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                if (newStatus === 'completed') {
-                    updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
-                } else if (newStatus === 'rejected') {
-                    updateData.rejectedAt = firebase.firestore.FieldValue.serverTimestamp();
-                }
-                
-                await db.collection('refunds').doc(refundId).update(updateData);
-                
-                const refundDoc = await db.collection('refunds').doc(refundId).get();
-                if (refundDoc.exists) {
-                    const refundData = refundDoc.data();
-                    const orderId = refundData.orderId;
-                    
-                    // Find and update the order
-                    const orderQuery = await db.collection('orders').where('orderId', '==', orderId).get();
-                    if (!orderQuery.empty) {
-                        const orderDoc = orderQuery.docs[0];
-                        await orderDoc.ref.update({
-                            refundStatus: newStatus,
-                            refundUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                }
-                
-                showToast(`Refund ${newStatus}!`, 'success');
-                await loadRefunds();
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error updating refund:', error);
-                showToast('Error updating refund: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
+        // Update refund status function - COMPLETELY FIXED
+async function updateRefundStatus(refundId, newStatus) {
+    if (!confirm(`Are you sure you want to ${newStatus} this refund?`)) return;
+    
+    try {
+        showLoading(true);
+        
+        const updateData = {
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Add timestamp based on status
+        if (newStatus === 'completed') {
+            updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
+            updateData.completedBy = currentShop.id;
+        } else if (newStatus === 'rejected') {
+            updateData.rejectedAt = firebase.firestore.FieldValue.serverTimestamp();
+            updateData.rejectedBy = currentShop.id;
+            const rejectionReason = prompt('Enter rejection reason:', '');
+            if (rejectionReason) {
+                updateData.rejectionReason = rejectionReason;
             }
         }
+        
+        console.log(`Updating refund ${refundId} to ${newStatus}`);
+        
+        // Step 1: Update the refund document
+        await db.collection('refunds').doc(refundId).update(updateData);
+        
+        // Step 2: Get the refund data to get orderId
+        const refundDoc = await db.collection('refunds').doc(refundId).get();
+        if (!refundDoc.exists) {
+            throw new Error('Refund document not found');
+        }
+        
+        const refundData = refundDoc.data();
+        const orderId = refundData.orderId;
+        const refundAmount = refundData.amount || 0;
+        
+        console.log(`Found refund for order: ${orderId}`);
+        
+        // Step 3: Find and update the corresponding order
+        // Try multiple ways to find the order
+        let orderQuery;
+        
+        // Try by orderId field
+        orderQuery = await db.collection('orders').where('orderId', '==', orderId).get();
+        
+        if (orderQuery.empty) {
+            // Try by document ID
+            const orderDoc = await db.collection('orders').doc(orderId).get();
+            if (orderDoc.exists) {
+                await orderDoc.ref.update({
+                    refundStatus: newStatus,
+                    refundAmount: refundAmount,
+                    refundUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log(`Order updated via document ID: ${orderId}`);
+            } else {
+                // Try by searching in all orders
+                const allOrders = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .get();
+                
+                let foundOrder = null;
+                allOrders.forEach(doc => {
+                    const data = doc.data();
+                    if (data.orderId === orderId || doc.id === orderId) {
+                        foundOrder = { id: doc.id, ref: doc.ref, data: data };
+                    }
+                });
+                
+                if (foundOrder) {
+                    await foundOrder.ref.update({
+                        refundStatus: newStatus,
+                        refundAmount: refundAmount,
+                        refundUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log(`Order found and updated: ${foundOrder.id}`);
+                } else {
+                    console.log(`Could not find order for refund: ${orderId}`);
+                    // Continue anyway, the refund is updated
+                }
+            }
+        } else {
+            // Update the found order
+            const orderDoc = orderQuery.docs[0];
+            await orderDoc.ref.update({
+                refundStatus: newStatus,
+                refundAmount: refundAmount,
+                refundUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`Order updated via orderId query: ${orderId}`);
+        }
+        
+        showToast(`Refund ${newStatus === 'completed' ? 'completed successfully!' : 'rejected!'}`, 'success');
+        
+        // Step 4: Reload all data
+        await loadRefunds();
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error updating refund:', error);
+        showToast('Error updating refund: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         async function viewRefundDetails(refundId) {
             try {

@@ -902,6 +902,52 @@
             border-radius: 4px;
         }
 
+        /* Order Details Styles */
+        .order-details-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .order-details-card h5 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #555;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Customer Info Styles */
+        .customer-info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .customer-info-card h5 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -1412,6 +1458,19 @@
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn btn-outline" onclick="closePartialOrderModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmPartialOrder()">Confirm Partial Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal" id="orderDetailsModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="close-modal" onclick="closeOrderDetailsModal()">&times;</button>
+            </div>
+            <div id="orderDetailsContent">
+                <!-- Order details will be loaded here -->
             </div>
         </div>
     </div>
@@ -2155,7 +2214,7 @@
                                     firestoreId: doc.id,
                                     customerId: customerId,
                                     ...data,
-                                    shortId: generateShortOrderId(orderIdFromCustomer)
+                                    shortId: generateShortOrderId(orderIdFromCustomer) // यहाँ फिक्स किया गया
                                 });
                             }
                         }
@@ -2204,7 +2263,8 @@
 
         function generateShortOrderId(orderId) {
             if (!orderId) return 'N/A';
-            return orderId.substring(0, 6).toUpperCase();
+            // Customer app में last 6 characters show होते हैं, इसलिए shop app में भी last 6 characters ही show करें
+            return orderId.substring(orderId.length - 6).toUpperCase();
         }
 
         // Filter orders by status
@@ -2369,10 +2429,21 @@
                         itemsDisplay = 'No items';
                     }
                     
-                    // Customer info
-                    const customerInfo = order.customerName ? 
-                        `${order.customerName}` : 
-                        order.customerEmail || order.customerPhone || 'Customer';
+                    // Customer info - इसे फिक्स किया गया है
+                    const customerName = order.customerName || order.name || order.userName || 
+                                       (order.user && order.user.name) || 
+                                       (order.customer && order.customer.name) || 
+                                       'Customer';
+                    
+                    const customerPhone = order.customerPhone || order.phone || 
+                                        (order.user && order.user.phone) ||
+                                        (order.customer && order.customer.phone) || 
+                                        'N/A';
+                    
+                    const customerAddress = order.customerAddress || order.address || 
+                                          (order.user && order.user.address) ||
+                                          (order.customer && order.customer.address) ||
+                                          'N/A';
                     
                     // Payment method
                     let paymentText = '';
@@ -2420,6 +2491,9 @@
                     let actionButtons = '';
                     const firestoreId = order.firestoreId || order.id;
                     
+                    // Check if order has refund
+                    const hasRefund = order.refundStatus && order.refundStatus !== 'none';
+                    
                     if (order.status === 'pending') {
                         actionButtons = `
                             <div style="display: flex; gap: 5px; flex-direction: column;">
@@ -2463,23 +2537,58 @@
                             actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                         
-                        // Add refund button for delivered orders
-                        actionButtons += `
-                            <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
-                                <i class="fas fa-exchange-alt"></i> Initiate Refund
-                            </button>
-                        `;
+                        // Add refund button for delivered orders (only if no refund exists)
+                        if (!hasRefund || order.refundStatus === 'none') {
+                            actionButtons += `
+                                <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
+                                    <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                </button>
+                            `;
+                        } else {
+                            // Show refund status if refund exists
+                            let refundStatusText = '';
+                            let refundStatusClass = '';
+                            switch(order.refundStatus) {
+                                case 'pending':
+                                    refundStatusText = 'Refund Pending';
+                                    refundStatusClass = 'status-text status-refund_pending';
+                                    break;
+                                case 'completed':
+                                    refundStatusText = 'Refunded';
+                                    refundStatusClass = 'status-text status-refund_completed';
+                                    break;
+                                case 'rejected':
+                                    refundStatusText = 'Refund Rejected';
+                                    refundStatusClass = 'status-text status-refund_rejected';
+                                    break;
+                            }
+                            actionButtons += `
+                                <div class="mt-1">
+                                    <span class="${refundStatusClass}">${refundStatusText}</span>
+                                </div>
+                            `;
+                        }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
                     }
                     
+                    // Add view details button
+                    actionButtons += `
+                        <button class="btn btn-info btn-sm mt-1" onclick="viewOrderDetails('${firestoreId}')">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                    `;
+                    
                     ordersHtml += `
                         <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
                             <td>
-                                <strong title="Full ID: ${order.id}">#${order.shortId || order.id.substring(0, 6)}</strong>
+                                <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
                                 ${partialBadge}
                             </td>
-                            <td>${customerInfo}</td>
+                            <td>
+                                <div><strong>${customerName}</strong></div>
+                                <small class="text-muted">${customerPhone}</small>
+                            </td>
                             <td title="${itemsDisplay}">
                                 ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
                             </td>
@@ -2554,6 +2663,233 @@
             }
         }
 
+        // View Order Details
+        async function viewOrderDetails(orderId) {
+            const order = orders.find(o => o.firestoreId === orderId);
+            if (!order) {
+                showToast('Order not found', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                const orderDate = order.createdAt ? 
+                    (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 
+                    'Recently';
+                
+                // Customer info
+                const customerName = order.customerName || order.name || order.userName || 
+                                   (order.user && order.user.name) || 
+                                   (order.customer && order.customer.name) || 
+                                   'Customer';
+                
+                const customerPhone = order.customerPhone || order.phone || 
+                                    (order.user && order.user.phone) ||
+                                    (order.customer && order.customer.phone) || 
+                                    'N/A';
+                
+                const customerAddress = order.customerAddress || order.address || 
+                                      (order.user && order.user.address) ||
+                                      (order.customer && order.customer.address) ||
+                                      'N/A';
+                
+                const customerEmail = order.customerEmail || order.email || 
+                                    (order.user && order.user.email) ||
+                                    (order.customer && order.customer.email) ||
+                                    'N/A';
+                
+                // Order items
+                let itemsHtml = '';
+                const orderItems = order.items || [];
+                
+                if (orderItems.length === 0) {
+                    itemsHtml = '<p>No items in this order</p>';
+                } else {
+                    itemsHtml = '<table class="table table-sm">';
+                    itemsHtml += '<thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>';
+                    itemsHtml += '<tbody>';
+                    
+                    orderItems.forEach((item, index) => {
+                        const itemTotal = (item.price || 0) * (item.quantity || 1);
+                        itemsHtml += `
+                            <tr>
+                                <td>${item.name || 'Product'}</td>
+                                <td>${item.quantity || 1}</td>
+                                <td>₹${(item.price || 0).toFixed(2)}</td>
+                                <td>₹${itemTotal.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    itemsHtml += '</tbody></table>';
+                }
+                
+                // Status
+                let statusText = '';
+                switch(order.status) {
+                    case 'pending': statusText = 'Pending'; break;
+                    case 'confirmed': statusText = 'Confirmed'; break;
+                    case 'preparing': statusText = 'Preparing'; break;
+                    case 'dispatched': statusText = 'Dispatched'; break;
+                    case 'delivered': statusText = 'Delivered'; break;
+                    case 'picked_up': statusText = 'Picked Up'; break;
+                    case 'cancelled': statusText = 'Cancelled'; break;
+                    case 'rejected': statusText = 'Rejected'; break;
+                    default: statusText = order.status || 'Unknown';
+                }
+                
+                // Payment
+                const paymentMethod = order.paymentMethod || 'cod';
+                const paymentStatus = order.paymentStatus || 'pending';
+                
+                let paymentMethodText = '';
+                switch(paymentMethod) {
+                    case 'cod': paymentMethodText = 'Cash on Delivery'; break;
+                    case 'qr': paymentMethodText = 'QR Code'; break;
+                    case 'online': paymentMethodText = 'Online Payment'; break;
+                    default: paymentMethodText = paymentMethod;
+                }
+                
+                let paymentStatusText = paymentStatus === 'paid' ? 'Paid' : 'Unpaid';
+                
+                // Order amount
+                let orderAmount = 0;
+                if (order.isPartialOrder) {
+                    orderAmount = order.acceptedTotal || order.total || 0;
+                } else {
+                    orderAmount = order.total || order.totalAmount || 0;
+                }
+                
+                const detailsHtml = `
+                    <div class="order-details">
+                        <h4>Order Details</h4>
+                        
+                        <div class="order-details-card">
+                            <h5>Order Information</h5>
+                            <div class="detail-row">
+                                <div class="detail-label">Order ID:</div>
+                                <div class="detail-value">${order.id}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Status:</div>
+                                <div class="detail-value">
+                                    <span class="${getStatusClass(order.status)}">${statusText}</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Order Date:</div>
+                                <div class="detail-value">${orderDate}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Total Amount:</div>
+                                <div class="detail-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Payment Method:</div>
+                                <div class="detail-value">${paymentMethodText}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Payment Status:</div>
+                                <div class="detail-value">
+                                    <span class="${paymentStatus === 'paid' ? 'payment-text payment-paid' : 'payment-text payment-unpaid'}">
+                                        ${paymentStatusText}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-info-card">
+                            <h5>Customer Information</h5>
+                            <div class="detail-row">
+                                <div class="detail-label">Name:</div>
+                                <div class="detail-value"><strong>${customerName}</strong></div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Phone:</div>
+                                <div class="detail-value">${customerPhone}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Email:</div>
+                                <div class="detail-value">${customerEmail}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Address:</div>
+                                <div class="detail-value">${customerAddress}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="order-details-card">
+                            <h5>Order Items</h5>
+                            ${itemsHtml}
+                        </div>
+                        
+                        ${order.notes ? `
+                            <div class="order-details-card">
+                                <h5>Order Notes</h5>
+                                <p>${order.notes}</p>
+                            </div>
+                        ` : ''}
+                        
+                        ${order.refundStatus && order.refundStatus !== 'none' ? `
+                            <div class="order-details-card">
+                                <h5>Refund Information</h5>
+                                <div class="detail-row">
+                                    <div class="detail-label">Refund Status:</div>
+                                    <div class="detail-value">
+                                        <span class="${getRefundStatusClass(order.refundStatus)}">
+                                            ${order.refundStatus === 'pending' ? 'Pending' : 
+                                              order.refundStatus === 'completed' ? 'Completed' : 
+                                              order.refundStatus === 'rejected' ? 'Rejected' : order.refundStatus}
+                                        </span>
+                                    </div>
+                                </div>
+                                ${order.refundAmount ? `
+                                    <div class="detail-row">
+                                        <div class="detail-label">Refund Amount:</div>
+                                        <div class="detail-value">₹${order.refundAmount.toFixed(2)}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                document.getElementById('orderDetailsContent').innerHTML = detailsHtml;
+                document.getElementById('orderDetailsModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                showToast('Error loading order details: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function closeOrderDetailsModal() {
+            document.getElementById('orderDetailsModal').classList.remove('active');
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'status-text status-pending';
+                case 'confirmed': return 'status-text status-confirmed';
+                case 'preparing': return 'status-text status-preparing';
+                case 'dispatched': return 'status-text status-dispatched';
+                case 'delivered': return 'status-text status-delivered';
+                case 'picked_up': return 'status-text status-picked_up';
+                case 'cancelled': return 'status-text status-cancelled';
+                case 'rejected': return 'status-text status-rejected';
+                default: return 'status-text';
+            }
+        }
+
         // ==================== REFUND MANAGEMENT ====================
         
         async function loadRefunds() {
@@ -2572,10 +2908,18 @@
                     .get();
                 
                 refundsSnapshot.forEach(doc => {
-                    refunds.push({ id: doc.id, ...doc.data() });
+                    const refundData = doc.data();
+                    refunds.push({ 
+                        id: doc.id, 
+                        ...refundData,
+                        shortId: 'REF-' + doc.id.substring(doc.id.length - 6).toUpperCase() // Short ID for display
+                    });
                 });
                 
                 console.log('Refunds loaded:', refunds.length);
+                
+                // Also update orders with refund info
+                await updateOrdersWithRefundInfo();
                 
                 // Filter refunds
                 filterRefunds();
@@ -2591,6 +2935,23 @@
                 renderRefunds();
             } finally {
                 showLoading(false);
+            }
+        }
+
+        async function updateOrdersWithRefundInfo() {
+            // Update orders array with refund information
+            for (let i = 0; i < orders.length; i++) {
+                const order = orders[i];
+                const orderRefunds = refunds.filter(r => r.orderId === order.id);
+                
+                if (orderRefunds.length > 0) {
+                    const latestRefund = orderRefunds[0]; // Get latest refund
+                    orders[i].refundStatus = latestRefund.status;
+                    orders[i].refundAmount = latestRefund.amount;
+                    orders[i].refundId = latestRefund.id;
+                } else {
+                    orders[i].refundStatus = 'none';
+                }
             }
         }
 
@@ -2643,7 +3004,9 @@
                         (refund.initiatedAt.toDate ? refund.initiatedAt.toDate() : new Date(refund.initiatedAt)).toLocaleDateString('en-IN', {
                             day: '2-digit',
                             month: 'short',
-                            year: 'numeric'
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
                         }) : 
                         'N/A';
                     
@@ -2693,7 +3056,7 @@
                     
                     refundsHtml += `
                         <tr>
-                            <td><strong>REF-${refund.id.substring(0, 6)}</strong></td>
+                            <td><strong>${refund.shortId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</strong></td>
                             <td>${refund.orderId || 'N/A'}</td>
                             <td>${refund.customerName || 'Customer'}</td>
                             <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
@@ -2728,8 +3091,13 @@
             document.getElementById('refundOrderId').value = order.id;
             document.getElementById('refundCustomerId').value = order.customerId || '';
             document.getElementById('displayOrderId').value = order.id;
-            document.getElementById('refundCustomerName').value = 
-                order.customerName || order.customerEmail || order.customerPhone || 'Customer';
+            
+            // Customer info
+            const customerName = order.customerName || order.name || order.userName || 
+                               (order.user && order.user.name) || 
+                               (order.customer && order.customer.name) || 
+                               'Customer';
+            document.getElementById('refundCustomerName').value = customerName;
             
             // Load order items
             const itemsList = document.getElementById('refundItemsList');
@@ -2766,7 +3134,13 @@
             itemsList.innerHTML = itemsHtml;
             
             // Set max refund amount
-            const maxAmount = order.total || order.totalAmount || 0;
+            let maxAmount = 0;
+            if (order.isPartialOrder) {
+                maxAmount = order.acceptedTotal || order.total || 0;
+            } else {
+                maxAmount = order.total || order.totalAmount || 0;
+            }
+            
             document.getElementById('maxRefundAmount').textContent = maxAmount.toFixed(2);
             document.getElementById('refundAmount').value = maxAmount.toFixed(2);
             document.getElementById('refundAmount').max = maxAmount;
@@ -2919,10 +3293,30 @@
                     updateData.rejectedAt = firebase.firestore.FieldValue.serverTimestamp();
                 }
                 
+                // Update refund in Firestore
                 await db.collection('refunds').doc(refundId).update(updateData);
+                
+                // Also update the order with refund status
+                const refundDoc = await db.collection('refunds').doc(refundId).get();
+                if (refundDoc.exists) {
+                    const refundData = refundDoc.data();
+                    const orderId = refundData.orderId;
+                    
+                    // Find the order in Firestore and update it
+                    const orderQuery = await db.collection('orders').where('orderId', '==', orderId).get();
+                    if (!orderQuery.empty) {
+                        const orderDoc = orderQuery.docs[0];
+                        await orderDoc.ref.update({
+                            refundStatus: newStatus,
+                            refundUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                }
                 
                 showToast(`Refund ${newStatus}!`, 'success');
                 await loadRefunds();
+                await loadOrders();
                 await loadDashboardData();
                 
             } catch (error) {
@@ -2953,7 +3347,7 @@
                                 <table class="table table-sm">
                                     <tr>
                                         <th>Refund ID:</th>
-                                        <td>${refund.refundId}</td>
+                                        <td>${refund.refundId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</td>
                                     </tr>
                                     <tr>
                                         <th>Order ID:</th>

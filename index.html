@@ -2419,39 +2419,37 @@
                         // Add refund button for delivered orders (only if no refund exists)
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
-                                <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
-                                    <i class="fas fa-exchange-alt"></i> Initiate Refund
-                                </button>
-                            `;
-                        }
-                    } else if (order.status === 'cancelled' || order.status === 'rejected') {
-                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-                    }
-                    
-                    // Add refund status if refund exists
-                    if (hasRefund) {
-                        let refundStatusText = '';
-                        let refundStatusClass = '';
-                        switch(order.refundStatus) {
-                            case 'pending':
-                                refundStatusText = 'Refund Pending';
-                                refundStatusClass = 'status-text status-refund_pending';
-                                break;
-                            case 'completed':
-                                refundStatusText = 'Refunded';
-                                refundStatusClass = 'status-text status-refund_completed';
-                                break;
-                            case 'rejected':
-                                refundStatusText = 'Refund Rejected';
-                                refundStatusClass = 'status-text status-refund_rejected';
-                                break;
-                        }
-                        actionButtons += `
-                            <div class="mt-1">
-                                <span class="${refundStatusClass}">${refundStatusText}</span>
-                            </div>
-                        `;
-                    }
+                                // Add refund button for delivered orders (only if no refund exists)
+if (!hasRefund || order.refundStatus === 'none') {
+    actionButtons += `
+        <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
+            <i class="fas fa-exchange-alt"></i> Initiate Refund
+        </button>
+    `;
+} else {
+    // Show refund status if refund exists
+    let refundStatusText = '';
+    let refundStatusClass = '';
+    switch(order.refundStatus) {
+        case 'pending':
+            refundStatusText = 'Refund Pending';
+            refundStatusClass = 'status-text status-refund_pending';
+            break;
+        case 'completed':
+            refundStatusText = 'Refunded';
+            refundStatusClass = 'status-text status-refund_completed';
+            break;
+        case 'rejected':
+            refundStatusText = 'Refund Rejected';
+            refundStatusClass = 'status-text status-refund_rejected';
+            break;
+    }
+    actionButtons += `
+        <div class="mt-1">
+            <span class="${refundStatusClass}">${refundStatusText}</span>
+        </div>
+    `;
+}
                     
                     // Add view details button
                     actionButtons += `
@@ -2955,77 +2953,77 @@
             refundsList.innerHTML = refundsHtml;
         }
 
-        // Show initiate refund modal
-        function showInitiateRefundModal(orderId) {
-            const order = orders.find(o => o.firestoreId === orderId);
-            if (!order) {
-                showToast('Order not found', 'error');
-                return;
-            }
-            
-            currentRefundOrder = order;
-            
-            // Populate form
-            document.getElementById('refundOrderId').value = order.id;
-            document.getElementById('refundCustomerId').value = order.customerId || '';
-            document.getElementById('displayOrderId').value = order.id;
-            
-            // Customer info
-            const customerName = order.customerName || order.name || order.userName || 
-                               (order.user && order.user.name) || 
-                               (order.customer && order.customer.name) || 
-                               'Customer';
-            document.getElementById('refundCustomerName').value = customerName;
-            
-            // Load order items
-            const itemsList = document.getElementById('refundItemsList');
-            let itemsHtml = '';
-            
-            const orderItems = order.items || [];
-            if (orderItems.length === 0) {
-                itemsHtml = '<p>No items in this order</p>';
-            } else {
-                itemsHtml = '<p>Select items to refund:</p>';
-                orderItems.forEach((item, index) => {
-                    const itemTotal = (item.price || 0) * (item.quantity || 1);
-                    itemsHtml += `
-                        <div class="refund-item-control">
-                            <div class="item-info">
-                                <input type="checkbox" class="refund-checkbox" id="item_${index}" 
-                                       data-price="${item.price || 0}" data-quantity="${item.quantity || 1}"
-                                       onchange="calculateRefundAmount()">
-                                <label for="item_${index}">
-                                    <div class="item-name">${item.name || 'Product'}</div>
-                                    <div class="item-price">₹${(item.price || 0).toFixed(2)} × ${item.quantity || 1} = ₹${itemTotal.toFixed(2)}</div>
-                                </label>
-                            </div>
-                            <div>
-                                <input type="number" class="refund-quantity" id="quantity_${index}" 
-                                       min="0" max="${item.quantity || 1}" value="${item.quantity || 1}"
-                                       onchange="calculateRefundAmount()" disabled>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            itemsList.innerHTML = itemsHtml;
-            
-            // Set max refund amount
-            let maxAmount = 0;
-            if (order.isPartialOrder) {
-                maxAmount = order.acceptedTotal || order.total || 0;
-            } else {
-                maxAmount = order.total || order.totalAmount || 0;
-            }
-            
-            document.getElementById('maxRefundAmount').textContent = maxAmount.toFixed(2);
-            document.getElementById('refundAmount').value = maxAmount.toFixed(2);
-            document.getElementById('refundAmount').max = maxAmount;
-            
-            // Show modal
-            document.getElementById('initiateRefundModal').classList.add('active');
-        }
+        // Show initiate refund modal - UPDATED VERSION
+function showInitiateRefundModal(orderId) {
+    const order = orders.find(o => o.firestoreId === orderId);
+    if (!order) {
+        showToast('Order not found', 'error');
+        return;
+    }
+    
+    currentRefundOrder = order;
+    
+    // Populate form
+    document.getElementById('refundOrderId').value = order.id;
+    document.getElementById('refundCustomerId').value = order.customerId || '';
+    document.getElementById('displayOrderId').value = order.id;
+    
+    // Customer info - FIXED
+    const customerName = order.customerName || order.name || order.userName || 
+                       (order.user && order.user.name) || 
+                       (order.customer && order.customer.name) || 
+                       'Customer';
+    document.getElementById('refundCustomerName').value = customerName;
+    
+    // Load order items
+    const itemsList = document.getElementById('refundItemsList');
+    let itemsHtml = '';
+    
+    const orderItems = order.items || [];
+    if (orderItems.length === 0) {
+        itemsHtml = '<p>No items in this order</p>';
+    } else {
+        itemsHtml = '<p>Select items to refund:</p>';
+        orderItems.forEach((item, index) => {
+            const itemTotal = (item.price || 0) * (item.quantity || 1);
+            itemsHtml += `
+                <div class="refund-item-control">
+                    <div class="item-info">
+                        <input type="checkbox" class="refund-checkbox" id="item_${index}" 
+                               data-price="${item.price || 0}" data-quantity="${item.quantity || 1}"
+                               onchange="calculateRefundAmount()">
+                        <label for="item_${index}">
+                            <div class="item-name">${item.name || 'Product'}</div>
+                            <div class="item-price">₹${(item.price || 0).toFixed(2)} × ${item.quantity || 1} = ₹${itemTotal.toFixed(2)}</div>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" class="refund-quantity" id="quantity_${index}" 
+                               min="0" max="${item.quantity || 1}" value="${item.quantity || 1}"
+                               onchange="calculateRefundAmount()" disabled>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    itemsList.innerHTML = itemsHtml;
+    
+    // Set max refund amount
+    let maxAmount = 0;
+    if (order.isPartialOrder) {
+        maxAmount = order.acceptedTotal || order.total || 0;
+    } else {
+        maxAmount = order.total || order.totalAmount || 0;
+    }
+    
+    document.getElementById('maxRefundAmount').textContent = maxAmount.toFixed(2);
+    document.getElementById('refundAmount').value = maxAmount.toFixed(2);
+    document.getElementById('refundAmount').max = maxAmount;
+    
+    // Show modal
+    document.getElementById('initiateRefundModal').classList.add('active');
+}
 
         function closeInitiateRefundModal() {
             document.getElementById('initiateRefundModal').classList.remove('active');
@@ -3055,81 +3053,119 @@
         }
 
         async function submitRefund() {
-            const orderId = document.getElementById('refundOrderId').value;
-            const customerId = document.getElementById('refundCustomerId').value;
-            const amount = parseFloat(document.getElementById('refundAmount').value);
-            const reason = document.getElementById('refundReason').value;
-            const notes = document.getElementById('refundNotes').value;
-            
-            if (!orderId) {
-                showToast('Order ID is required', 'error');
-                return;
-            }
-            
-            if (isNaN(amount) || amount <= 0) {
-                showToast('Please enter a valid refund amount', 'error');
-                return;
-            }
-            
-            if (!reason) {
-                showToast('Please select a refund reason', 'error');
-                return;
-            }
-            
-            if (!confirm(`Initiate refund of ₹${amount.toFixed(2)} for order ${orderId}?`)) {
-                return;
-            }
-            
-            try {
-                showLoading(true);
-                
-                const refundId = 'REF' + Date.now().toString().slice(-8);
-                
-                const refundData = {
-                    refundId: refundId,
-                    orderId: orderId,
-                    shopId: currentShop.id,
-                    shopName: currentShop.name,
-                    customerId: customerId,
-                    customerName: currentRefundOrder?.customerName || '',
-                    amount: amount,
-                    reason: reason,
-                    notes: notes,
-                    status: 'pending',
-                    paymentMethod: currentRefundOrder?.paymentMethod || 'cod',
-                    initiatedBy: currentShop.id,
-                    initiatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    estimatedCompletion: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // Save to Firestore
-                await db.collection('refunds').add(refundData);
-                
-                // Update order with refund status
-                if (currentRefundOrder && currentRefundOrder.firestoreId) {
-                    await db.collection('orders').doc(currentRefundOrder.firestoreId).update({
-                        refundStatus: 'pending',
-                        refundAmount: amount,
-                        refundInitiatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                showToast('Refund initiated successfully!', 'success');
-                closeInitiateRefundModal();
-                
-                await loadRefunds();
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error initiating refund:', error);
-                showToast('Error initiating refund: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
+    const orderId = document.getElementById('refundOrderId').value;
+    const customerId = document.getElementById('refundCustomerId').value;
+    const amount = parseFloat(document.getElementById('refundAmount').value);
+    const reason = document.getElementById('refundReason').value;
+    const notes = document.getElementById('refundNotes').value;
+    
+    if (!orderId) {
+        showToast('Order ID is required', 'error');
+        return;
+    }
+    
+    if (isNaN(amount) || amount <= 0) {
+        showToast('Please enter a valid refund amount', 'error');
+        return;
+    }
+    
+    if (!reason) {
+        showToast('Please select a refund reason', 'error');
+        return;
+    }
+    
+    // Check if amount is greater than max refund amount
+    const maxAmount = parseFloat(document.getElementById('maxRefundAmount').textContent);
+    if (amount > maxAmount) {
+        showToast(`Refund amount cannot exceed ₹${maxAmount.toFixed(2)}`, 'error');
+        return;
+    }
+    
+    // Get selected items
+    const refundItems = [];
+    const checkboxes = document.querySelectorAll('.refund-checkbox:checked');
+    
+    checkboxes.forEach((checkbox, index) => {
+        const quantityInput = document.getElementById(`quantity_${index}`);
+        if (quantityInput && !quantityInput.disabled) {
+            const quantity = parseInt(quantityInput.value) || 0;
+            if (quantity > 0) {
+                refundItems.push({
+                    price: parseFloat(checkbox.dataset.price) || 0,
+                    quantity: quantity,
+                    maxQuantity: parseInt(checkbox.dataset.quantity) || 0
+                });
             }
         }
+    });
+    
+    if (!confirm(`Initiate refund of ₹${amount.toFixed(2)} for order ${orderId}?`)) {
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        // Generate refund ID
+        const refundId = 'REF' + Date.now().toString().slice(-8);
+        
+        // Get customer name from order
+        const customerName = currentRefundOrder?.customerName || 
+                           currentRefundOrder?.name || 
+                           currentRefundOrder?.userName || 
+                           (currentRefundOrder?.user && currentRefundOrder.user.name) || 
+                           (currentRefundOrder?.customer && currentRefundOrder.customer.name) || 
+                           'Customer';
+        
+        const refundData = {
+            refundId: refundId,
+            orderId: orderId,
+            shopId: currentShop.id,
+            shopName: currentShop.name,
+            customerId: customerId,
+            customerName: customerName,
+            amount: amount,
+            reason: reason,
+            notes: notes,
+            items: refundItems,
+            status: 'pending',
+            paymentMethod: currentRefundOrder?.paymentMethod || 'cod',
+            initiatedBy: currentShop.id,
+            initiatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            estimatedCompletion: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        console.log('Saving refund data:', refundData);
+        
+        // Save to Firestore
+        await db.collection('refunds').add(refundData);
+        
+        // Update order with refund status
+        if (currentRefundOrder && currentRefundOrder.firestoreId) {
+            await db.collection('orders').doc(currentRefundOrder.firestoreId).update({
+                refundStatus: 'pending',
+                refundAmount: amount,
+                refundInitiatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        showToast('Refund initiated successfully!', 'success');
+        closeInitiateRefundModal();
+        
+        // Reload data
+        await loadRefunds();
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error initiating refund:', error);
+        showToast('Error initiating refund: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         async function updateRefundStatus(refundId, newStatus) {
             if (!confirm(`Are you sure you want to ${newStatus} this refund?`)) return;

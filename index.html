@@ -2417,9 +2417,6 @@
                         }
                         
                         // Add refund button for delivered orders (only if no refund exists)
-                        if (!hasRefund || order.refundStatus === 'none') {
-                            actionButtons += `
-                                // Add refund button for delivered orders (only if no refund exists)
 if (!hasRefund || order.refundStatus === 'none') {
     actionButtons += `
         <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">

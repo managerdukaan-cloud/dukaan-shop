@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
     <style>
         :root {
             --primary: #0F2C59;
@@ -1065,9 +1066,33 @@
                 margin-bottom: 60px;
             }
         }
+
+        /* Offline Warning */
+        .offline-warning {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: #f39c12;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            z-index: 9999;
+            display: none;
+            font-weight: bold;
+        }
+
+        .offline-warning i {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
+    <!-- Offline Warning -->
+    <div class="offline-warning" id="offlineWarning">
+        <i class="fas fa-wifi-slash"></i> No Internet Connection
+    </div>
+
     <!-- Header -->
     <header>
         <div class="container">
@@ -1599,6 +1624,9 @@
         let currentPartialOrderId = null;
         let partialOrderItems = [];
         let currentRefundOrder = null;
+        let isOnline = navigator.onLine;
+        let ordersListener = null;
+        let messaging = null;
 
         // Initialize App
         function initApp() {
@@ -1612,19 +1640,211 @@
                 
                 auth = firebase.auth();
                 db = firebase.firestore();
+                
+                // Try to initialize Firebase Messaging for push notifications
+                try {
+                    if (firebase.messaging.isSupported()) {
+                        messaging = firebase.messaging();
+                        setupPushNotifications();
+                    }
+                } catch (error) {
+                    console.log("Firebase Messaging not available:", error);
+                }
 
-                // Check if user is already logged in
+                // Check if user is already logged in - MODIFIED TO PREVENT AUTO LOGOUT
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
+                        // DISABLE AUTO LOGOUT - Only log out when user manually logs out
                         await loadShopData(user.uid);
-                    } else {
-                        showAuthScreen();
                     }
+                    // Don't show auth screen automatically - user stays logged in
                 });
 
+                // Setup online/offline detection
+                setupNetworkDetection();
+                
             } catch (error) {
                 console.error("Firebase initialization error:", error);
                 showToast("Firebase initialization failed. Please refresh the page.", "error");
+            }
+        }
+
+        // Setup network detection
+        function setupNetworkDetection() {
+            const offlineWarning = document.getElementById('offlineWarning');
+            
+            // Initial state
+            if (!isOnline) {
+                offlineWarning.style.display = 'block';
+                showToast('No internet connection. Some features may not work.', 'warning');
+            }
+            
+            // Listen for online/offline events
+            window.addEventListener('online', async function() {
+                isOnline = true;
+                offlineWarning.style.display = 'none';
+                showToast('Internet connection restored!', 'success');
+                
+                // Auto reload data when connection is restored
+                if (currentShop) {
+                    await loadProducts();
+                    await loadOrders();
+                    await loadRefunds();
+                    await loadDashboardData();
+                    showToast('Data refreshed successfully', 'info');
+                }
+            });
+            
+            window.addEventListener('offline', function() {
+                isOnline = false;
+                offlineWarning.style.display = 'block';
+                showToast('No internet connection. Working offline mode.', 'warning');
+            });
+            
+            // Check connection every 30 seconds
+            setInterval(() => {
+                if (navigator.onLine !== isOnline) {
+                    isOnline = navigator.onLine;
+                    if (isOnline) {
+                        offlineWarning.style.display = 'none';
+                        showToast('Internet connection restored!', 'success');
+                        if (currentShop) {
+                            loadProducts();
+                            loadOrders();
+                            loadRefunds();
+                            loadDashboardData();
+                        }
+                    } else {
+                        offlineWarning.style.display = 'block';
+                        showToast('No internet connection.', 'warning');
+                    }
+                }
+            }, 30000);
+        }
+
+        // Setup push notifications
+        async function setupPushNotifications() {
+            try {
+                // Request permission
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                    
+                    // Get FCM token
+                    const token = await messaging.getToken({ 
+                        vapidKey: 'YOUR_VAPID_KEY_HERE' // Replace with your VAPID key
+                    });
+                    
+                    if (token && currentShop) {
+                        // Save token to shop document for server-side notifications
+                        await db.collection('shops').doc(currentShop.id).update({
+                            fcmToken: token,
+                            notificationEnabled: true,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        console.log('FCM Token saved:', token);
+                    }
+                    
+                    // Listen for incoming messages when app is in foreground
+                    messaging.onMessage((payload) => {
+                        console.log('Message received in foreground:', payload);
+                        
+                        // Show notification
+                        if (payload.notification) {
+                            showNotification(payload.notification.title, payload.notification.body);
+                        }
+                        
+                        // If it's a new order, refresh orders
+                        if (payload.data && payload.data.type === 'new_order') {
+                            loadOrders();
+                            loadDashboardData();
+                        }
+                    });
+                    
+                } else {
+                    console.log('Unable to get permission to notify.');
+                }
+            } catch (error) {
+                console.error('Error setting up push notifications:', error);
+            }
+        }
+
+        function showNotification(title, body) {
+            // Check if browser supports notifications
+            if (!("Notification" in window)) {
+                console.log("This browser does not support notifications");
+                return;
+            }
+            
+            // Check if permission is already granted
+            if (Notification.permission === "granted") {
+                // Create notification
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3082/3082383.png'
+                });
+                
+                // Play sound
+                playNotificationSound();
+                
+                // Focus on app when notification is clicked
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+
+        function playNotificationSound() {
+            try {
+                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
+                audio.play();
+            } catch (error) {
+                console.log('Error playing notification sound:', error);
+            }
+        }
+
+        // Setup real-time order listener
+        function setupOrderListener() {
+            if (!currentShop || ordersListener) return;
+            
+            try {
+                ordersListener = db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .where('status', '==', 'pending')
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === 'added') {
+                                // New pending order detected
+                                const order = change.doc.data();
+                                console.log('New pending order detected:', order);
+                                
+                                // Show notification
+                                if (isOnline) {
+                                    showNotification(
+                                        '🛍️ New Order Received!',
+                                        `New order #${order.orderId?.substring(order.orderId.length - 6) || 'N/A'} from ${order.customerName || 'Customer'}`
+                                    );
+                                    
+                                    // Play sound
+                                    playNotificationSound();
+                                    
+                                    // Refresh orders list
+                                    loadOrders();
+                                    loadDashboardData();
+                                    
+                                    // Show toast notification
+                                    showToast(`New order received from ${order.customerName || 'Customer'}!`, 'info');
+                                }
+                            }
+                        });
+                    }, (error) => {
+                        console.error('Order listener error:', error);
+                    });
+            } catch (error) {
+                console.error('Error setting up order listener:', error);
             }
         }
 
@@ -1645,6 +1865,9 @@
                     
                     showAppScreen();
                     showToast('Welcome back to your shop!', 'success');
+                    
+                    // Setup real-time order listener
+                    setupOrderListener();
                     
                 } else {
                     showToast('Shop profile not found. Please contact admin to create your shop.', 'error');
@@ -1684,6 +1907,9 @@
                 
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
+                
+                // Setup real-time order listener
+                setupOrderListener();
                 
             } catch (error) {
                 console.log('Error creating shop:', error);
@@ -1758,6 +1984,12 @@
         function showAuthScreen() {
             document.getElementById('authScreen').style.display = 'block';
             document.getElementById('appScreen').style.display = 'none';
+            
+            // Clean up listeners
+            if (ordersListener) {
+                ordersListener();
+                ordersListener = null;
+            }
         }
 
         function showAppScreen() {
@@ -1767,6 +1999,13 @@
         }
 
         function logout() {
+            // Clean up listeners first
+            if (ordersListener) {
+                ordersListener();
+                ordersListener = null;
+            }
+            
+            // Then log out
             auth.signOut();
             showAuthScreen();
             showToast('Logged out successfully', 'info');

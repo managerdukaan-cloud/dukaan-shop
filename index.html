@@ -634,22 +634,27 @@
             background-color: #d1ecf1;
         }
         
+        .status-packed {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+        
+        .status-ready_for_pickup {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
+        .status-picked_up {
+            color: #155724;
+            background-color: #d4edda;
+        }
+        
         .status-dispatched {
             color: #856404;
             background-color: #fff3cd;
         }
         
         .status-delivered {
-            color: #155724;
-            background-color: #d4edda;
-        }
-        
-        .status-ready_for_pickup {
-            color: #0c5460;
-            background-color: #d1ecf1;
-        }
-        
-        .status-picked_up {
             color: #155724;
             background-color: #d4edda;
         }
@@ -904,91 +909,144 @@
             border-radius: 4px;
         }
 
-        /* Order Details Modal Styles */
-        .order-details-modal .modal-content {
-            max-width: 800px;
-            width: 95%;
-            max-height: 90vh;
+        /* Order Details Modal - FULL SCREEN */
+        .order-details-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 3000;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .order-details-fullscreen.active {
+            display: block;
+        }
+
+        .order-details-header {
+            background: var(--primary);
+            color: white;
             padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .order-details-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e9ecef;
-        }
-
-        .order-details-section h5 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #dee2e6;
+        .order-details-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 10px;
         }
 
-        .order-details-grid {
+        .order-details-content {
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .order-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .order-section h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .order-section h4 i {
+            font-size: 1.2rem;
+        }
+
+        .order-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
         }
 
-        .order-detail-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
+        .order-info-item {
+            margin-bottom: 0.75rem;
         }
 
-        .order-detail-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .order-detail-value {
-            font-size: 1rem;
+        .order-info-label {
             font-weight: 600;
-            color: #212529;
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .order-info-value {
+            font-size: 1rem;
+            color: #333;
         }
 
         .order-items-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 0.5rem;
-        }
-
-        .order-items-table th,
-        .order-items-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .order-items-table th {
-            background-color: #f8f9fa;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
             font-weight: 600;
-            color: #495057;
+        }
+
+        .order-items-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
         }
 
         .order-items-table tr:last-child td {
             border-bottom: none;
         }
 
-        /* Customer Info Styles */
-        .customer-info-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary);
+        .order-total {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: right;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .customer-info-card h5 {
+        .order-total .total-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
             color: var(--primary);
-            margin-bottom: 10px;
+        }
+
+        /* Customer Info Styles */
+        .customer-info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         /* Image Upload Styles */
@@ -1070,7 +1128,21 @@
             background: #0056b3;
         }
 
-        /* Responsive */
+        .progress {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -1100,13 +1172,106 @@
                 grid-template-columns: 1fr;
             }
 
-            .order-details-modal .modal-content {
-                width: 98%;
+            .image-upload-option {
+                flex-direction: column;
+            }
+
+            .order-details-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .order-details-content {
                 padding: 1rem;
             }
 
-            .image-upload-option {
-                flex-direction: column;
+            .order-section {
+                padding: 1rem;
+            }
+
+            .order-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-items-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .auth-card {
+                padding: 1.5rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Desktop View Specific */
+        @media (min-width: 769px) {
+            .order-details-content {
+                padding: 2rem;
+            }
+            
+            .order-section {
+                padding: 2rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        /* App-like Mobile View */
+        @media (max-width: 768px) {
+            body {
+                background: white;
+            }
+            
+            main {
+                margin-top: 70px;
+                padding: 1rem 0;
+                margin-bottom: 60px;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .content-page.active {
+                animation: slideIn 0.3s ease;
+            }
+            
+            .stat-card {
+                padding: 1.2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .dashboard-orders-summary {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .orders-summary-card {
+                padding: 15px;
+                margin-bottom: 15px;
             }
         }
 
@@ -1244,6 +1409,66 @@
         .timeline-content h6 {
             margin-bottom: 0.25rem;
             color: #495057;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .action-btn i {
+            font-size: 0.9rem;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
         }
     </style>
 </head>
@@ -1405,10 +1630,11 @@
                             <option value="pending">Pending</option>
                             <option value="confirmed">Confirmed</option>
                             <option value="preparing">Preparing</option>
+                            <option value="packed">Packed</option>
+                            <option value="ready_for_pickup">Ready for Pickup</option>
+                            <option value="picked_up">Picked Up</option>
                             <option value="dispatched">Dispatched</option>
                             <option value="delivered">Delivered</option>
-                            <option value="picked_up">Picked Up</option>
-                            <option value="ready_for_pickup">Ready for Pickup</option>
                             <option value="cancelled">Cancelled</option>
                             <option value="rejected">Rejected</option>
                         </select>
@@ -1648,7 +1874,7 @@
                             </button>
                             <img id="uploadedImagePreview" class="image-preview" style="display: none;">
                             <div id="uploadProgress" style="display: none;">
-                                <div class="progress" style="height: 8px;">
+                                <div class="progress">
                                     <div class="progress-bar" role="progressbar" style="width: 0%"></div>
                                 </div>
                                 <small class="text-muted">Uploading...</small>
@@ -1685,20 +1911,18 @@
         </div>
     </div>
 
-    <!-- Order Details Modal - UPDATED -->
-    <div class="modal order-details-modal" id="orderDetailsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Order Details</h3>
-                <button class="close-modal" onclick="closeOrderDetailsModal()">&times;</button>
-            </div>
-            <div id="orderDetailsContent" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
-                <!-- Order details will be loaded here -->
-            </div>
+    <!-- Order Details Full Screen Modal -->
+    <div class="order-details-fullscreen" id="orderDetailsModal">
+        <div class="order-details-header">
+            <h2><i class="fas fa-shopping-bag"></i> Order Details</h2>
+            <button class="close-modal" onclick="closeOrderDetailsModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        <div class="order-details-content" id="orderDetailsContent">
+            <!-- Order details will be loaded here -->
         </div>
     </div>
 
-    <!-- Initiate Refund Modal - UPDATED -->
+    <!-- Initiate Refund Modal -->
     <div class="modal" id="initiateRefundModal">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
@@ -1826,9 +2050,9 @@
         let isOnline = navigator.onLine;
         let ordersListener = null;
         let messaging = null;
-        let serviceWorkerRegistration = null;
         let currentImageTab = 'url';
         let uploadedImageFile = null;
+        let notificationSound = null;
 
         // Initialize App
         function initApp() {
@@ -1844,23 +2068,15 @@
                 db = firebase.firestore();
                 storage = firebase.storage();
                 
-                // Register service worker for push notifications
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                        .then(function(registration) {
-                            serviceWorkerRegistration = registration;
-                            console.log('Service Worker registered');
-                            initializePushNotifications();
-                        })
-                        .catch(function(error) {
-                            console.log('Service Worker registration failed:', error);
-                        });
-                } else {
-                    initializePushNotifications();
-                }
+                // Initialize notification sound
+                notificationSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
+                notificationSound.volume = 0.5;
+                
+                // Setup push notifications
+                setupPushNotifications();
 
-                // Setup real-time order listener for push notifications
-                setupOrderListenerForPush();
+                // Setup real-time order listener
+                setupOrderListener();
                 
                 // Check if user is already logged in
                 auth.onAuthStateChanged(async (user) => {
@@ -1878,60 +2094,95 @@
             }
         }
 
-        // Initialize push notifications
-        async function initializePushNotifications() {
+        // Setup push notifications
+        async function setupPushNotifications() {
             try {
-                if (firebase.messaging.isSupported()) {
-                    messaging = firebase.messaging();
-                    
-                    // Use VAPID key from Firebase Console > Cloud Messaging > Web Configuration
-                    messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
-                        .then((currentToken) => {
-                            if (currentToken && currentShop) {
-                                // Save token to shop document
-                                db.collection('shops').doc(currentShop.id).update({
-                                    fcmToken: currentToken,
-                                    notificationEnabled: true,
-                                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                                });
-                                console.log('FCM Token saved:', currentToken);
-                            }
-                        })
-                        .catch((err) => {
-                            console.log('Error getting FCM token:', err);
-                        });
-
-                    // Handle foreground messages
-                    messaging.onMessage((payload) => {
-                        console.log('Message received in foreground:', payload);
-                        
-                        // Show notification even when app is open
-                        if (payload.notification) {
-                            showNotification(
-                                payload.notification.title || 'New Order',
-                                payload.notification.body || 'You have a new order!'
-                            );
-                        }
-                        
-                        // Refresh data
-                        if (currentShop) {
-                            loadOrders();
-                            loadDashboardData();
-                        }
-                    });
+                // Request notification permission
+                if (!('Notification' in window)) {
+                    console.log('This browser does not support notifications');
+                    return;
                 }
+                
+                if (Notification.permission === 'default') {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted');
+                        
+                        // Initialize Firebase Messaging
+                        if (firebase.messaging.isSupported()) {
+                            messaging = firebase.messaging();
+                            
+                            // Get FCM token
+                            messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
+                                .then((currentToken) => {
+                                    if (currentToken && currentShop) {
+                                        // Save token to shop document
+                                        db.collection('shops').doc(currentShop.id).update({
+                                            fcmToken: currentToken,
+                                            notificationEnabled: true,
+                                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                        });
+                                        console.log('FCM Token saved:', currentToken);
+                                    }
+                                })
+                                .catch((err) => {
+                                    console.log('Error getting FCM token:', err);
+                                });
+
+                            // Handle foreground messages
+                            messaging.onMessage((payload) => {
+                                console.log('Message received in foreground:', payload);
+                                
+                                // Play sound
+                                playNotificationSound();
+                                
+                                // Show notification
+                                if (payload.notification) {
+                                    showNotification(
+                                        payload.notification.title || 'New Order',
+                                        payload.notification.body || 'You have a new order!'
+                                    );
+                                }
+                                
+                                // Refresh data
+                                if (currentShop) {
+                                    loadOrders();
+                                    loadDashboardData();
+                                }
+                            });
+                        }
+                    }
+                } else if (Notification.permission === 'granted') {
+                    // Already have permission
+                    if (firebase.messaging.isSupported()) {
+                        messaging = firebase.messaging();
+                        
+                        // Get FCM token
+                        messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
+                            .then((currentToken) => {
+                                if (currentToken && currentShop) {
+                                    db.collection('shops').doc(currentShop.id).update({
+                                        fcmToken: currentToken,
+                                        notificationEnabled: true,
+                                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                    });
+                                }
+                            });
+                    }
+                }
+                
             } catch (error) {
-                console.error('Error initializing push notifications:', error);
+                console.error('Error setting up push notifications:', error);
             }
         }
 
-        // Setup order listener for push notifications
-        function setupOrderListenerForPush() {
+        // Setup order listener for real-time updates
+        function setupOrderListener() {
             if (!currentShop || !db) return;
             
             try {
                 // Listen for new pending orders
-                db.collection('orders')
+                ordersListener = db.collection('orders')
                     .where('shopId', '==', currentShop.id)
                     .where('status', '==', 'pending')
                     .onSnapshot((snapshot) => {
@@ -1939,20 +2190,22 @@
                             if (change.type === 'added') {
                                 const order = change.doc.data();
                                 
-                                // Show push notification
+                                // Play sound
+                                playNotificationSound();
+                                
+                                // Show notification
                                 showNotification(
                                     '🛍️ New Order Received!',
                                     `Order #${order.orderId?.substring(order.orderId.length - 6) || 'N/A'} from ${order.customerName || 'Customer'}`
                                 );
-                                
-                                // Play sound
-                                playNotificationSound();
                                 
                                 // Refresh data
                                 loadOrders();
                                 loadDashboardData();
                             }
                         });
+                    }, (error) => {
+                        console.error('Order listener error:', error);
                     });
             } catch (error) {
                 console.error('Error setting up order listener:', error);
@@ -1960,24 +2213,18 @@
         }
 
         function showNotification(title, body) {
-            // Check if browser supports notifications
             if (!("Notification" in window)) {
                 console.log("This browser does not support notifications");
                 return;
             }
             
-            // Check if permission is already granted
             if (Notification.permission === "granted") {
-                // Create notification
                 const notification = new Notification(title, {
                     body: body,
                     icon: 'https://cdn-icons-png.flaticon.com/512/3082/3082383.png',
                     badge: 'https://cdn-icons-png.flaticon.com/512/3082/3082383.png',
                     tag: 'new-order'
                 });
-                
-                // Play sound
-                playNotificationSound();
                 
                 // Focus on app when notification is clicked
                 notification.onclick = function() {
@@ -1992,7 +2239,6 @@
                 }, 10000);
                 
             } else if (Notification.permission !== "denied") {
-                // Request permission
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
                         showNotification(title, body);
@@ -2003,9 +2249,10 @@
 
         function playNotificationSound() {
             try {
-                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
-                audio.volume = 0.5;
-                audio.play();
+                if (notificationSound) {
+                    notificationSound.currentTime = 0;
+                    notificationSound.play();
+                }
             } catch (error) {
                 console.log('Error playing notification sound:', error);
             }
@@ -2034,6 +2281,7 @@
             } else {
                 document.getElementById('uploadedImagePreview').style.display = 'none';
                 document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('uploadedImageUrl').value = '';
             }
         }
 
@@ -2047,6 +2295,8 @@
                     showToast('Could not load image from URL', 'error');
                     preview.style.display = 'none';
                 };
+                // Set the uploaded image URL to use this URL
+                document.getElementById('uploadedImageUrl').value = url;
             }
         }
 
@@ -2204,7 +2454,7 @@
                     showToast('Welcome back to your shop!', 'success');
                     
                     // Setup real-time order listener
-                    setupOrderListenerForPush();
+                    setupOrderListener();
                     
                 } else {
                     showToast('Shop profile not found. Please contact admin to create your shop.', 'error');
@@ -2246,7 +2496,7 @@
                 showToast('New shop created! Please update your profile.', 'success');
                 
                 // Setup real-time order listener
-                setupOrderListenerForPush();
+                setupOrderListener();
                 
             } catch (error) {
                 console.log('Error creating shop:', error);
@@ -2515,10 +2765,15 @@
                     }
                 }
 
+                // Use the actual uploaded image, not default cloudinary
+                const productImage = product.image && product.image !== 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format' 
+                    ? product.image 
+                    : 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+
                 productsHtml += `
                     <div class="product-card">
                         <div class="product-image-container">
-                            <img src="${product.image || 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format'}" 
+                            <img src="${productImage}" 
                                  alt="${product.name}" class="product-image">
                             <span class="product-badge">${product.category || 'Product'}</span>
                         </div>
@@ -2590,19 +2845,24 @@
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productDescription').value = product.description || '';
             
-            // Set image based on whether it's a URL or uploaded image
+            // Check if image is a URL or uploaded image
             if (product.image && product.image.startsWith('http')) {
                 document.getElementById('productImage').value = product.image;
                 switchImageTab('url');
                 const preview = document.getElementById('urlImagePreview');
                 preview.src = product.image;
                 preview.style.display = 'block';
-            } else if (product.image) {
                 document.getElementById('uploadedImageUrl').value = product.image;
+            } else if (product.image) {
+                // This is an uploaded image URL
                 switchImageTab('upload');
+                document.getElementById('uploadedImageUrl').value = product.image;
                 const preview = document.getElementById('uploadedImagePreview');
                 preview.src = product.image;
                 preview.style.display = 'block';
+            } else {
+                // No image, default to URL tab
+                switchImageTab('url');
             }
             
             document.getElementById('productModal').classList.add('active');
@@ -2639,13 +2899,17 @@
             let imageUrl = '';
             if (currentImageTab === 'url') {
                 imageUrl = document.getElementById('productImage').value.trim();
+                // If URL is empty, use uploaded image URL
+                if (!imageUrl) {
+                    imageUrl = document.getElementById('uploadedImageUrl').value;
+                }
             } else {
                 imageUrl = document.getElementById('uploadedImageUrl').value;
             }
             
-            // Use default image if no image provided
+            // If still no image, use placeholder
             if (!imageUrl) {
-                imageUrl = 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop&auto=format';
+                imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
             }
             
             const productData = {
@@ -2801,308 +3065,361 @@
         }
 
         function renderOrders() {
-    const ordersList = document.getElementById('ordersList');
-    
-    if (filteredOrders.length === 0) {
-        ordersList.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
-                    <h4 style="color: #666;">No Orders Found</h4>
-                    <p style="color: #999;">No orders match the current filter</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    let ordersHtml = '';
-    
-    filteredOrders.forEach(order => {
-        try {
-            const orderDate = order.createdAt ? 
-                (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) : 
-                'Recently';
+            const ordersList = document.getElementById('ordersList');
             
-            // Status text
-            let statusText = '';
-            let statusClass = '';
-            
-            switch(order.status) {
-                case 'pending':
-                    statusText = 'Pending';
-                    statusClass = 'status-text status-pending';
-                    break;
-                case 'confirmed':
-                    statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
-                    statusClass = 'status-text status-confirmed';
-                    break;
-                case 'preparing':
-                    statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
-                    statusClass = 'status-text status-preparing';
-                    break;
-                case 'dispatched':
-                    statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
-                    statusClass = 'status-text status-dispatched';
-                    break;
-                case 'delivered':
-                    statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
-                    statusClass = 'status-text status-delivered';
-                    break;
-                case 'ready_for_pickup':
-                    statusText = 'Ready for Pickup';
-                    statusClass = 'status-text status-ready_for_pickup';
-                    break;
-                case 'picked_up':
-                    statusText = 'Picked Up';
-                    statusClass = 'status-text status-picked_up';
-                    break;
-                case 'cancelled':
-                    statusText = 'Cancelled';
-                    statusClass = 'status-text status-cancelled';
-                    break;
-                case 'rejected':
-                    statusText = 'Rejected';
-                    statusClass = 'status-text status-rejected';
-                    break;
-                default:
-                    statusText = order.status || 'Unknown';
-                    statusClass = 'status-text';
+            if (filteredOrders.length === 0) {
+                ordersList.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h4 style="color: #666;">No Orders Found</h4>
+                            <p style="color: #999;">No orders match the current filter</p>
+                        </td>
+                    </tr>
+                `;
+                return;
             }
             
-            // Order items display
-            let itemsDisplay = '';
-            let partialBadge = '';
+            let ordersHtml = '';
             
-            if (order.isPartialOrder) {
-                partialBadge = ' <span class="badge bg-warning">Partial</span>';
-                
-                const acceptedItems = order.acceptedItems || [];
-                const rejectedItems = order.rejectedItems || [];
-                
-                let acceptedText = '';
-                let rejectedText = '';
-                
-                if (acceptedItems.length > 0) {
-                    acceptedText = acceptedItems.map(item => 
-                        `${item.quantity || 1}x ${item.name || 'Item'} ✓`
-                    ).join(', ');
-                }
-                
-                if (rejectedItems.length > 0) {
-                    rejectedText = rejectedItems.map(item => 
-                        `${item.quantity || 1}x ${item.name || 'Item'} ✗`
-                    ).join(', ');
-                }
-                
-                if (acceptedText && rejectedText) {
-                    itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
-                } else if (acceptedText) {
-                    itemsDisplay = acceptedText;
-                } else if (rejectedText) {
-                    itemsDisplay = `Rejected: ${rejectedText}`;
-                }
-            } else if (order.items && Array.isArray(order.items)) {
-                const itemMap = {};
-                order.items.forEach(item => {
-                    const itemName = item.name || item.productName || 'Item';
-                    if (!itemMap[itemName]) {
-                        itemMap[itemName] = { quantity: 0, price: item.price || 0 };
+            filteredOrders.forEach(order => {
+                try {
+                    const orderDate = order.createdAt ? 
+                        (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) : 
+                        'Recently';
+                    
+                    // Status text - FIXED FOR PICKUP ORDERS
+                    let statusText = '';
+                    let statusClass = '';
+                    
+                    // Check if shop offers pickup only
+                    const isPickupOnly = currentShop.deliveryType === 'pickup_only';
+                    const isDeliveryOnly = currentShop.deliveryType === 'delivery_only';
+                    const isBoth = currentShop.deliveryType === 'both';
+                    
+                    // Determine status based on shop service type
+                    switch(order.status) {
+                        case 'pending':
+                            statusText = 'Pending';
+                            statusClass = 'status-text status-pending';
+                            break;
+                        case 'confirmed':
+                            statusText = order.isPartialOrder ? 'Partially Accepted' : 'Confirmed';
+                            statusClass = 'status-text status-confirmed';
+                            break;
+                        case 'preparing':
+                            statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing';
+                            statusClass = 'status-text status-preparing';
+                            break;
+                        case 'packed':
+                            // Only show packed for pickup orders
+                            statusText = isPickupOnly ? 'Packed' : 'Preparing';
+                            statusClass = 'status-text status-packed';
+                            break;
+                        case 'ready_for_pickup':
+                            statusText = 'Ready for Pickup';
+                            statusClass = 'status-text status-ready_for_pickup';
+                            break;
+                        case 'picked_up':
+                            statusText = 'Picked Up';
+                            statusClass = 'status-text status-picked_up';
+                            break;
+                        case 'dispatched':
+                            statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
+                            statusClass = 'status-text status-dispatched';
+                            break;
+                        case 'delivered':
+                            statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
+                            statusClass = 'status-text status-delivered';
+                            break;
+                        case 'cancelled':
+                            statusText = 'Cancelled';
+                            statusClass = 'status-text status-cancelled';
+                            break;
+                        case 'rejected':
+                            statusText = 'Rejected';
+                            statusClass = 'status-text status-rejected';
+                            break;
+                        default:
+                            statusText = order.status || 'Unknown';
+                            statusClass = 'status-text';
                     }
-                    itemMap[itemName].quantity += (item.quantity || 1);
-                });
-                
-                itemsDisplay = Object.entries(itemMap)
-                    .map(([name, data]) => `${data.quantity}x ${name}`)
-                    .join(', ');
-            } else if (order.productName) {
-                itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
-            } else {
-                itemsDisplay = 'No items';
-            }
-            
-            // Customer info
-            const customerName = order.customerName || order.name || order.userName || 
-                               (order.user && order.user.name) || 
-                               (order.customer && order.customer.name) || 
-                               'Customer';
-            
-            const customerPhone = order.customerPhone || order.phone || 
-                                (order.user && order.user.phone) ||
-                                (order.customer && order.customer.phone) || 
-                                'N/A';
-            
-            // Payment method
-            let paymentText = '';
-            const paymentMethod = order.paymentMethod || 'cod';
-            let paymentStatus = order.paymentStatus || 'pending';
-            
-            if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
-                paymentStatus = 'paid';
-            }
-            
-            if (paymentMethod === 'cod') {
-                if (paymentStatus === 'paid') {
-                    paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
-                } else {
-                    paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
-                }
-            } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
-                if (paymentStatus === 'paid') {
-                    if (order.utrNumber) {
-                        paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                    
+                    // Order items display
+                    let itemsDisplay = '';
+                    let partialBadge = '';
+                    
+                    if (order.isPartialOrder) {
+                        partialBadge = ' <span class="badge bg-warning">Partial</span>';
+                        
+                        const acceptedItems = order.acceptedItems || [];
+                        const rejectedItems = order.rejectedItems || [];
+                        
+                        let acceptedText = '';
+                        let rejectedText = '';
+                        
+                        if (acceptedItems.length > 0) {
+                            acceptedText = acceptedItems.map(item => 
+                                `${item.quantity || 1}x ${item.name || 'Item'} ✓`
+                            ).join(', ');
+                        }
+                        
+                        if (rejectedItems.length > 0) {
+                            rejectedText = rejectedItems.map(item => 
+                                `${item.quantity || 1}x ${item.name || 'Item'} ✗`
+                            ).join(', ');
+                        }
+                        
+                        if (acceptedText && rejectedText) {
+                            itemsDisplay = `Accepted: ${acceptedText} | Not Available: ${rejectedText}`;
+                        } else if (acceptedText) {
+                            itemsDisplay = acceptedText;
+                        } else if (rejectedText) {
+                            itemsDisplay = `Rejected: ${rejectedText}`;
+                        }
+                    } else if (order.items && Array.isArray(order.items)) {
+                        const itemMap = {};
+                        order.items.forEach(item => {
+                            const itemName = item.name || item.productName || 'Item';
+                            if (!itemMap[itemName]) {
+                                itemMap[itemName] = { quantity: 0, price: item.price || 0 };
+                            }
+                            itemMap[itemName].quantity += (item.quantity || 1);
+                        });
+                        
+                        itemsDisplay = Object.entries(itemMap)
+                            .map(([name, data]) => `${data.quantity}x ${name}`)
+                            .join(', ');
+                    } else if (order.productName) {
+                        itemsDisplay = `${order.quantity || 1}x ${order.productName}`;
                     } else {
-                        paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
+                        itemsDisplay = 'No items';
                     }
-                } else {
-                    paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
-                }
-            } else {
-                if (paymentStatus === 'paid') {
-                    paymentText = `<span class="payment-text payment-paid">PAID</span>`;
-                } else {
-                    paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
-                }
-            }
-            
-            // Order amount
-            let orderAmount = 0;
-            if (order.isPartialOrder) {
-                orderAmount = order.acceptedTotal || order.total || 0;
-            } else {
-                orderAmount = order.total || order.totalAmount || 0;
-            }
-            
-            // Action buttons
-            let actionButtons = '';
-            const firestoreId = order.firestoreId || order.id;
-            
-            // Check if order has refund
-            const hasRefund = order.refundStatus && order.refundStatus !== 'none';
-            
-            if (order.status === 'pending') {
-                actionButtons = `
-                    <div style="display: flex; gap: 5px; flex-direction: column;">
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
-                            <i class="fas fa-check"></i> Accept All
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="showPartialOrderModal('${firestoreId}')">
-                            <i class="fas fa-check-double"></i> Accept Partial
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                    </div>
-                `;
-            } else if (order.status === 'confirmed') {
-                actionButtons = `
-                    <button class="btn btn-info btn-sm" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                        <i class="fas fa-utensils"></i> Start Preparing
-                    </button>
-                `;
-            } else if (order.status === 'preparing') {
-                actionButtons = `
-                    <button class="btn btn-warning btn-sm" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
-                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                    </button>
-                `;
-            } else if (order.status === 'dispatched') {
-                actionButtons = `
-                    <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
-                        <i class="fas fa-check-circle"></i> Mark as Delivered
-                    </button>
-                `;
-            } else if (order.status === 'delivered' || order.status === 'picked_up') {
-                if (paymentStatus === 'pending') {
-                    actionButtons = `
-                        <button class="btn btn-success btn-sm" onclick="markAsPaid('${firestoreId}', ${orderAmount})">
-                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                        </button>
-                    `;
-                } else {
-                    actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
-                }
-                
-                // Add refund button for delivered orders (only if no refund exists)
-                if (!hasRefund || order.refundStatus === 'none') {
+                    
+                    // Customer info - FIXED ADDRESS ISSUE
+                    const customerName = order.customerName || order.name || order.userName || 
+                                       (order.user && order.user.name) || 
+                                       (order.customer && order.customer.name) || 
+                                       'Customer';
+                    
+                    const customerPhone = order.customerPhone || order.phone || 
+                                        (order.user && order.user.phone) ||
+                                        (order.customer && order.customer.phone) || 
+                                        'N/A';
+                    
+                    // Fix address issue - properly extract from order data
+                    let customerAddress = 'N/A';
+                    if (order.customerAddress && typeof order.customerAddress === 'string') {
+                        customerAddress = order.customerAddress;
+                    } else if (order.address && typeof order.address === 'string') {
+                        customerAddress = order.address;
+                    } else if (order.user && order.user.address) {
+                        customerAddress = order.user.address;
+                    } else if (order.customer && order.customer.address) {
+                        customerAddress = order.customer.address;
+                    } else if (order.shippingAddress) {
+                        customerAddress = order.shippingAddress;
+                    }
+                    
+                    // Payment method
+                    let paymentText = '';
+                    const paymentMethod = order.paymentMethod || 'cod';
+                    let paymentStatus = order.paymentStatus || 'pending';
+                    
+                    if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                        paymentStatus = 'paid';
+                    }
+                    
+                    if (paymentMethod === 'cod') {
+                        if (paymentStatus === 'paid') {
+                            paymentText = `<span class="payment-text payment-cod-paid">COD - PAID</span>`;
+                        } else {
+                            paymentText = `<span class="payment-text payment-cod-unpaid">COD - UNPAID</span>`;
+                        }
+                    } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
+                        if (paymentStatus === 'paid') {
+                            if (order.utrNumber) {
+                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                            } else {
+                                paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
+                            }
+                        } else {
+                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                        }
+                    } else {
+                        if (paymentStatus === 'paid') {
+                            paymentText = `<span class="payment-text payment-paid">PAID</span>`;
+                        } else {
+                            paymentText = `<span class="payment-text payment-unpaid">UNPAID</span>`;
+                        }
+                    }
+                    
+                    // Order amount
+                    let orderAmount = 0;
+                    if (order.isPartialOrder) {
+                        orderAmount = order.acceptedTotal || order.total || 0;
+                    } else {
+                        orderAmount = order.total || order.totalAmount || 0;
+                    }
+                    
+                    // Action buttons - FIXED FOR PICKUP/DELIVERY DIFFERENCES
+                    let actionButtons = '';
+                    const firestoreId = order.firestoreId || order.id;
+                    
+                    // Check if order has refund
+                    const hasRefund = order.refundStatus && order.refundStatus !== 'none';
+                    
+                    if (order.status === 'pending') {
+                        actionButtons = `
+                            <div class="action-buttons">
+                                <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'confirmed')">
+                                    <i class="fas fa-check"></i> Accept All
+                                </button>
+                                <button class="action-btn btn-warning" onclick="showPartialOrderModal('${firestoreId}')">
+                                    <i class="fas fa-check-double"></i> Accept Partial
+                                </button>
+                                <button class="action-btn btn-danger" onclick="updateOrderStatus('${firestoreId}', 'rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        `;
+                    } else if (order.status === 'confirmed') {
+                        if (isPickupOnly) {
+                            actionButtons = `
+                                <button class="action-btn btn-info" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                                    <i class="fas fa-utensils"></i> Start Preparing
+                                </button>
+                            `;
+                        } else {
+                            actionButtons = `
+                                <button class="action-btn btn-info" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                                    <i class="fas fa-utensils"></i> Start Preparing
+                                </button>
+                            `;
+                        }
+                    } else if (order.status === 'preparing') {
+                        if (isPickupOnly) {
+                            actionButtons = `
+                                <button class="action-btn btn-warning" onclick="updateOrderStatus('${firestoreId}', 'packed')">
+                                    <i class="fas fa-box"></i> Mark as Packed
+                                </button>
+                            `;
+                        } else {
+                            actionButtons = `
+                                <button class="action-btn btn-warning" onclick="updateOrderStatus('${firestoreId}', 'dispatched')">
+                                    <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                                </button>
+                            `;
+                        }
+                    } else if (order.status === 'packed') {
+                        actionButtons = `
+                            <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'ready_for_pickup')">
+                                <i class="fas fa-check-circle"></i> Ready for Pickup
+                            </button>
+                        `;
+                    } else if (order.status === 'ready_for_pickup') {
+                        actionButtons = `
+                            <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'picked_up')">
+                                <i class="fas fa-check-circle"></i> Mark as Picked Up
+                            </button>
+                        `;
+                    } else if (order.status === 'dispatched') {
+                        actionButtons = `
+                            <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
+                                <i class="fas fa-check-circle"></i> Mark as Delivered
+                            </button>
+                        `;
+                    } else if (order.status === 'delivered' || order.status === 'picked_up') {
+                        if (paymentStatus === 'pending') {
+                            actionButtons = `
+                                <button class="action-btn btn-success" onclick="markAsPaid('${firestoreId}', ${orderAmount})">
+                                    <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                                </button>
+                            `;
+                        } else {
+                            actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
+                        }
+                        
+                        // Add refund button for delivered orders (only if no refund exists)
+                        if (!hasRefund || order.refundStatus === 'none') {
+                            actionButtons += `
+                                <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
+                                    <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                </button>
+                            `;
+                        }
+                    } else if (order.status === 'cancelled' || order.status === 'rejected') {
+                        actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                    }
+                    
+                    // Add refund status if refund exists
+                    if (hasRefund) {
+                        let refundStatusText = '';
+                        let refundStatusClass = '';
+                        switch(order.refundStatus) {
+                            case 'pending':
+                                refundStatusText = 'Refund Pending';
+                                refundStatusClass = 'status-text status-refund_pending';
+                                break;
+                            case 'completed':
+                                refundStatusText = 'Refunded';
+                                refundStatusClass = 'status-text status-refund_completed';
+                                break;
+                            case 'rejected':
+                                refundStatusText = 'Refund Rejected';
+                                refundStatusClass = 'status-text status-refund_rejected';
+                                break;
+                        }
+                        actionButtons += `
+                            <div class="mt-1">
+                                <span class="${refundStatusClass}">${refundStatusText}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add view details button
                     actionButtons += `
-                        <button class="btn btn-warning btn-sm mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
-                            <i class="fas fa-exchange-alt"></i> Initiate Refund
+                        <button class="action-btn btn-info mt-1" onclick="viewOrderDetails('${firestoreId}')">
+                            <i class="fas fa-eye"></i> View Details
                         </button>
                     `;
+                    
+                    ordersHtml += `
+                        <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
+                            <td>
+                                <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
+                                ${partialBadge}
+                            </td>
+                            <td>
+                                <div><strong>${customerName}</strong></div>
+                                <small class="text-muted">${customerPhone}</small>
+                            </td>
+                            <td title="${itemsDisplay}">
+                                ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
+                            </td>
+                            <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
+                            <td>
+                                <span class="${statusClass}">${statusText}</span>
+                            </td>
+                            <td>${paymentText}</td>
+                            <td>${orderDate}</td>
+                            <td>${actionButtons}</td>
+                        </tr>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Error rendering order:', order, error);
                 }
-            } else if (order.status === 'cancelled' || order.status === 'rejected') {
-                actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-            }
+            });
             
-            // Add refund status if refund exists
-            if (hasRefund) {
-                let refundStatusText = '';
-                let refundStatusClass = '';
-                switch(order.refundStatus) {
-                    case 'pending':
-                        refundStatusText = 'Refund Pending';
-                        refundStatusClass = 'status-text status-refund_pending';
-                        break;
-                    case 'completed':
-                        refundStatusText = 'Refunded';
-                        refundStatusClass = 'status-text status-refund_completed';
-                        break;
-                    case 'rejected':
-                        refundStatusText = 'Refund Rejected';
-                        refundStatusClass = 'status-text status-refund_rejected';
-                        break;
-                }
-                actionButtons += `
-                    <div class="mt-1">
-                        <span class="${refundStatusClass}">${refundStatusText}</span>
-                    </div>
-                `;
-            }
-            
-            // Add view details button
-            actionButtons += `
-                <button class="btn btn-info btn-sm mt-1" onclick="viewOrderDetails('${firestoreId}')">
-                    <i class="fas fa-eye"></i> View Details
-                </button>
-            `;
-            
-            ordersHtml += `
-                <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
-                    <td>
-                        <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
-                        ${partialBadge}
-                    </td>
-                    <td>
-                        <div><strong>${customerName}</strong></div>
-                        <small class="text-muted">${customerPhone}</small>
-                    </td>
-                    <td title="${itemsDisplay}">
-                        ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
-                    </td>
-                    <td><strong>₹${orderAmount.toFixed(2)}</strong></td>
-                    <td>
-                        <span class="${statusClass}">${statusText}</span>
-                    </td>
-                    <td>${paymentText}</td>
-                    <td>${orderDate}</td>
-                    <td>${actionButtons}</td>
-                </tr>
-            `;
-            
-        } catch (error) {
-            console.error('Error rendering order:', order, error);
+            ordersList.innerHTML = ordersHtml;
         }
-    });
-    
-    ordersList.innerHTML = ordersHtml;
-}
 
         async function updateOrderStatus(firestoreId, newStatus) {
             if (!confirm(`Are you sure you want to ${newStatus} this order?`)) return;
@@ -3156,7 +3473,7 @@
             }
         }
 
-        // View Order Details - UPDATED
+        // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -3177,7 +3494,7 @@
                     }) : 
                     'Recently';
                 
-                // Customer info
+                // Customer info - FIXED ADDRESS ISSUE
                 const customerName = order.customerName || order.name || order.userName || 
                                    (order.user && order.user.name) || 
                                    (order.customer && order.customer.name) || 
@@ -3188,10 +3505,19 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                const customerAddress = order.customerAddress || order.address || 
-                                      (order.user && order.user.address) ||
-                                      (order.customer && order.customer.address) ||
-                                      'N/A';
+                // Fix address issue - properly extract from order data
+                let customerAddress = 'N/A';
+                if (order.customerAddress && typeof order.customerAddress === 'string') {
+                    customerAddress = order.customerAddress;
+                } else if (order.address && typeof order.address === 'string') {
+                    customerAddress = order.address;
+                } else if (order.user && order.user.address) {
+                    customerAddress = order.user.address;
+                } else if (order.customer && order.customer.address) {
+                    customerAddress = order.customer.address;
+                } else if (order.shippingAddress) {
+                    customerAddress = order.shippingAddress;
+                }
                 
                 const customerEmail = order.customerEmail || order.email || 
                                     (order.user && order.user.email) ||
@@ -3236,6 +3562,10 @@
                 // Status
                 let statusText = '';
                 let statusClass = '';
+                
+                // Check if shop offers pickup only
+                const isPickupOnly = currentShop.deliveryType === 'pickup_only';
+                
                 switch(order.status) {
                     case 'pending': 
                         statusText = 'Pending'; 
@@ -3249,6 +3579,18 @@
                         statusText = order.isPartialOrder ? 'Preparing (Partial)' : 'Preparing'; 
                         statusClass = 'status-text status-preparing';
                         break;
+                    case 'packed': 
+                        statusText = isPickupOnly ? 'Packed' : 'Preparing';
+                        statusClass = 'status-text status-packed';
+                        break;
+                    case 'ready_for_pickup': 
+                        statusText = 'Ready for Pickup'; 
+                        statusClass = 'status-text status-ready_for_pickup';
+                        break;
+                    case 'picked_up': 
+                        statusText = 'Picked Up'; 
+                        statusClass = 'status-text status-picked_up';
+                        break;
                     case 'dispatched': 
                         statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched'; 
                         statusClass = 'status-text status-dispatched';
@@ -3256,10 +3598,6 @@
                     case 'delivered': 
                         statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered'; 
                         statusClass = 'status-text status-delivered';
-                        break;
-                    case 'picked_up': 
-                        statusText = 'Picked Up'; 
-                        statusClass = 'status-text status-picked_up';
                         break;
                     case 'cancelled': 
                         statusText = 'Cancelled'; 
@@ -3305,87 +3643,109 @@
                     
                     if (acceptedItems.length > 0 || rejectedItems.length > 0) {
                         partialInfoHtml = `
-                            <div class="order-details-section">
-                                <h5><i class="fas fa-clipboard-check"></i> Partial Order Details</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="order-detail-item">
-                                            <div class="order-detail-label">Accepted Items:</div>
-                                            <div class="order-detail-value">${acceptedItems.length} items</div>
-                                        </div>
+                            <div class="order-section">
+                                <h4><i class="fas fa-clipboard-check"></i> Partial Order Details</h4>
+                                <div class="order-grid">
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Accepted Items:</div>
+                                        <div class="order-info-value">${acceptedItems.length} items</div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="order-detail-item">
-                                            <div class="order-detail-label">Rejected Items:</div>
-                                            <div class="order-detail-value">${rejectedItems.length} items</div>
-                                        </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Rejected Items:</div>
+                                        <div class="order-info-value">${rejectedItems.length} items</div>
                                     </div>
                                 </div>
-                                <div class="order-detail-item mt-2">
-                                    <div class="order-detail-label">Accepted Total:</div>
-                                    <div class="order-detail-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>
+                                <div class="order-info-item" style="margin-top: 1rem;">
+                                    <div class="order-info-label">Accepted Total:</div>
+                                    <div class="order-info-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>
                                 </div>
                             </div>
                         `;
                     }
                 }
                 
+                // Service type info
+                let serviceTypeHtml = '';
+                if (currentShop.deliveryType === 'pickup_only') {
+                    serviceTypeHtml = `
+                        <div class="order-info-item">
+                            <div class="order-info-label">Service Type:</div>
+                            <div class="order-info-value"><span class="status-text status-ready_for_pickup">Pickup Only</span></div>
+                        </div>
+                    `;
+                } else if (currentShop.deliveryType === 'delivery_only') {
+                    serviceTypeHtml = `
+                        <div class="order-info-item">
+                            <div class="order-info-label">Service Type:</div>
+                            <div class="order-info-value"><span class="status-text status-delivered">Delivery Only</span></div>
+                        </div>
+                    `;
+                } else {
+                    serviceTypeHtml = `
+                        <div class="order-info-item">
+                            <div class="order-info-label">Service Type:</div>
+                            <div class="order-info-value"><span class="status-text status-confirmed">Both Delivery & Pickup</span></div>
+                        </div>
+                    `;
+                }
+                
                 const detailsHtml = `
                     <div class="order-details">
                         <!-- Order Information -->
-                        <div class="order-details-section">
-                            <h5><i class="fas fa-info-circle"></i> Order Information</h5>
-                            <div class="order-details-grid">
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Order ID:</div>
-                                    <div class="order-detail-value">#${order.shortId || generateShortOrderId(order.id)}</div>
+                        <div class="order-section">
+                            <h4><i class="fas fa-info-circle"></i> Order Information</h4>
+                            <div class="order-grid">
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Order ID:</div>
+                                    <div class="order-info-value">#${order.shortId || generateShortOrderId(order.id)}</div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Order Date:</div>
-                                    <div class="order-detail-value">${orderDate}</div>
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Order Date:</div>
+                                    <div class="order-info-value">${orderDate}</div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Status:</div>
-                                    <div class="order-detail-value">
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Status:</div>
+                                    <div class="order-info-value">
                                         <span class="${statusClass}">${statusText}</span>
                                     </div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Payment Method:</div>
-                                    <div class="order-detail-value">${paymentMethodText}</div>
+                                ${serviceTypeHtml}
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Payment Method:</div>
+                                    <div class="order-info-value">${paymentMethodText}</div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Payment Status:</div>
-                                    <div class="order-detail-value">
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Payment Status:</div>
+                                    <div class="order-info-value">
                                         <span class="${paymentStatusClass}">${paymentStatusText}</span>
                                     </div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Total Amount:</div>
-                                    <div class="order-detail-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Total Amount:</div>
+                                    <div class="order-info-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Customer Information -->
-                        <div class="order-details-section">
-                            <h5><i class="fas fa-user"></i> Customer Information</h5>
-                            <div class="order-details-grid">
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Name:</div>
-                                    <div class="order-detail-value"><strong>${customerName}</strong></div>
+                        <div class="order-section">
+                            <h4><i class="fas fa-user"></i> Customer Information</h4>
+                            <div class="order-grid">
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Name:</div>
+                                    <div class="order-info-value"><strong>${customerName}</strong></div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Phone:</div>
-                                    <div class="order-detail-value">${customerPhone}</div>
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Phone:</div>
+                                    <div class="order-info-value">${customerPhone}</div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Email:</div>
-                                    <div class="order-detail-value">${customerEmail}</div>
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Email:</div>
+                                    <div class="order-info-value">${customerEmail}</div>
                                 </div>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-label">Address:</div>
-                                    <div class="order-detail-value">${customerAddress}</div>
+                                <div class="order-info-item">
+                                    <div class="order-info-label">Address:</div>
+                                    <div class="order-info-value">${customerAddress}</div>
                                 </div>
                             </div>
                         </div>
@@ -3393,27 +3753,30 @@
                         ${partialInfoHtml}
                         
                         <!-- Order Items -->
-                        <div class="order-details-section">
-                            <h5><i class="fas fa-shopping-cart"></i> Order Items</h5>
+                        <div class="order-section">
+                            <h4><i class="fas fa-shopping-cart"></i> Order Items</h4>
                             ${itemsHtml}
+                            <div class="order-total">
+                                <div class="total-amount">Total: ₹${orderAmount.toFixed(2)}</div>
+                            </div>
                         </div>
                         
                         ${order.notes ? `
-                            <div class="order-details-section">
-                                <h5><i class="fas fa-sticky-note"></i> Order Notes</h5>
-                                <div class="order-detail-item">
-                                    <div class="order-detail-value">${order.notes}</div>
+                            <div class="order-section">
+                                <h4><i class="fas fa-sticky-note"></i> Order Notes</h4>
+                                <div class="order-info-item">
+                                    <div class="order-info-value">${order.notes}</div>
                                 </div>
                             </div>
                         ` : ''}
                         
                         ${order.refundStatus && order.refundStatus !== 'none' ? `
-                            <div class="order-details-section">
-                                <h5><i class="fas fa-exchange-alt"></i> Refund Information</h5>
-                                <div class="order-details-grid">
-                                    <div class="order-detail-item">
-                                        <div class="order-detail-label">Refund Status:</div>
-                                        <div class="order-detail-value">
+                            <div class="order-section">
+                                <h4><i class="fas fa-exchange-alt"></i> Refund Information</h4>
+                                <div class="order-grid">
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Refund Status:</div>
+                                        <div class="order-info-value">
                                             <span class="${getRefundStatusClass(order.refundStatus)}">
                                                 ${order.refundStatus === 'pending' ? 'Pending' : 
                                                   order.refundStatus === 'completed' ? 'Completed' : 
@@ -3422,14 +3785,80 @@
                                         </div>
                                     </div>
                                     ${order.refundAmount ? `
-                                        <div class="order-detail-item">
-                                            <div class="order-detail-label">Refund Amount:</div>
-                                            <div class="order-detail-value">₹${order.refundAmount.toFixed(2)}</div>
+                                        <div class="order-info-item">
+                                            <div class="order-info-label">Refund Amount:</div>
+                                            <div class="order-info-value">₹${order.refundAmount.toFixed(2)}</div>
                                         </div>
                                     ` : ''}
                                 </div>
                             </div>
                         ` : ''}
+                        
+                        <!-- Action Buttons -->
+                        <div class="order-section">
+                            <h4><i class="fas fa-cogs"></i> Actions</h4>
+                            <div class="action-buttons">
+                                ${order.status === 'pending' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'confirmed')">
+                                        <i class="fas fa-check"></i> Accept All
+                                    </button>
+                                    <button class="action-btn btn-warning" onclick="showPartialOrderModal('${order.firestoreId}')">
+                                        <i class="fas fa-check-double"></i> Accept Partial
+                                    </button>
+                                    <button class="action-btn btn-danger" onclick="updateOrderStatus('${order.firestoreId}', 'rejected')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'confirmed' ? `
+                                    <button class="action-btn btn-info" onclick="updateOrderStatus('${order.firestoreId}', 'preparing')">
+                                        <i class="fas fa-utensils"></i> Start Preparing
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'preparing' && currentShop.deliveryType === 'pickup_only' ? `
+                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'packed')">
+                                        <i class="fas fa-box"></i> Mark as Packed
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'preparing' && currentShop.deliveryType !== 'pickup_only' ? `
+                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'dispatched')">
+                                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'packed' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'ready_for_pickup')">
+                                        <i class="fas fa-check-circle"></i> Ready for Pickup
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'ready_for_pickup' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'picked_up')">
+                                        <i class="fas fa-check-circle"></i> Mark as Picked Up
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'dispatched' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
+                                        <i class="fas fa-check-circle"></i> Mark as Delivered
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending' ? `
+                                    <button class="action-btn btn-success" onclick="markAsPaid('${order.firestoreId}', ${orderAmount})">
+                                        <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'delivered' || order.status === 'picked_up') && (!order.refundStatus || order.refundStatus === 'none') ? `
+                                    <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
+                                        <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
                     </div>
                 `;
                 
@@ -3453,9 +3882,11 @@
                 case 'pending': return 'status-text status-pending';
                 case 'confirmed': return 'status-text status-confirmed';
                 case 'preparing': return 'status-text status-preparing';
+                case 'packed': return 'status-text status-packed';
+                case 'ready_for_pickup': return 'status-text status-ready_for_pickup';
+                case 'picked_up': return 'status-text status-picked_up';
                 case 'dispatched': return 'status-text status-dispatched';
                 case 'delivered': return 'status-text status-delivered';
-                case 'picked_up': return 'status-text status-picked_up';
                 case 'cancelled': return 'status-text status-cancelled';
                 case 'rejected': return 'status-text status-rejected';
                 default: return 'status-text';
@@ -3660,11 +4091,11 @@
                     
                     if (refund.status === 'pending') {
                         actionButtons = `
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn btn-success btn-sm" onclick="updateRefundStatus('${refund.id}', 'completed')">
+                            <div class="action-buttons">
+                                <button class="action-btn btn-success" onclick="updateRefundStatus('${refund.id}', 'completed')">
                                     <i class="fas fa-check"></i> Complete
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="updateRefundStatus('${refund.id}', 'rejected')">
+                                <button class="action-btn btn-danger" onclick="updateRefundStatus('${refund.id}', 'rejected')">
                                     <i class="fas fa-times"></i> Reject
                                 </button>
                             </div>
@@ -3676,7 +4107,7 @@
                     }
                     
                     actionButtons += `
-                        <button class="btn btn-info btn-sm mt-1" onclick="viewRefundDetails('${refund.id}')">
+                        <button class="action-btn btn-info mt-1" onclick="viewRefundDetails('${refund.id}')">
                             <i class="fas fa-eye"></i> View
                         </button>
                     `;
@@ -3704,7 +4135,7 @@
             refundsList.innerHTML = refundsHtml;
         }
 
-        // Show initiate refund modal - UPDATED
+        // Show initiate refund modal
         function showInitiateRefundModal(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -3726,7 +4157,7 @@
                                'Customer';
             document.getElementById('refundCustomerName').value = customerName;
             
-            // Load order items - AUTOMATICALLY SELECT REJECTED ITEMS FOR PARTIAL ORDERS
+            // Load order items
             const itemsList = document.getElementById('refundItemsList');
             let itemsHtml = '';
             

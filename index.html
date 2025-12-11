@@ -1142,9 +1142,9 @@
             transition: width 0.3s ease;
         }
 
-        /* Coupon Toggle Styles */
-        .coupon-toggle-section {
-            margin: 1.5rem 0;
+        /* Coupon Management Styles */
+        .coupon-management-section {
+            margin: 2rem 0;
             padding: 1.5rem;
             background: #f8f9fa;
             border-radius: 10px;
@@ -1220,6 +1220,81 @@
             color: #666;
         }
 
+        .coupon-form-section {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+            display: none;
+        }
+
+        .coupon-form-section.active {
+            display: block;
+        }
+
+        .coupon-form-section h5 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Refund Options Styles */
+        .refund-options-section {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .refund-option-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .refund-option-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .refund-option-details {
+            flex: 1;
+        }
+
+        .refund-option-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .refund-option-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .refund-option-condition {
+            font-size: 0.85rem;
+            color: #888;
+            font-style: italic;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -1277,6 +1352,10 @@
 
             .table-responsive {
                 overflow-x: auto;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1865,21 +1944,140 @@
                                 </select>
                             </div>
                             
-                            <!-- Coupon Section -->
-                            <div class="coupon-toggle-section">
+                            <!-- Coupon Management Section -->
+                            <div class="coupon-management-section">
                                 <div class="toggle-label">
                                     <i class="fas fa-ticket-alt"></i>
-                                    Coupon System
+                                    Coupon System Management
                                 </div>
                                 <div style="display: flex; align-items: center; margin: 10px 0;">
                                     <label class="toggle-switch">
-                                        <input type="checkbox" id="couponEnabled">
+                                        <input type="checkbox" id="couponEnabled" onchange="toggleCouponForm()">
                                         <span class="toggle-slider"></span>
                                     </label>
                                     <span style="font-weight: 600;" id="couponStatusLabel">Coupon System: Disabled</span>
                                 </div>
                                 <div class="coupon-description">
-                                    <i class="fas fa-info-circle"></i> When enabled, customers can apply coupon codes to their orders from your shop.
+                                    <i class="fas fa-info-circle"></i> When enabled, customers can apply coupon codes to their orders from your shop. When disabled, no coupon can be applied.
+                                </div>
+                                
+                                <!-- Coupon Form Section (Hidden by default) -->
+                                <div class="coupon-form-section" id="couponFormSection">
+                                    <h5><i class="fas fa-cog"></i> Configure Your Shop Coupon</h5>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Coupon Code</label>
+                                            <input type="text" id="couponCode" placeholder="e.g., SHOP20" maxlength="10">
+                                            <small class="text-muted">Max 10 characters, uppercase recommended</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Discount Type</label>
+                                            <select id="couponType">
+                                                <option value="percentage">Percentage (%)</option>
+                                                <option value="fixed">Fixed Amount (₹)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Discount Value</label>
+                                            <input type="number" id="couponValue" min="0" step="0.01">
+                                            <small class="text-muted">Percentage (1-100) or Fixed Amount</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Minimum Order Amount (₹)</label>
+                                            <input type="number" id="couponMinAmount" min="0" step="0.01">
+                                            <small class="text-muted">Minimum cart value to apply coupon</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Maximum Discount (₹)</label>
+                                            <input type="number" id="couponMaxDiscount" min="0" step="0.01">
+                                            <small class="text-muted">Maximum discount amount (0 for no limit)</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Valid Until</label>
+                                            <input type="date" id="couponExpiry">
+                                            <small class="text-muted">Leave empty for no expiry</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Maximum Uses</label>
+                                            <input type="number" id="couponMaxUses" min="0">
+                                            <small class="text-muted">0 for unlimited uses</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Active</label>
+                                            <select id="couponActive">
+                                                <option value="true">Yes</option>
+                                                <option value="false">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Coupon Description</label>
+                                        <textarea id="couponDescription" rows="2" placeholder="Describe this coupon..."></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-primary" onclick="saveCouponSettings()">
+                                            <i class="fas fa-save"></i> Save Coupon Settings
+                                        </button>
+                                        <button type="button" class="btn btn-outline" onclick="clearCouponForm()">
+                                            <i class="fas fa-times"></i> Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Product Refund Options Section -->
+                            <div class="refund-options-section">
+                                <h5><i class="fas fa-exchange-alt"></i> Default Refund Policy for Products</h5>
+                                <small class="text-muted">This will be applied to all products unless overridden at product level</small>
+                                
+                                <div class="refund-option-row">
+                                    <input type="checkbox" id="refundAvailable" class="refund-option-checkbox" checked>
+                                    <div class="refund-option-details">
+                                        <div class="refund-option-title">Refund & Return Available</div>
+                                        <div class="refund-option-description">Allow customers to return products and get refunds</div>
+                                        <div class="refund-option-condition" id="refundConditionText">Within 7 days of delivery, product must be unopened and in original condition</div>
+                                    </div>
+                                </div>
+                                
+                                <div id="refundDetailsSection">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Refund Period (Days)</label>
+                                            <input type="number" id="refundPeriod" min="1" max="30" value="7">
+                                            <small class="text-muted">Number of days after delivery for refund eligibility</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Refund Type</label>
+                                            <select id="refundType">
+                                                <option value="full_refund">Full Refund</option>
+                                                <option value="partial_refund">Partial Refund</option>
+                                                <option value="store_credit">Store Credit Only</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Refund Conditions</label>
+                                        <textarea id="refundConditions" rows="3" placeholder="e.g., Product must be unopened, in original packaging, with all tags attached...">Within 7 days of delivery, product must be unopened and in original condition</textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-primary" onclick="saveRefundPolicy()">
+                                            <i class="fas fa-save"></i> Save Refund Policy
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -1936,6 +2134,37 @@
                 <div class="form-group">
                     <label>Description</label>
                     <textarea id="productDescription" rows="3"></textarea>
+                </div>
+                
+                <!-- Product Refund Options -->
+                <div class="form-group">
+                    <label>Refund & Return Policy</label>
+                    <div style="margin-bottom: 10px;">
+                        <input type="checkbox" id="productRefundAvailable" checked>
+                        <label for="productRefundAvailable" style="margin-left: 8px;">Refund & Return Available for this product</label>
+                    </div>
+                    <div id="productRefundDetails" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Refund Period (Days)</label>
+                            <input type="number" id="productRefundPeriod" min="1" max="30" value="7">
+                            <small class="text-muted">Number of days after delivery for refund eligibility</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Refund Type</label>
+                            <select id="productRefundType">
+                                <option value="use_shop_default">Use Shop Default Policy</option>
+                                <option value="full_refund">Full Refund</option>
+                                <option value="partial_refund">Partial Refund</option>
+                                <option value="store_credit">Store Credit Only</option>
+                                <option value="no_refund">No Refund</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Special Conditions (Optional)</label>
+                            <textarea id="productRefundConditions" rows="2" placeholder="e.g., Non-returnable if opened, sealed items only..."></textarea>
+                            <small class="text-muted">Leave empty to use shop default conditions</small>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Image Upload Section -->
@@ -2581,6 +2810,13 @@
                     closeTime: '21:00',
                     deliveryType: 'both',
                     couponEnabled: false, // Default coupon disabled
+                    couponSettings: null, // No coupon settings by default
+                    refundPolicy: {
+                        available: true,
+                        period: 7,
+                        type: 'full_refund',
+                        conditions: 'Within 7 days of delivery, product must be unopened and in original condition'
+                    },
                     status: 'open',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2865,6 +3101,21 @@
                 // Use the uploaded image
                 const productImage = product.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
 
+                // Check refund availability
+                const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
+                const refundType = product.refundType || 'use_shop_default';
+                const refundConditions = product.refundConditions || '';
+                
+                // Determine refund badge
+                let refundBadge = '';
+                if (!refundAvailable) {
+                    refundBadge = '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">No Refund</span>';
+                } else if (refundType === 'no_refund') {
+                    refundBadge = '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">Non-Returnable</span>';
+                } else {
+                    refundBadge = '<span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">Refund Available</span>';
+                }
+
                 productsHtml += `
                     <div class="product-card">
                         <div class="product-image-container">
@@ -2873,7 +3124,7 @@
                             <span class="product-badge">${product.category || 'Product'}</span>
                         </div>
                         <div class="product-details">
-                            <h3 class="product-title">${product.name}</h3>
+                            <h3 class="product-title">${product.name} ${refundBadge}</h3>
                             
                             <div class="product-price-row">
                                 <span class="product-price">₹${parseFloat(product.price || 0).toFixed(2)}</span>
@@ -2888,6 +3139,9 @@
                             </div>
                             
                             ${product.description ? `<p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">${product.description.substring(0, 60)}${product.description.length > 60 ? '...' : ''}</p>` : ''}
+                            
+                            <!-- Show refund info if available -->
+                            ${refundConditions ? `<p style="color: #f39c12; font-size: 0.8rem; margin-top: 0.5rem;"><i class="fas fa-info-circle"></i> ${refundConditions.substring(0, 50)}${refundConditions.length > 50 ? '...' : ''}</p>` : ''}
                             
                             <div class="product-actions">
                                 <button class="btn-edit-product" onclick="editProduct('${product.id}')">
@@ -2917,6 +3171,15 @@
             document.getElementById('uploadProgress').style.display = 'none';
             uploadedImageFile = null;
             
+            // Set default refund values
+            document.getElementById('productRefundAvailable').checked = true;
+            document.getElementById('productRefundPeriod').value = 7;
+            document.getElementById('productRefundType').value = 'use_shop_default';
+            document.getElementById('productRefundConditions').value = '';
+            
+            // Show refund details by default
+            document.getElementById('productRefundDetails').style.display = 'block';
+            
             // Reset to URL tab
             switchImageTab('url');
             
@@ -2939,6 +3202,16 @@
             document.getElementById('productMrp').value = product.mrp || '';
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productDescription').value = product.description || '';
+            
+            // Set refund values
+            const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
+            document.getElementById('productRefundAvailable').checked = refundAvailable;
+            document.getElementById('productRefundPeriod').value = product.refundPeriod || 7;
+            document.getElementById('productRefundType').value = product.refundType || 'use_shop_default';
+            document.getElementById('productRefundConditions').value = product.refundConditions || '';
+            
+            // Show/hide refund details
+            document.getElementById('productRefundDetails').style.display = refundAvailable ? 'block' : 'none';
             
             // Check if image exists
             if (product.image) {
@@ -3010,6 +3283,12 @@
                 imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
             }
             
+            // Get refund settings
+            const refundAvailable = document.getElementById('productRefundAvailable').checked;
+            const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
+            const refundType = document.getElementById('productRefundType').value;
+            const refundConditions = document.getElementById('productRefundConditions').value.trim();
+            
             const productData = {
                 name: productName,
                 category: document.getElementById('productCategory').value,
@@ -3020,6 +3299,10 @@
                 image: imageUrl,
                 shopId: currentShop.id,
                 shopName: currentShop.name,
+                refundAvailable: refundAvailable,
+                refundPeriod: refundAvailable ? refundPeriod : null,
+                refundType: refundAvailable ? refundType : null,
+                refundConditions: refundAvailable ? refundConditions : '',
                 isAvailable: true,
                 status: 'active',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3075,6 +3358,7 @@
                 orders = [];
                 
                 try {
+                    // FIXED: Query orders using shopId field directly
                     const allOrdersSnapshot = await db.collection('orders')
                         .where('shopId', '==', currentShop.id)
                         .orderBy('createdAt', 'desc')
@@ -3102,6 +3386,42 @@
                     });
                 } catch (error) {
                     console.log('Query error:', error.message);
+                    
+                    // Alternative query without orderBy
+                    try {
+                        const allOrdersSnapshot = await db.collection('orders')
+                            .where('shopId', '==', currentShop.id)
+                            .get();
+                        
+                        allOrdersSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            
+                            if (data.shopId === currentShop.id) {
+                                const orderIdFromCustomer = data.orderId || doc.id;
+                                const customerId = data.customerId || data.userId || (data.user && data.user.id);
+                                
+                                if (!orders.find(o => o.firestoreId === doc.id)) {
+                                    orders.push({ 
+                                        id: orderIdFromCustomer,
+                                        firestoreId: doc.id,
+                                        customerId: customerId,
+                                        ...data,
+                                        shortId: generateShortOrderId(orderIdFromCustomer)
+                                    });
+                                }
+                            }
+                        });
+                        
+                        // Sort manually by date
+                        orders.sort((a, b) => {
+                            const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0);
+                            const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0);
+                            return dateB - dateA;
+                        });
+                        
+                    } catch (secondError) {
+                        console.error('Alternative query also failed:', secondError);
+                    }
                 }
                 
                 // Load refund status for each order
@@ -3369,6 +3689,13 @@
                         orderAmount = order.total || order.totalAmount || 0;
                     }
                     
+                    // Check coupon usage
+                    let couponBadge = '';
+                    if (order.couponCode) {
+                        const couponDiscount = order.couponDiscount || 0;
+                        couponBadge = ` <span class="badge bg-info" title="Coupon: ${order.couponCode}, Discount: ₹${couponDiscount.toFixed(2)}">Coupon Applied</span>`;
+                    }
+                    
                     // Action buttons - FIXED FOR PICKUP/DELIVERY DIFFERENCES
                     let actionButtons = '';
                     const firestoreId = order.firestoreId || order.id;
@@ -3495,7 +3822,7 @@
                         <tr data-order-id="${order.id}" class="${order.status === 'pending' ? 'table-warning' : ''}">
                             <td>
                                 <strong title="Full ID: ${order.id}">#${order.shortId || generateShortOrderId(order.id)}</strong>
-                                ${partialBadge}
+                                ${partialBadge}${couponBadge}
                             </td>
                             <td>
                                 <div><strong>${customerName}</strong></div>
@@ -3741,6 +4068,27 @@
                     orderAmount = order.total || order.totalAmount || 0;
                 }
                 
+                // Coupon info
+                let couponInfoHtml = '';
+                if (order.couponCode) {
+                    const couponDiscount = order.couponDiscount || 0;
+                    const subtotal = order.subtotal || orderAmount + couponDiscount;
+                    
+                    couponInfoHtml = `
+                        <div class="order-info-item">
+                            <div class="order-info-label">Coupon Applied:</div>
+                            <div class="order-info-value">
+                                <span class="badge bg-info">${order.couponCode}</span>
+                                <span class="text-success">-₹${couponDiscount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="order-info-item">
+                            <div class="order-info-label">Subtotal:</div>
+                            <div class="order-info-value">₹${subtotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+                
                 // Partial order info
                 let partialInfoHtml = '';
                 if (order.isPartialOrder) {
@@ -3816,6 +4164,7 @@
                                     </div>
                                 </div>
                                 ${serviceTypeHtml}
+                                ${couponInfoHtml}
                                 <div class="order-info-item">
                                     <div class="order-info-label">Payment Method:</div>
                                     <div class="order-info-value">${paymentMethodText}</div>
@@ -3863,6 +4212,12 @@
                             <h4><i class="fas fa-shopping-cart"></i> Order Items</h4>
                             ${itemsHtml}
                             <div class="order-total">
+                                ${order.couponCode ? `
+                                    <div style="margin-bottom: 0.5rem;">
+                                        <span style="color: #666;">Subtotal: ₹${(order.subtotal || orderAmount + (order.couponDiscount || 0)).toFixed(2)}</span>
+                                        <div style="color: #27ae60;">Coupon Discount: -₹${(order.couponDiscount || 0).toFixed(2)}</div>
+                                    </div>
+                                ` : ''}
                                 <div class="total-amount">Total: ₹${orderAmount.toFixed(2)}</div>
                             </div>
                         </div>
@@ -4925,7 +5280,9 @@
             }
         }
 
-        // Profile Management
+        // ==================== PROFILE MANAGEMENT FUNCTIONS ====================
+        
+        // Update profile form with current shop data
         function updateProfileForm() {
             if (!currentShop) return;
             
@@ -4944,6 +5301,35 @@
             couponStatusLabel.textContent = currentShop.couponEnabled ? 
                 'Coupon System: Enabled' : 'Coupon System: Disabled';
             
+            // Update coupon form
+            if (currentShop.couponSettings) {
+                document.getElementById('couponCode').value = currentShop.couponSettings.code || '';
+                document.getElementById('couponType').value = currentShop.couponSettings.type || 'percentage';
+                document.getElementById('couponValue').value = currentShop.couponSettings.value || '';
+                document.getElementById('couponMinAmount').value = currentShop.couponSettings.minAmount || '';
+                document.getElementById('couponMaxDiscount').value = currentShop.couponSettings.maxDiscount || '';
+                document.getElementById('couponExpiry').value = currentShop.couponSettings.expiry || '';
+                document.getElementById('couponMaxUses').value = currentShop.couponSettings.maxUses || '';
+                document.getElementById('couponActive').value = currentShop.couponSettings.active ? 'true' : 'false';
+                document.getElementById('couponDescription').value = currentShop.couponSettings.description || '';
+                
+                // Show coupon form if enabled
+                toggleCouponForm();
+            }
+            
+            // Update refund policy
+            if (currentShop.refundPolicy) {
+                document.getElementById('refundAvailable').checked = currentShop.refundPolicy.available || true;
+                document.getElementById('refundPeriod').value = currentShop.refundPolicy.period || 7;
+                document.getElementById('refundType').value = currentShop.refundPolicy.type || 'full_refund';
+                document.getElementById('refundConditions').value = currentShop.refundPolicy.conditions || 'Within 7 days of delivery, product must be unopened and in original condition';
+                document.getElementById('refundConditionText').textContent = currentShop.refundPolicy.conditions || 'Within 7 days of delivery, product must be unopened and in original condition';
+                
+                // Show/hide refund details
+                const refundDetailsSection = document.getElementById('refundDetailsSection');
+                refundDetailsSection.style.display = currentShop.refundPolicy.available ? 'block' : 'none';
+            }
+            
             const serviceOptions = document.querySelectorAll('.service-option');
             serviceOptions.forEach(option => {
                 option.classList.remove('active');
@@ -4953,6 +5339,165 @@
             });
         }
 
+        // Toggle coupon form visibility
+        function toggleCouponForm() {
+            const couponEnabled = document.getElementById('couponEnabled').checked;
+            const couponFormSection = document.getElementById('couponFormSection');
+            const couponStatusLabel = document.getElementById('couponStatusLabel');
+            
+            couponStatusLabel.textContent = couponEnabled ? 
+                'Coupon System: Enabled' : 'Coupon System: Disabled';
+            
+            if (couponEnabled) {
+                couponFormSection.classList.add('active');
+            } else {
+                couponFormSection.classList.remove('active');
+            }
+        }
+
+        // Clear coupon form
+        function clearCouponForm() {
+            document.getElementById('couponCode').value = '';
+            document.getElementById('couponType').value = 'percentage';
+            document.getElementById('couponValue').value = '';
+            document.getElementById('couponMinAmount').value = '';
+            document.getElementById('couponMaxDiscount').value = '';
+            document.getElementById('couponExpiry').value = '';
+            document.getElementById('couponMaxUses').value = '';
+            document.getElementById('couponActive').value = 'true';
+            document.getElementById('couponDescription').value = '';
+            
+            showToast('Coupon form cleared', 'info');
+        }
+
+        // Save coupon settings
+        async function saveCouponSettings() {
+            const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+            const couponType = document.getElementById('couponType').value;
+            const couponValue = parseFloat(document.getElementById('couponValue').value);
+            const couponMinAmount = parseFloat(document.getElementById('couponMinAmount').value) || 0;
+            const couponMaxDiscount = parseFloat(document.getElementById('couponMaxDiscount').value) || 0;
+            const couponExpiry = document.getElementById('couponExpiry').value;
+            const couponMaxUses = parseInt(document.getElementById('couponMaxUses').value) || 0;
+            const couponActive = document.getElementById('couponActive').value === 'true';
+            const couponDescription = document.getElementById('couponDescription').value.trim();
+            
+            // Validation
+            if (!couponCode) {
+                showToast('Please enter coupon code', 'error');
+                return;
+            }
+            
+            if (couponCode.length < 3 || couponCode.length > 10) {
+                showToast('Coupon code must be 3-10 characters', 'error');
+                return;
+            }
+            
+            if (isNaN(couponValue) || couponValue <= 0) {
+                showToast('Please enter a valid discount value', 'error');
+                return;
+            }
+            
+            if (couponType === 'percentage' && (couponValue < 1 || couponValue > 100)) {
+                showToast('Percentage discount must be between 1-100%', 'error');
+                return;
+            }
+            
+            // Check if coupon expiry date is valid
+            if (couponExpiry) {
+                const expiryDate = new Date(couponExpiry);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (expiryDate < today) {
+                    showToast('Expiry date cannot be in the past', 'error');
+                    return;
+                }
+            }
+            
+            const couponSettings = {
+                code: couponCode,
+                type: couponType,
+                value: couponValue,
+                minAmount: couponMinAmount,
+                maxDiscount: couponMaxDiscount,
+                expiry: couponExpiry || null,
+                maxUses: couponMaxUses,
+                active: couponActive,
+                description: couponDescription,
+                usesCount: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                showLoading(true);
+                
+                await db.collection('shops').doc(currentShop.id).update({
+                    couponEnabled: true,
+                    couponSettings: couponSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                currentShop.couponEnabled = true;
+                currentShop.couponSettings = couponSettings;
+                
+                showToast('Coupon settings saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving coupon settings:', error);
+                showToast('Error saving coupon settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save refund policy
+        async function saveRefundPolicy() {
+            const refundAvailable = document.getElementById('refundAvailable').checked;
+            const refundPeriod = parseInt(document.getElementById('refundPeriod').value) || 7;
+            const refundType = document.getElementById('refundType').value;
+            const refundConditions = document.getElementById('refundConditions').value.trim();
+            
+            if (refundAvailable && !refundConditions) {
+                showToast('Please enter refund conditions', 'error');
+                return;
+            }
+            
+            const refundPolicy = {
+                available: refundAvailable,
+                period: refundPeriod,
+                type: refundType,
+                conditions: refundConditions,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            try {
+                showLoading(true);
+                
+                await db.collection('shops').doc(currentShop.id).update({
+                    refundPolicy: refundPolicy,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                currentShop.refundPolicy = refundPolicy;
+                document.getElementById('refundConditionText').textContent = refundConditions;
+                
+                // Show/hide refund details section
+                const refundDetailsSection = document.getElementById('refundDetailsSection');
+                refundDetailsSection.style.display = refundAvailable ? 'block' : 'none';
+                
+                showToast('Refund policy saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving refund policy:', error);
+                showToast('Error saving refund policy: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Handle profile form submission
         async function handleProfileUpdate(event) {
             event.preventDefault();
             
@@ -4973,6 +5518,11 @@
             if (!profileData.name || !profileData.address || !profileData.phone) {
                 showToast('Please fill all required fields', 'error');
                 return;
+            }
+            
+            // If coupon is disabled, remove coupon settings
+            if (!profileData.couponEnabled && currentShop.couponSettings) {
+                profileData.couponSettings = null;
             }
             
             try {
@@ -5006,6 +5556,21 @@
                     this.classList.add('active');
                 });
             });
+            
+            // Setup refund checkbox change handler
+            document.getElementById('refundAvailable').addEventListener('change', function() {
+                const refundDetailsSection = document.getElementById('refundDetailsSection');
+                refundDetailsSection.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Setup product refund checkbox change handler
+            const productRefundCheckbox = document.getElementById('productRefundAvailable');
+            if (productRefundCheckbox) {
+                productRefundCheckbox.addEventListener('change', function() {
+                    const productRefundDetails = document.getElementById('productRefundDetails');
+                    productRefundDetails.style.display = this.checked ? 'block' : 'none';
+                });
+            }
         }
 
         // Utility Functions

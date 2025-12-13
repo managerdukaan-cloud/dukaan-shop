@@ -3511,7 +3511,14 @@
                     currentShopConfig.upiSettings = upiSettings;
                 }
                 
-                showToast('Payment settings saved successfully!', 'success');
+                // Also update main shop document
+                await db.collection('shops').doc(currentShop.id).update({
+                    upiId: upiSettings.upiId,
+                    qrCodeImage: upiSettings.qrCodeImage,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showSettingsSavedMessage('Payment settings saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving UPI settings:', error);
@@ -3575,7 +3582,7 @@
                     currentShopConfig.couponSettings = couponSettings;
                 }
                 
-                showToast('Coupon settings saved successfully! Synced with customer app.', 'success');
+                showSettingsSavedMessage('Coupon settings saved successfully! Synced with customer app.');
                 
             } catch (error) {
                 console.error('Error saving coupon settings:', error);
@@ -3616,7 +3623,15 @@
                     currentShopConfig.restrictions = restrictions;
                 }
                 
-                showToast('Restrictions saved successfully!', 'success');
+                // Update main shop document
+                await db.collection('shops').doc(currentShop.id).update({
+                    minOrderAmount: restrictions.minOrderAmount,
+                    maxOrderDistance: restrictions.maxOrderDistance,
+                    deliveryHours: restrictions.deliveryHours,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showSettingsSavedMessage('Restrictions saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving restrictions:', error);
@@ -3657,7 +3672,7 @@
                     currentShopConfig.orderSettings = orderSettings;
                 }
                 
-                showToast('Order settings saved successfully!', 'success');
+                showSettingsSavedMessage('Order settings saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving order settings:', error);
@@ -3703,7 +3718,7 @@
                     minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0
                 });
                 
-                showToast('Settings synced with customer app!', 'success');
+                showSettingsSavedMessage('Settings synced with customer app!');
                 
             } catch (error) {
                 console.error('Error syncing shop config:', error);
@@ -3740,7 +3755,7 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showToast('Data exported successfully!', 'success');
+                showSettingsSavedMessage('Data exported successfully!');
                 
             } catch (error) {
                 console.error('Error exporting data:', error);
@@ -3760,7 +3775,7 @@
                 showLoading(true);
                 
                 await createDefaultShopConfig(currentShop.id);
-                showToast('Settings reset to defaults!', 'success');
+                showSettingsSavedMessage('Settings reset to defaults!');
                 
             } catch (error) {
                 console.error('Error resetting settings:', error);
@@ -3768,6 +3783,57 @@
             } finally {
                 showLoading(false);
             }
+        }
+
+        // Show settings saved message with animation
+        function showSettingsSavedMessage(message) {
+            // Create a special success message
+            const successMessage = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #28a745, #20c997);
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+                    z-index: 4000;
+                    animation: settingsSaved 2s ease-in-out;
+                    text-align: center;
+                    min-width: 300px;
+                ">
+                    <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <h3 style="margin: 0 0 10px 0;">✅ Settings Saved!</h3>
+                    <p style="margin: 0; font-size: 1rem;">${message}</p>
+                </div>
+            `;
+            
+            // Add animation style
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes settingsSaved {
+                    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+                    40% { transform: translate(-50%, -50%) scale(1); }
+                    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Show message
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = successMessage;
+            document.body.appendChild(messageDiv);
+            
+            // Remove after animation
+            setTimeout(() => {
+                messageDiv.remove();
+                style.remove();
+                showToast(message, 'success');
+            }, 2000);
         }
 
         // Authentication
@@ -5863,7 +5929,7 @@
                     refundsHtml += `
                         <tr>
                             <td><strong>${refund.shortId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</strong></td>
-                            <td>${refund.orderId || 'N/A'}</td>
+                            <td>${refund.orderId}</td>
                             <td>${refund.customerName}</td>
                             <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
                             <td>${refund.reason || 'No reason specified'}</td>
@@ -6635,7 +6701,9 @@
                 showLoading(true);
                 await db.collection('shops').doc(currentShop.id).update(profileData);
                 currentShop = { ...currentShop, ...profileData };
-                showToast('Profile updated successfully!', 'success');
+                
+                // Show success message
+                showSettingsSavedMessage('Profile updated successfully!');
                     
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -6689,7 +6757,7 @@
                 saveUPISettings();
             });
             
-                        // Restrictions form
+            // Restrictions form
             document.getElementById('restrictionsForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 saveRestrictions();
@@ -7373,7 +7441,7 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showToast(`${exportData.exportType} data exported successfully!`, 'success');
+                showSettingsSavedMessage(`${exportData.exportType} data exported successfully!`);
                 
             } catch (error) {
                 console.error('Error exporting data:', error);

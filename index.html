@@ -2728,84 +2728,73 @@
         }
 
         // Initialize Cloudinary Widget
-        function initializeCloudinaryWidget() {
-            try {
-                cloudinaryWidget = cloudinary.createUploadWidget(
-    cloudinaryConfig,
-    (error, result) => {
-        console.log('🔍 Cloudinary Response:', { error, result });
-        
-        if (error) {
-            console.error('❌ Cloudinary Error:', error);
-            console.error('❌ Error Status:', error.status);
-            console.error('❌ Error Message:', error.message);
-            
-            // Show detailed error to user
-            alert('Cloudinary Upload Error:\n\n' + 
-                  'Status: ' + (error.status || 'Unknown') + '\n' +
-                  'Message: ' + (error.message || 'Please check Cloudinary configuration') + '\n\n' +
-                  'Possible issues:\n' +
-                  '1. Upload preset not found\n' +
-                  '2. Upload preset not set to "Unsigned"\n' +
-                  '3. Cloud name incorrect');
-            return;
-        }
-        
-        if (result && result.event === "success") {
-            console.log('✅ Cloudinary Success!');
-            console.log('📸 Image URL:', result.info.secure_url);
-            console.log('🆔 Public ID:', result.info.public_id);
-            
-            const imageUrl = result.info.secure_url;
-            document.getElementById('cloudinaryImageUrl').value = imageUrl;
-            
-            const preview = document.getElementById('cloudinaryImagePreview');
-            preview.src = imageUrl;
-            preview.style.display = 'block';
-            
-            document.getElementById('cloudinaryImageInfo').style.display = 'block';
-            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-            
-            showToast('✅ Image uploaded to Cloudinary successfully!', 'success');
-        }
-        
-        if (result && result.event === "close") {
-            console.log('📌 Cloudinary widget closed');
-            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-        }
-    }
-);
-                            
-                            // Also update the URL input for consistency
-                            document.getElementById('productImage').value = imageUrl;
-                            
-                            showToast('Image uploaded to Cloudinary successfully!', 'success');
-                        }
-                        
-                        if (error) {
-                            console.error('Cloudinary upload error:', error);
-                            showToast('Image upload failed: ' + error.message, 'error');
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                        }
-                        
-                        if (result && result.event === "close") {
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                        }
-                        
-                        if (result && result.event === "queues-start") {
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                        }
-                    }
-                );
+function initializeCloudinaryWidget() {
+    try {
+        cloudinaryWidget = cloudinary.createUploadWidget(
+            cloudinaryConfig,
+            (error, result) => {
+                console.log('🔍 Cloudinary Response:', { error, result });
                 
-            } catch (error) {
-                console.error('Error initializing Cloudinary widget:', error);
-                showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
+                if (error) {
+                    console.error('❌ Cloudinary Error:', error);
+                    console.error('❌ Error Status:', error.status);
+                    console.error('❌ Error Message:', error.message);
+                    
+                    // Show detailed error to user
+                    alert('Cloudinary Upload Error:\n\n' + 
+                          'Status: ' + (error.status || 'Unknown') + '\n' +
+                          'Message: ' + (error.message || 'Please check Cloudinary configuration') + '\n\n' +
+                          'Possible issues:\n' +
+                          '1. Upload preset not found\n' +
+                          '2. Upload preset not set to "Unsigned"\n' +
+                          '3. Cloud name incorrect');
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                    return;
+                }
+                
+                if (result && result.event === "queues-start") {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                }
+                
+                if (result && result.event === "success") {
+                    console.log('✅ Cloudinary Success!');
+                    console.log('📸 Image URL:', result.info.secure_url);
+                    console.log('🆔 Public ID:', result.info.public_id);
+                    
+                    const imageUrl = result.info.secure_url;
+                    
+                    // Set the image URL in the form
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    
+                    // Also update the URL input for consistency
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    // Show preview
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    // Show success message
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                    
+                    showToast('✅ Image uploaded to Cloudinary successfully!', 'success');
+                }
+                
+                if (result && result.event === "close") {
+                    console.log('📌 Cloudinary widget closed');
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                }
             }
-        }
+        );
+    } catch (error) {
+        console.error('Error initializing Cloudinary widget:', error);
+        showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
+    }
+}
 
-        // Open Cloudinary uploader
-        function openCloudinaryUploader() {
+// Open Cloudinary uploader
+function openCloudinaryUploader() {
     console.log('🚀 Opening Cloudinary Uploader...');
     console.log('☁️ Cloud Name:', cloudinaryConfig.cloudName);
     console.log('📝 Upload Preset:', cloudinaryConfig.uploadPreset);

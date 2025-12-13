@@ -6689,4 +6689,760 @@
                 saveUPISettings();
             });
             
-            // Restricti
+                        // Restrictions form
+            document.getElementById('restrictionsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveRestrictions();
+            });
+            
+            // Order settings form
+            document.getElementById('orderSettingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveOrderSettings();
+            });
+            
+            // Navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        navigateToPage(page);
+                    }
+                });
+            });
+            
+            // Quick actions toolbar
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.quick-action-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+            
+            // Category selection handlers
+            document.getElementById('shopCategory').addEventListener('change', function() {
+                const newCategoryInput = document.getElementById('newCategoryInput');
+                if (this.value === 'other') {
+                    newCategoryInput.style.display = 'block';
+                } else {
+                    newCategoryInput.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('productCategory').addEventListener('change', function() {
+                const customCategoryInput = document.getElementById('customCategoryInput');
+                if (this.value === 'other') {
+                    customCategoryInput.style.display = 'block';
+                } else {
+                    customCategoryInput.style.display = 'none';
+                }
+            });
+            
+            // Product search functionality
+            const productSearch = document.getElementById('productSearch');
+            if (productSearch) {
+                productSearch.addEventListener('input', debounce(function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    if (!searchTerm) {
+                        renderProducts();
+                        return;
+                    }
+                    
+                    const filteredProducts = products.filter(product => {
+                        return (
+                            product.name.toLowerCase().includes(searchTerm) ||
+                            (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                            (product.category && product.category.toLowerCase().includes(searchTerm)) ||
+                            (product.price && product.price.toString().includes(searchTerm))
+                        );
+                    });
+                    
+                    renderFilteredProducts(filteredProducts, searchTerm);
+                }, 300));
+            }
+            
+            // Product form submission
+            document.getElementById('productForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProduct();
+            });
+            
+            // Refund form submission
+            document.getElementById('refundForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitRefund();
+            });
+            
+            // Setup service options
+            setupServiceOptions();
+            
+            // Setup checkbox event listeners for settings
+            setupSettingsCheckboxes();
+            
+            // Initialize cloudinary widget
+            setTimeout(() => {
+                if (typeof cloudinary !== 'undefined') {
+                    initializeCloudinaryWidget();
+                }
+            }, 1000);
+            
+            // Setup auto-save indicators
+            setupAutoSaveIndicators();
+            
+            // Check for updates periodically
+            setInterval(checkForUpdates, 60000); // Every minute
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+        });
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Render filtered products
+        function renderFilteredProducts(filteredProducts, searchTerm) {
+            const productsList = document.getElementById('productsList');
+            
+            if (filteredProducts.length === 0) {
+                productsList.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-search" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3 style="color: #666; margin-bottom: 1rem;">No Products Found</h3>
+                        <p style="color: #999; margin-bottom: 1rem;">No products match your search: "${searchTerm}"</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button class="btn btn-primary" onclick="document.getElementById('productSearch').value=''; loadProducts();">
+                                <i class="fas fa-undo"></i> Clear Search
+                            </button>
+                            <button class="btn btn-outline" onclick="showAddProductModal()">
+                                <i class="fas fa-plus"></i> Add New Product
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let productsHtml = '';
+            filteredProducts.forEach((product) => {
+                let stockClass = 'in-stock';
+                let stockText = '';
+                let stockIcon = 'check-circle';
+                
+                if (product.stock > 10) {
+                    stockClass = 'in-stock';
+                    stockText = `${product.stock} in stock`;
+                    stockIcon = 'check-circle';
+                } else if (product.stock > 0) {
+                    stockClass = 'low-stock';
+                    stockText = `Low stock (${product.stock})`;
+                    stockIcon = 'exclamation-circle';
+                } else {
+                    stockClass = 'out-of-stock';
+                    stockText = 'Out of stock';
+                    stockIcon = 'times-circle';
+                }
+
+                let discountBadge = '';
+                if (product.mrp && product.mrp > product.price) {
+                    const discountPercent = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+                    if (discountPercent > 0) {
+                        discountBadge = `<span class="product-discount">${discountPercent}% OFF</span>`;
+                    }
+                }
+
+                const productImage = product.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+
+                const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
+                const refundType = product.refundType || 'use_shop_default';
+                const refundConditions = product.refundConditions || '';
+                
+                let refundBadge = '';
+                if (!refundAvailable) {
+                    refundBadge = '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">No Refund</span>';
+                } else if (refundType === 'no_refund') {
+                    refundBadge = '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">Non-Returnable</span>';
+                } else {
+                    refundBadge = '<span style="background: #27ae60; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">Refund Available</span>';
+                }
+
+                // Highlight search term in product name
+                let productName = product.name;
+                if (searchTerm) {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    productName = productName.replace(regex, '<mark>$1</mark>');
+                }
+
+                productsHtml += `
+                    <div class="product-card">
+                        <div class="product-image-container">
+                            <img src="${productImage}" 
+                                 alt="${product.name}" class="product-image">
+                            <span class="product-badge">${product.category || 'Product'}</span>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">${productName} ${refundBadge}</h3>
+                            
+                            <div class="product-price-row">
+                                <span class="product-price">₹${parseFloat(product.price || 0).toFixed(2)}</span>
+                                ${product.mrp && product.mrp > product.price ? 
+                                    `<span class="product-mrp">₹${parseFloat(product.mrp).toFixed(2)}</span>` : ''}
+                                ${discountBadge}
+                            </div>
+                            
+                            <div class="product-stock ${stockClass}">
+                                <i class="fas fa-${stockIcon}"></i>
+                                ${stockText}
+                            </div>
+                            
+                            ${product.description ? `
+                                <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">
+                                    ${searchTerm ? highlightSearchTerm(product.description, searchTerm) : product.description.substring(0, 60)}
+                                    ${product.description.length > 60 ? '...' : ''}
+                                </p>
+                            ` : ''}
+                            
+                            ${refundConditions ? `
+                                <p style="color: #f39c12; font-size: 0.8rem; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    ${searchTerm ? highlightSearchTerm(refundConditions, searchTerm) : refundConditions.substring(0, 50)}
+                                    ${refundConditions.length > 50 ? '...' : ''}
+                                </p>
+                            ` : ''}
+                            
+                            <div class="product-actions">
+                                <button class="btn-edit-product" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-add-product" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            productsList.innerHTML = productsHtml;
+            
+            // Add search result count
+            const searchHeader = document.querySelector('#productsPage h2');
+            if (searchHeader) {
+                const originalText = 'Product Management';
+                searchHeader.innerHTML = `${originalText} <span class="badge bg-info">${filteredProducts.length} results for "${searchTerm}"</span>`;
+            }
+        }
+
+        // Highlight search term in text
+        function highlightSearchTerm(text, searchTerm) {
+            if (!text || !searchTerm) return text;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.substring(0, 100).replace(regex, '<mark>$1</mark>');
+        }
+
+        // Setup settings checkboxes with proper event handling
+        function setupSettingsCheckboxes() {
+            // Payment method checkboxes
+            const paymentCheckboxes = document.querySelectorAll('#upiSettingsForm .form-check-input');
+            paymentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const form = document.getElementById('upiSettingsForm');
+                    form.classList.add('unsaved-changes');
+                    showToast('Payment method changes detected. Click "Save Payment Settings" to save.', 'info');
+                });
+            });
+            
+            // Order settings checkboxes
+            const orderCheckboxes = document.querySelectorAll('#orderSettingsForm .form-check-input');
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const form = document.getElementById('orderSettingsForm');
+                    form.classList.add('unsaved-changes');
+                    showToast('Order settings changes detected. Click "Save Order Settings" to save.', 'info');
+                });
+            });
+            
+            // Toggle switches
+            const toggleSwitches = document.querySelectorAll('.toggle-switch input');
+            toggleSwitches.forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const parentCard = this.closest('.settings-card');
+                    if (parentCard) {
+                        parentCard.classList.add('unsaved-changes');
+                        showToast('Toggle setting changed. Click save button to apply.', 'info');
+                    }
+                });
+            });
+            
+            // Form inputs in settings
+            const settingInputs = document.querySelectorAll('.settings-card input, .settings-card select, .settings-card textarea');
+            settingInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const parentCard = this.closest('.settings-card');
+                    if (parentCard) {
+                        parentCard.classList.add('unsaved-changes');
+                        const saveBtn = parentCard.querySelector('.btn-primary');
+                        if (saveBtn) {
+                            saveBtn.classList.add('btn-warning');
+                            saveBtn.classList.remove('btn-primary');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Setup auto-save indicators
+        function setupAutoSaveIndicators() {
+            // Add CSS for unsaved changes indicator
+            const style = document.createElement('style');
+            style.textContent = `
+                .settings-card.unsaved-changes {
+                    border-left-color: #ffc107;
+                    animation: pulse 2s infinite;
+                }
+                @keyframes pulse {
+                    0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+                    70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+                }
+                .btn-warning {
+                    background: linear-gradient(135deg, #ffc107, #e0a800);
+                    color: #212529;
+                    border: none;
+                }
+                .btn-warning:hover {
+                    background: linear-gradient(135deg, #e0a800, #d39e00);
+                    transform: translateY(-2px);
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Reset unsaved changes indicator when saved
+            window.addEventListener('settingsSaved', function() {
+                document.querySelectorAll('.settings-card').forEach(card => {
+                    card.classList.remove('unsaved-changes');
+                    const saveBtn = card.querySelector('.btn-primary, .btn-warning');
+                    if (saveBtn) {
+                        saveBtn.classList.remove('btn-warning');
+                        saveBtn.classList.add('btn-primary');
+                    }
+                });
+            });
+        }
+
+        // Check for updates periodically
+        async function checkForUpdates() {
+            if (!currentShop || !isOnline) return;
+            
+            try {
+                // Check for new orders
+                const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
+                const newPendingOrders = await getNewPendingOrdersCount();
+                
+                if (newPendingOrders > pendingOrdersCount) {
+                    showNotification('📦 New Orders', `You have ${newPendingOrders - pendingOrdersCount} new pending orders!`);
+                    playNotificationSound();
+                    loadOrders();
+                }
+                
+                // Check for new refunds
+                const pendingRefundsCount = refunds.filter(r => r.status === 'pending').length;
+                const newPendingRefunds = await getNewPendingRefundsCount();
+                
+                if (newPendingRefunds > pendingRefundsCount) {
+                    showNotification('🔄 New Refunds', `You have ${newPendingRefunds - pendingRefundsCount} new refund requests!`);
+                    loadRefunds();
+                }
+                
+                // Update dashboard
+                loadDashboardData();
+                
+            } catch (error) {
+                console.log('Update check error:', error);
+            }
+        }
+
+        async function getNewPendingOrdersCount() {
+            try {
+                const snapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .where('status', '==', 'pending')
+                    .get();
+                return snapshot.size;
+            } catch (error) {
+                return orders.filter(o => o.status === 'pending').length;
+            }
+        }
+
+        async function getNewPendingRefundsCount() {
+            try {
+                const snapshot = await db.collection('refunds')
+                    .where('shopId', '==', currentShop.id)
+                    .where('status', '==', 'pending')
+                    .get();
+                return snapshot.size;
+            } catch (error) {
+                return refunds.filter(r => r.status === 'pending').length;
+            }
+        }
+
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + S to save current form
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    
+                    // Check which page is active
+                    const activePage = document.querySelector('.content-page.active');
+                    if (!activePage) return;
+                    
+                    const pageId = activePage.id;
+                    
+                    switch(pageId) {
+                        case 'productsPage':
+                            const productModal = document.getElementById('productModal');
+                            if (productModal.classList.contains('active')) {
+                                saveProduct();
+                            }
+                            break;
+                            
+                        case 'settingsPage':
+                            // Find which settings card has unsaved changes
+                            const unsavedCard = document.querySelector('.settings-card.unsaved-changes');
+                            if (unsavedCard) {
+                                const saveBtn = unsavedCard.querySelector('.btn-primary, .btn-warning');
+                                if (saveBtn) {
+                                    saveBtn.click();
+                                }
+                            }
+                            break;
+                            
+                        case 'profilePage':
+                            document.getElementById('profileForm').dispatchEvent(new Event('submit'));
+                            break;
+                    }
+                }
+                
+                // Escape key to close modals
+                if (e.key === 'Escape') {
+                    const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
+                    if (activeModals.length > 0) {
+                        e.preventDefault();
+                        activeModals.forEach(modal => {
+                            const closeBtn = modal.querySelector('.close-modal');
+                            if (closeBtn) closeBtn.click();
+                        });
+                    }
+                }
+                
+                // F5 to refresh current page data
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    const activePage = document.querySelector('.content-page.active');
+                    if (activePage) {
+                        const pageId = activePage.id;
+                        switch(pageId) {
+                            case 'dashboardPage':
+                                loadDashboardData();
+                                showToast('Dashboard refreshed', 'info');
+                                break;
+                            case 'productsPage':
+                                loadProducts();
+                                showToast('Products refreshed', 'info');
+                                break;
+                            case 'ordersPage':
+                                loadOrders();
+                                showToast('Orders refreshed', 'info');
+                                break;
+                            case 'refundsPage':
+                                loadRefunds();
+                                showToast('Refunds refreshed', 'info');
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper function to trigger settings saved event
+        function triggerSettingsSaved() {
+            window.dispatchEvent(new Event('settingsSaved'));
+        }
+
+        // Modified save functions to trigger event
+        const originalSaveUPISettings = saveUPISettings;
+        saveUPISettings = async function() {
+            await originalSaveUPISettings();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveCouponSettings = saveCouponSettings;
+        saveCouponSettings = async function() {
+            await originalSaveCouponSettings();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveRestrictions = saveRestrictions;
+        saveRestrictions = async function() {
+            await originalSaveRestrictions();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveOrderSettings = saveOrderSettings;
+        saveOrderSettings = async function() {
+            await originalSaveOrderSettings();
+            triggerSettingsSaved();
+        };
+
+        // Initialize the app when page loads
+        window.addEventListener('load', function() {
+            // Check if user is returning to the page
+            const returnToPage = localStorage.getItem('returnToPage');
+            if (returnToPage && auth.currentUser) {
+                navigateToPage(returnToPage);
+                localStorage.removeItem('returnToPage');
+            }
+            
+            // Save current page when navigating
+            document.querySelectorAll('.nav-links a, .quick-action-btn').forEach(link => {
+                link.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        localStorage.setItem('returnToPage', page);
+                    }
+                });
+            });
+            
+            // Initialize the main app
+            initApp();
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Add offline capabilities
+        function setupOfflineCapabilities() {
+            // Cache important resources
+            const cacheName = 'shopkeeper-panel-v1';
+            const urlsToCache = [
+                '/',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+                'https://cdn-icons-png.flaticon.com/512/3082/3082383.png'
+            ];
+
+            self.addEventListener('install', function(event) {
+                event.waitUntil(
+                    caches.open(cacheName)
+                        .then(function(cache) {
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(function(response) {
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request);
+                        })
+                );
+            });
+        }
+
+        // Enhanced showToast function with persistence
+        const originalShowToast = showToast;
+        showToast = function(message, type = 'success', duration = 5000) {
+            originalShowToast(message, type);
+            
+            // Store toast in localStorage for persistence
+            const toasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
+            toasts.push({ message, type, timestamp: Date.now() });
+            localStorage.setItem('pendingToasts', JSON.stringify(toasts.slice(-10))); // Keep last 10 toasts
+        };
+
+        // Show pending toasts on load
+        window.addEventListener('load', function() {
+            const pendingToasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
+            const currentTime = Date.now();
+            
+            pendingToasts.forEach(toast => {
+                // Show toasts from last 5 minutes
+                if (currentTime - toast.timestamp < 300000) {
+                    setTimeout(() => {
+                        originalShowToast(toast.message, toast.type);
+                    }, 100);
+                }
+            });
+            
+            localStorage.removeItem('pendingToasts');
+        });
+
+        // Export shop data with more options
+        async function exportShopDataWithOptions() {
+            if (!currentShop) return;
+            
+            const exportType = prompt('Select export type:\n1. Full Data (All)\n2. Products Only\n3. Orders Only\n4. Refunds Only', '1');
+            
+            if (!exportType) return;
+            
+            try {
+                showLoading(true);
+                
+                let exportData = {};
+                
+                switch(exportType) {
+                    case '1':
+                    case 'All':
+                        exportData = {
+                            shop: currentShop,
+                            config: currentShopConfig,
+                            products: products,
+                            orders: orders,
+                            refunds: refunds,
+                            exportType: 'full',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '2':
+                    case 'Products':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            products: products,
+                            exportType: 'products',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '3':
+                    case 'Orders':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            orders: orders,
+                            exportType: 'orders',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '4':
+                    case 'Refunds':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            refunds: refunds,
+                            exportType: 'refunds',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    default:
+                        showToast('Invalid export type selected', 'error');
+                        return;
+                }
+                
+                const jsonData = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `shop_export_${exportData.exportType}_${currentShop.id}_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`${exportData.exportType} data exported successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showToast('Error exporting data: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Replace original export function with enhanced version
+        window.exportShopData = exportShopDataWithOptions;
+
+        // Add confirmation before resetting settings
+        const originalResetSettings = resetSettings;
+        resetSettings = async function() {
+            const confirmation = confirm('⚠️ WARNING: This will reset ALL settings to defaults.\n\nThis includes:\n• Payment Settings\n• Coupon Settings\n• Shop Restrictions\n• Order Management Settings\n\nAre you absolutely sure? This cannot be undone.');
+            
+            if (!confirmation) return;
+            
+            const secondConfirmation = confirm('FINAL WARNING: This action will delete all your custom settings.\n\nType "RESET" to confirm:');
+            
+            if (!secondConfirmation) return;
+            
+            const userInput = prompt('Please type "RESET" (all caps) to confirm:');
+            if (userInput !== 'RESET') {
+                showToast('Reset cancelled', 'info');
+                return;
+            }
+            
+            await originalResetSettings();
+        };
+
+        // Enhanced logout with confirmation
+        const originalLogout = logout;
+        logout = function() {
+            if (confirm('Are you sure you want to logout?\n\nYou will need to login again to access your shop.')) {
+                // Save current page for return
+                const activePage = document.querySelector('.content-page.active');
+                if (activePage) {
+                    const pageId = activePage.id.replace('Page', '');
+                    localStorage.setItem('lastPage', pageId);
+                }
+                
+                originalLogout();
+            }
+        };
+
+        // Auto-logout after 30 minutes of inactivity
+        let logoutTimer;
+        function resetLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                if (auth.currentUser) {
+                    if (confirm('You have been inactive for 30 minutes. Would you like to stay logged in?')) {
+                        resetLogoutTimer();
+                    } else {
+                        logout();
+                    }
+                }
+            }, 30 * 60 * 1000); // 30 minutes
+        }
+
+        // Reset timer on user activity
+        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+            document.addEventListener(event, resetLogoutTimer);
+        });
+
+        // Initialize logout timer
+        resetLogoutTimer();
+    </script>
+</body>
+</html>

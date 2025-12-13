@@ -654,6 +654,11 @@
             background-color: #fff3cd;
         }
         
+        .status-out_for_delivery {
+            color: #856404;
+            background-color: #fff3cd;
+        }
+        
         .status-delivered {
             color: #155724;
             background-color: #d4edda;
@@ -1142,13 +1147,21 @@
             transition: width 0.3s ease;
         }
 
-        /* Coupon Management Styles */
-        .coupon-management-section {
+        /* Settings Page Styles */
+        .settings-section {
             margin: 2rem 0;
             padding: 1.5rem;
             background: #f8f9fa;
             border-radius: 10px;
             border-left: 4px solid var(--primary);
+        }
+
+        .settings-section h4 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .toggle-switch {
@@ -1211,7 +1224,7 @@
             font-size: 1.2rem;
         }
 
-        .coupon-description {
+        .settings-description {
             margin-top: 10px;
             padding: 10px;
             background: white;
@@ -1220,25 +1233,13 @@
             color: #666;
         }
 
-        .coupon-form-section {
+        .settings-form-section {
             margin-top: 1.5rem;
             padding: 1.5rem;
             background: white;
             border-radius: 10px;
             border: 2px dashed #ddd;
-            display: none;
-        }
-
-        .coupon-form-section.active {
             display: block;
-        }
-
-        .coupon-form-section h5 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .form-row {
@@ -1293,6 +1294,29 @@
             font-size: 0.85rem;
             color: #888;
             font-style: italic;
+        }
+
+        /* Order Items Status Control */
+        .order-item-status-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .order-item-status-control .item-info {
+            flex: 1;
+        }
+
+        .order-item-status-control select {
+            min-width: 150px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
 
         /* Mobile Responsive */
@@ -1627,6 +1651,62 @@
         .btn-info:hover {
             background: #138496;
         }
+
+        /* Settings Cards */
+        .settings-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .settings-card h5 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Order Items Status */
+        .order-item-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .order-item-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-item-status.preparing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-item-status.packed {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-item-status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-item-status.delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-item-status.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -1645,6 +1725,7 @@
                     <a href="#" data-page="products">Products</a>
                     <a href="#" data-page="orders">Orders <span class="orders-badge" style="display: none;">0</span></a>
                     <a href="#" data-page="refunds">Refunds</a>
+                    <a href="#" data-page="settings">Settings</a>
                     <a href="#" data-page="profile">Profile</a>
                     <button class="btn btn-outline" onclick="logout()">Logout</button>
                 </div>
@@ -1733,6 +1814,9 @@
                         <button class="btn btn-primary" onclick="navigateToPage('refunds')">
                             <i class="fas fa-exchange-alt"></i> Manage Refunds
                         </button>
+                        <button class="btn btn-outline" onclick="navigateToPage('settings')">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
                     </div>
                 </div>
 
@@ -1789,9 +1873,9 @@
                             <option value="preparing">Preparing</option>
                             <option value="packed">Packed</option>
                             <option value="ready_for_pickup">Ready for Pickup</option>
-                            <option value="picked_up">Picked Up</option>
-                            <option value="dispatched">Dispatched</option>
+                            <option value="out_for_delivery">Out for Delivery</option>
                             <option value="delivered">Delivered</option>
+                            <option value="picked_up">Picked Up</option>
                             <option value="cancelled">Cancelled</option>
                             <option value="rejected">Rejected</option>
                         </select>
@@ -1873,6 +1957,290 @@
                     </div>
                 </div>
 
+                <!-- Settings Page -->
+                <div id="settingsPage" class="content-page">
+                    <h2 style="margin-bottom: 2rem; color: var(--primary);">Shop Settings</h2>
+                    
+                    <div class="settings-card">
+                        <h5><i class="fas fa-qrcode"></i> UPI & Payment Settings</h5>
+                        <form id="upiSettingsForm">
+                            <div class="form-group">
+                                <label for="upiId">UPI ID</label>
+                                <input type="text" id="upiId" placeholder="yourname@upi" class="form-control">
+                                <small class="text-muted">Enter your UPI ID for QR code payments</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="qrCodeImage">QR Code Image URL</label>
+                                <input type="text" id="qrCodeImage" placeholder="https://example.com/qr-code.png" class="form-control">
+                                <small class="text-muted">Upload your QR code image and enter the URL here</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Accepted Payment Methods</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 10px;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="acceptCash" checked>
+                                        <label class="form-check-label" for="acceptCash">
+                                            <i class="fas fa-money-bill-wave"></i> Cash
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="acceptUPI" checked>
+                                        <label class="form-check-label" for="acceptUPI">
+                                            <i class="fas fa-qrcode"></i> UPI/QR Code
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="acceptCard">
+                                        <label class="form-check-label" for="acceptCard">
+                                            <i class="fas fa-credit-card"></i> Card
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="saveUPISettings()">
+                                <i class="fas fa-save"></i> Save Payment Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Coupon Management -->
+                    <div class="settings-card">
+                        <h5><i class="fas fa-ticket-alt"></i> Coupon Management</h5>
+                        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="couponSystemEnabled" onchange="toggleCouponSystem()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span style="font-weight: 600; margin-left: 10px;" id="couponSystemStatus">Coupon System: Disabled</span>
+                        </div>
+                        
+                        <div id="couponSettingsSection" style="display: none;">
+                            <div class="settings-form-section">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Coupon Code</label>
+                                        <input type="text" id="couponCode" placeholder="SHOP10" maxlength="10" class="form-control">
+                                        <small class="text-muted">Max 10 characters</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Discount Type</label>
+                                        <select id="couponDiscountType" class="form-control">
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="fixed">Fixed Amount (₹)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Discount Value</label>
+                                        <input type="number" id="couponValue" min="0" step="0.01" class="form-control">
+                                        <small class="text-muted">Percentage (1-100) or Fixed Amount</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Minimum Order Amount (₹)</label>
+                                        <input type="number" id="couponMinOrder" min="0" step="0.01" class="form-control">
+                                        <small class="text-muted">Minimum cart value to apply coupon</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Maximum Discount (₹)</label>
+                                        <input type="number" id="couponMaxDiscount" min="0" step="0.01" class="form-control">
+                                        <small class="text-muted">0 for no limit</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Valid Until</label>
+                                        <input type="date" id="couponValidUntil" class="form-control">
+                                        <small class="text-muted">Leave empty for no expiry</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Usage Limit</label>
+                                        <input type="number" id="couponUsageLimit" min="0" class="form-control">
+                                        <small class="text-muted">0 for unlimited uses</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Active</label>
+                                        <select id="couponActive" class="form-control">
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Coupon Description</label>
+                                    <textarea id="couponDescription" rows="2" class="form-control" placeholder="Describe this coupon..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" onclick="saveCouponSettings()">
+                                        <i class="fas fa-save"></i> Save Coupon Settings
+                                    </button>
+                                    <button type="button" class="btn btn-outline" onclick="clearCouponForm()">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shop Restrictions -->
+                    <div class="settings-card">
+                        <h5><i class="fas fa-ban"></i> Shop Restrictions</h5>
+                        <form id="restrictionsForm">
+                            <div class="form-group">
+                                <label>Maximum Order Distance (km)</label>
+                                <input type="number" id="maxOrderDistance" min="0" max="50" step="1" class="form-control">
+                                <small class="text-muted">0 for no limit, maximum 50km</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Minimum Order Amount (₹)</label>
+                                <input type="number" id="minOrderAmount" min="0" step="0.01" class="form-control">
+                                <small class="text-muted">Minimum amount for order placement</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Maximum Items per Order</label>
+                                <input type="number" id="maxItemsPerOrder" min="0" class="form-control">
+                                <small class="text-muted">0 for no limit</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Delivery Hours</label>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Start Time</label>
+                                        <input type="time" id="deliveryStartTime" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>End Time</label>
+                                        <input type="time" id="deliveryEndTime" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Blocked Customers</label>
+                                <textarea id="blockedCustomers" rows="3" class="form-control" placeholder="Enter customer IDs or phone numbers separated by commas"></textarea>
+                                <small class="text-muted">These customers won't be able to place orders</small>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="saveRestrictions()">
+                                <i class="fas fa-save"></i> Save Restrictions
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Order Management Settings -->
+                    <div class="settings-card">
+                        <h5><i class="fas fa-cogs"></i> Order Management Settings</h5>
+                        <form id="orderSettingsForm">
+                            <div class="form-group">
+                                <label>Auto-Accept Orders</label>
+                                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="autoAcceptOrders">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span style="margin-left: 10px;">Automatically accept incoming orders</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Auto-Reject Orders When</label>
+                                <div style="margin-top: 10px;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rejectOutOfStock">
+                                        <label class="form-check-label" for="rejectOutOfStock">
+                                            Items are out of stock
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rejectAfterHours">
+                                        <label class="form-check-label" for="rejectAfterHours">
+                                            Order placed outside business hours
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rejectBelowMinAmount">
+                                        <label class="form-check-label" for="rejectBelowMinAmount">
+                                            Order amount below minimum
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Default Preparation Time (minutes)</label>
+                                <input type="number" id="defaultPrepTime" min="5" max="180" class="form-control">
+                                <small class="text-muted">Estimated time to prepare orders</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Order Status Notifications</label>
+                                <div style="margin-top: 10px;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyOnAccept" checked>
+                                        <label class="form-check-label" for="notifyOnAccept">
+                                            Notify customer when order is accepted
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyOnReady" checked>
+                                        <label class="form-check-label" for="notifyOnReady">
+                                            Notify when order is ready
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="notifyOnDelivery" checked>
+                                        <label class="form-check-label" for="notifyOnDelivery">
+                                            Notify when order is out for delivery
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="saveOrderSettings()">
+                                <i class="fas fa-save"></i> Save Order Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="settings-card">
+                        <h5><i class="fas fa-sliders-h"></i> Advanced Settings</h5>
+                        <div class="form-group">
+                            <label>Shop Configuration Sync</label>
+                            <button type="button" class="btn btn-outline" onclick="syncShopConfig()">
+                                <i class="fas fa-sync"></i> Sync with Customer App
+                            </button>
+                            <small class="text-muted d-block mt-1">Sync your settings with the customer app</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Data Export</label>
+                            <button type="button" class="btn btn-outline" onclick="exportShopData()">
+                                <i class="fas fa-download"></i> Export Shop Data
+                            </button>
+                            <small class="text-muted d-block mt-1">Export products, orders, and settings</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Reset Settings</label>
+                            <button type="button" class="btn btn-danger" onclick="resetSettings()">
+                                <i class="fas fa-trash"></i> Reset to Defaults
+                            </button>
+                            <small class="text-muted d-block mt-1">This will reset all settings to default values</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Profile Page -->
                 <div id="profilePage" class="content-page">
                     <h2 style="margin-bottom: 2rem; color: var(--primary);">Shop Profile</h2>
@@ -1942,143 +2310,6 @@
                                     <option value="busy">🟡 Busy (Accepting orders)</option>
                                     <option value="holiday">🏖️ On Holiday</option>
                                 </select>
-                            </div>
-                            
-                            <!-- Coupon Management Section -->
-                            <div class="coupon-management-section">
-                                <div class="toggle-label">
-                                    <i class="fas fa-ticket-alt"></i>
-                                    Coupon System Management
-                                </div>
-                                <div style="display: flex; align-items: center; margin: 10px 0;">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="couponEnabled" onchange="toggleCouponForm()">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                    <span style="font-weight: 600;" id="couponStatusLabel">Coupon System: Disabled</span>
-                                </div>
-                                <div class="coupon-description">
-                                    <i class="fas fa-info-circle"></i> When enabled, customers can apply coupon codes to their orders from your shop. When disabled, no coupon can be applied.
-                                </div>
-                                
-                                <!-- Coupon Form Section (Hidden by default) -->
-                                <div class="coupon-form-section" id="couponFormSection">
-                                    <h5><i class="fas fa-cog"></i> Configure Your Shop Coupon</h5>
-                                    
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Coupon Code</label>
-                                            <input type="text" id="couponCode" placeholder="e.g., SHOP20" maxlength="10">
-                                            <small class="text-muted">Max 10 characters, uppercase recommended</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Discount Type</label>
-                                            <select id="couponType">
-                                                <option value="percentage">Percentage (%)</option>
-                                                <option value="fixed">Fixed Amount (₹)</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Discount Value</label>
-                                            <input type="number" id="couponValue" min="0" step="0.01">
-                                            <small class="text-muted">Percentage (1-100) or Fixed Amount</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Minimum Order Amount (₹)</label>
-                                            <input type="number" id="couponMinAmount" min="0" step="0.01">
-                                            <small class="text-muted">Minimum cart value to apply coupon</small>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Maximum Discount (₹)</label>
-                                            <input type="number" id="couponMaxDiscount" min="0" step="0.01">
-                                            <small class="text-muted">Maximum discount amount (0 for no limit)</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Valid Until</label>
-                                            <input type="date" id="couponExpiry">
-                                            <small class="text-muted">Leave empty for no expiry</small>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Maximum Uses</label>
-                                            <input type="number" id="couponMaxUses" min="0">
-                                            <small class="text-muted">0 for unlimited uses</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Active</label>
-                                            <select id="couponActive">
-                                                <option value="true">Yes</option>
-                                                <option value="false">No</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Coupon Description</label>
-                                        <textarea id="couponDescription" rows="2" placeholder="Describe this coupon..."></textarea>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <button type="button" class="btn btn-primary" onclick="saveCouponSettings()">
-                                            <i class="fas fa-save"></i> Save Coupon Settings
-                                        </button>
-                                        <button type="button" class="btn btn-outline" onclick="clearCouponForm()">
-                                            <i class="fas fa-times"></i> Clear
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Product Refund Options Section -->
-                            <div class="refund-options-section">
-                                <h5><i class="fas fa-exchange-alt"></i> Default Refund Policy for Products</h5>
-                                <small class="text-muted">This will be applied to all products unless overridden at product level</small>
-                                
-                                <div class="refund-option-row">
-                                    <input type="checkbox" id="refundAvailable" class="refund-option-checkbox" checked>
-                                    <div class="refund-option-details">
-                                        <div class="refund-option-title">Refund & Return Available</div>
-                                        <div class="refund-option-description">Allow customers to return products and get refunds</div>
-                                        <div class="refund-option-condition" id="refundConditionText">Within 7 days of delivery, product must be unopened and in original condition</div>
-                                    </div>
-                                </div>
-                                
-                                <div id="refundDetailsSection">
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Refund Period (Days)</label>
-                                            <input type="number" id="refundPeriod" min="1" max="30" value="7">
-                                            <small class="text-muted">Number of days after delivery for refund eligibility</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Refund Type</label>
-                                            <select id="refundType">
-                                                <option value="full_refund">Full Refund</option>
-                                                <option value="partial_refund">Partial Refund</option>
-                                                <option value="store_credit">Store Credit Only</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label>Refund Conditions</label>
-                                        <textarea id="refundConditions" rows="3" placeholder="e.g., Product must be unopened, in original packaging, with all tags attached...">Within 7 days of delivery, product must be unopened and in original condition</textarea>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <button type="button" class="btn btn-primary" onclick="saveRefundPolicy()">
-                                            <i class="fas fa-save"></i> Save Refund Policy
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -2247,6 +2478,23 @@
         </div>
     </div>
 
+    <!-- Order Items Status Modal -->
+    <div class="modal" id="orderItemsModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Update Order Items Status</h3>
+                <button class="close-modal" onclick="closeOrderItemsModal()">&times;</button>
+            </div>
+            <div id="orderItemsList">
+                <!-- Order items will be loaded here -->
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closeOrderItemsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveOrderItemsStatus()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Initiate Refund Modal -->
     <div class="modal" id="initiateRefundModal">
         <div class="modal-content" style="max-width: 600px;">
@@ -2378,6 +2626,8 @@
         let currentImageTab = 'url';
         let uploadedImageFile = null;
         let notificationSound = null;
+        let currentShopConfig = null;
+        let currentOrderItems = [];
 
         // Initialize App
         function initApp() {
@@ -2770,6 +3020,9 @@
                 if (shopDoc.exists) {
                     currentShop = { id: shopId, ...shopDoc.data() };
                     
+                    // Load shop config
+                    await loadShopConfig();
+                    
                     await loadProducts();
                     await loadOrders();
                     await loadRefunds();
@@ -2825,6 +3078,9 @@
                 await db.collection('shops').doc(userId).set(shopData);
                 currentShop = { id: userId, ...shopData };
                 
+                // Create default shop config
+                await createDefaultShopConfig(userId);
+                
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
                 
@@ -2834,6 +3090,445 @@
             } catch (error) {
                 console.log('Error creating shop:', error);
                 showToast('Error creating shop: ' + error.message, 'error');
+            }
+        }
+
+        // Load shop config
+        async function loadShopConfig() {
+            if (!currentShop) return;
+            
+            try {
+                const configDoc = await db.collection('shop_config').doc(currentShop.id).get();
+                
+                if (configDoc.exists) {
+                    currentShopConfig = { id: configDoc.id, ...configDoc.data() };
+                    updateSettingsForm();
+                } else {
+                    await createDefaultShopConfig(currentShop.id);
+                }
+            } catch (error) {
+                console.error('Error loading shop config:', error);
+                // Create default config if doesn't exist
+                await createDefaultShopConfig(currentShop.id);
+            }
+        }
+
+        // Create default shop config
+        async function createDefaultShopConfig(shopId) {
+            try {
+                const defaultConfig = {
+                    shopId: shopId,
+                    upiSettings: {
+                        upiId: '',
+                        qrCodeImage: '',
+                        acceptedMethods: {
+                            cash: true,
+                            upi: true,
+                            card: false
+                        }
+                    },
+                    couponSettings: {
+                        enabled: false,
+                        code: '',
+                        discountType: 'percentage',
+                        value: 10,
+                        minOrder: 0,
+                        maxDiscount: 0,
+                        validUntil: null,
+                        usageLimit: 0,
+                        active: true,
+                        description: ''
+                    },
+                    restrictions: {
+                        maxOrderDistance: 0,
+                        minOrderAmount: 0,
+                        maxItemsPerOrder: 0,
+                        deliveryHours: {
+                            start: '09:00',
+                            end: '21:00'
+                        },
+                        blockedCustomers: []
+                    },
+                    orderSettings: {
+                        autoAccept: false,
+                        autoReject: {
+                            outOfStock: true,
+                            afterHours: true,
+                            belowMinAmount: true
+                        },
+                        defaultPrepTime: 30,
+                        notifications: {
+                            onAccept: true,
+                            onReady: true,
+                            onDelivery: true
+                        }
+                    },
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('shop_config').doc(shopId).set(defaultConfig);
+                currentShopConfig = { id: shopId, ...defaultConfig };
+                updateSettingsForm();
+                
+            } catch (error) {
+                console.error('Error creating default shop config:', error);
+            }
+        }
+
+        // Update settings form with current config
+        function updateSettingsForm() {
+            if (!currentShopConfig) return;
+            
+            // UPI Settings
+            const upiSettings = currentShopConfig.upiSettings || {};
+            document.getElementById('upiId').value = upiSettings.upiId || '';
+            document.getElementById('qrCodeImage').value = upiSettings.qrCodeImage || '';
+            
+            const acceptedMethods = upiSettings.acceptedMethods || {};
+            document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
+            document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
+            document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+            
+            // Coupon Settings
+            const couponSettings = currentShopConfig.couponSettings || {};
+            document.getElementById('couponSystemEnabled').checked = couponSettings.enabled || false;
+            document.getElementById('couponSystemStatus').textContent = couponSettings.enabled ? 
+                'Coupon System: Enabled' : 'Coupon System: Disabled';
+            
+            document.getElementById('couponCode').value = couponSettings.code || '';
+            document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
+            document.getElementById('couponValue').value = couponSettings.value || '';
+            document.getElementById('couponMinOrder').value = couponSettings.minOrder || 0;
+            document.getElementById('couponMaxDiscount').value = couponSettings.maxDiscount || 0;
+            document.getElementById('couponValidUntil').value = couponSettings.validUntil || '';
+            document.getElementById('couponUsageLimit').value = couponSettings.usageLimit || 0;
+            document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
+            document.getElementById('couponDescription').value = couponSettings.description || '';
+            
+            // Show/hide coupon settings section
+            toggleCouponSystem();
+            
+            // Restrictions
+            const restrictions = currentShopConfig.restrictions || {};
+            document.getElementById('maxOrderDistance').value = restrictions.maxOrderDistance || 0;
+            document.getElementById('minOrderAmount').value = restrictions.minOrderAmount || 0;
+            document.getElementById('maxItemsPerOrder').value = restrictions.maxItemsPerOrder || 0;
+            
+            const deliveryHours = restrictions.deliveryHours || {};
+            document.getElementById('deliveryStartTime').value = deliveryHours.start || '09:00';
+            document.getElementById('deliveryEndTime').value = deliveryHours.end || '21:00';
+            
+            document.getElementById('blockedCustomers').value = (restrictions.blockedCustomers || []).join(', ');
+            
+            // Order Settings
+            const orderSettings = currentShopConfig.orderSettings || {};
+            document.getElementById('autoAcceptOrders').checked = orderSettings.autoAccept || false;
+            
+            const autoReject = orderSettings.autoReject || {};
+            document.getElementById('rejectOutOfStock').checked = autoReject.outOfStock !== false;
+            document.getElementById('rejectAfterHours').checked = autoReject.afterHours !== false;
+            document.getElementById('rejectBelowMinAmount').checked = autoReject.belowMinAmount !== false;
+            
+            document.getElementById('defaultPrepTime').value = orderSettings.defaultPrepTime || 30;
+            
+            const notifications = orderSettings.notifications || {};
+            document.getElementById('notifyOnAccept').checked = notifications.onAccept !== false;
+            document.getElementById('notifyOnReady').checked = notifications.onReady !== false;
+            document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
+        }
+
+        // Toggle coupon system
+        function toggleCouponSystem() {
+            const couponEnabled = document.getElementById('couponSystemEnabled').checked;
+            const couponSection = document.getElementById('couponSettingsSection');
+            const statusLabel = document.getElementById('couponSystemStatus');
+            
+            statusLabel.textContent = couponEnabled ? 
+                'Coupon System: Enabled' : 'Coupon System: Disabled';
+            
+            if (couponEnabled) {
+                couponSection.style.display = 'block';
+            } else {
+                couponSection.style.display = 'none';
+            }
+        }
+
+        // Save UPI settings
+        async function saveUPISettings() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const upiSettings = {
+                    upiId: document.getElementById('upiId').value.trim(),
+                    qrCodeImage: document.getElementById('qrCodeImage').value.trim(),
+                    acceptedMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked,
+                        card: document.getElementById('acceptCard').checked
+                    }
+                };
+                
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    'upiSettings': upiSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current config
+                if (currentShopConfig) {
+                    currentShopConfig.upiSettings = upiSettings;
+                }
+                
+                showToast('Payment settings saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving UPI settings:', error);
+                showToast('Error saving payment settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save coupon settings
+        async function saveCouponSettings() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const couponSettings = {
+                    enabled: document.getElementById('couponSystemEnabled').checked,
+                    code: document.getElementById('couponCode').value.trim().toUpperCase(),
+                    discountType: document.getElementById('couponDiscountType').value,
+                    value: parseFloat(document.getElementById('couponValue').value) || 0,
+                    minOrder: parseFloat(document.getElementById('couponMinOrder').value) || 0,
+                    maxDiscount: parseFloat(document.getElementById('couponMaxDiscount').value) || 0,
+                    validUntil: document.getElementById('couponValidUntil').value || null,
+                    usageLimit: parseInt(document.getElementById('couponUsageLimit').value) || 0,
+                    active: document.getElementById('couponActive').value === 'true',
+                    description: document.getElementById('couponDescription').value.trim()
+                };
+                
+                // Validate coupon code
+                if (couponSettings.enabled && !couponSettings.code) {
+                    showToast('Please enter coupon code', 'error');
+                    return;
+                }
+                
+                if (couponSettings.enabled && couponSettings.code.length < 3) {
+                    showToast('Coupon code must be at least 3 characters', 'error');
+                    return;
+                }
+                
+                if (couponSettings.enabled && couponSettings.discountType === 'percentage' && 
+                    (couponSettings.value < 1 || couponSettings.value > 100)) {
+                    showToast('Percentage discount must be between 1-100%', 'error');
+                    return;
+                }
+                
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    'couponSettings': couponSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current config
+                if (currentShopConfig) {
+                    currentShopConfig.couponSettings = couponSettings;
+                }
+                
+                showToast('Coupon settings saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving coupon settings:', error);
+                showToast('Error saving coupon settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save restrictions
+        async function saveRestrictions() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const blockedCustomersText = document.getElementById('blockedCustomers').value.trim();
+                const blockedCustomers = blockedCustomersText ? 
+                    blockedCustomersText.split(',').map(item => item.trim()).filter(item => item) : [];
+                
+                const restrictions = {
+                    maxOrderDistance: parseInt(document.getElementById('maxOrderDistance').value) || 0,
+                    minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0,
+                    maxItemsPerOrder: parseInt(document.getElementById('maxItemsPerOrder').value) || 0,
+                    deliveryHours: {
+                        start: document.getElementById('deliveryStartTime').value || '09:00',
+                        end: document.getElementById('deliveryEndTime').value || '21:00'
+                    },
+                    blockedCustomers: blockedCustomers
+                };
+                
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    'restrictions': restrictions,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current config
+                if (currentShopConfig) {
+                    currentShopConfig.restrictions = restrictions;
+                }
+                
+                showToast('Restrictions saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving restrictions:', error);
+                showToast('Error saving restrictions: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save order settings
+        async function saveOrderSettings() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const orderSettings = {
+                    autoAccept: document.getElementById('autoAcceptOrders').checked,
+                    autoReject: {
+                        outOfStock: document.getElementById('rejectOutOfStock').checked,
+                        afterHours: document.getElementById('rejectAfterHours').checked,
+                        belowMinAmount: document.getElementById('rejectBelowMinAmount').checked
+                    },
+                    defaultPrepTime: parseInt(document.getElementById('defaultPrepTime').value) || 30,
+                    notifications: {
+                        onAccept: document.getElementById('notifyOnAccept').checked,
+                        onReady: document.getElementById('notifyOnReady').checked,
+                        onDelivery: document.getElementById('notifyOnDelivery').checked
+                    }
+                };
+                
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    'orderSettings': orderSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current config
+                if (currentShopConfig) {
+                    currentShopConfig.orderSettings = orderSettings;
+                }
+                
+                showToast('Order settings saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving order settings:', error);
+                showToast('Error saving order settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Clear coupon form
+        function clearCouponForm() {
+            document.getElementById('couponCode').value = '';
+            document.getElementById('couponDiscountType').value = 'percentage';
+            document.getElementById('couponValue').value = '';
+            document.getElementById('couponMinOrder').value = '';
+            document.getElementById('couponMaxDiscount').value = '';
+            document.getElementById('couponValidUntil').value = '';
+            document.getElementById('couponUsageLimit').value = '';
+            document.getElementById('couponActive').value = 'true';
+            document.getElementById('couponDescription').value = '';
+            
+            showToast('Coupon form cleared', 'info');
+        }
+
+        // Sync shop config with customer app
+        async function syncShopConfig() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                // Update shop document with config data
+                await db.collection('shops').doc(currentShop.id).update({
+                    configUpdated: true,
+                    lastConfigSync: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Settings synced with customer app!', 'success');
+                
+            } catch (error) {
+                console.error('Error syncing shop config:', error);
+                showToast('Error syncing settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Export shop data
+        async function exportShopData() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                // Gather all data
+                const exportData = {
+                    shop: currentShop,
+                    config: currentShopConfig,
+                    products: products,
+                    orders: orders,
+                    refunds: refunds,
+                    exportDate: new Date().toISOString()
+                };
+                
+                // Convert to JSON
+                const jsonData = JSON.stringify(exportData, null, 2);
+                
+                // Create download link
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `shop_export_${currentShop.id}_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('Data exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showToast('Error exporting data: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Reset settings to defaults
+        async function resetSettings() {
+            if (!confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                await createDefaultShopConfig(currentShop.id);
+                showToast('Settings reset to defaults!', 'success');
+                
+            } catch (error) {
+                console.error('Error resetting settings:', error);
+                showToast('Error resetting settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
@@ -2953,6 +3648,9 @@
                         break;
                     case 'refunds':
                         loadRefunds();
+                        break;
+                    case 'settings':
+                        loadShopConfig();
                         break;
                 }
             }
@@ -3358,7 +4056,7 @@
                 orders = [];
                 
                 try {
-                    // FIXED: Query orders using shopId field directly
+                    // Query orders using shopId field directly
                     const allOrdersSnapshot = await db.collection('orders')
                         .where('shopId', '==', currentShop.id)
                         .orderBy('createdAt', 'desc')
@@ -3368,7 +4066,7 @@
                     allOrdersSnapshot.forEach(doc => {
                         const data = doc.data();
                         
-                        // FIXED: Ensure order belongs to current shop
+                        // Ensure order belongs to current shop
                         if (data.shopId === currentShop.id) {
                             const orderIdFromCustomer = data.orderId || doc.id;
                             const customerId = data.customerId || data.userId || (data.user && data.user.id);
@@ -3424,6 +4122,9 @@
                     }
                 }
                 
+                // Load order items for each order
+                await loadOrderItemsForOrders();
+                
                 // Load refund status for each order
                 await updateOrdersWithRefundInfo();
                 
@@ -3439,6 +4140,39 @@
                 renderOrders();
             } finally {
                 showLoading(false);
+            }
+        }
+
+        // Load order items for all orders
+        async function loadOrderItemsForOrders() {
+            if (!currentShop || orders.length === 0) return;
+            
+            try {
+                for (let order of orders) {
+                    // Try to load order items from orderItems collection
+                    try {
+                        const orderItemsSnapshot = await db.collection('orderItems')
+                            .where('orderId', '==', order.id)
+                            .where('shopId', '==', currentShop.id)
+                            .get();
+                        
+                        if (!orderItemsSnapshot.empty) {
+                            const items = [];
+                            orderItemsSnapshot.forEach(doc => {
+                                items.push({ id: doc.id, ...doc.data() });
+                            });
+                            order.orderItems = items;
+                        } else {
+                            // If no order items collection, use items from order
+                            order.orderItems = order.items || [];
+                        }
+                    } catch (error) {
+                        console.error('Error loading order items:', error);
+                        order.orderItems = order.items || [];
+                    }
+                }
+            } catch (error) {
+                console.error('Error in loadOrderItemsForOrders:', error);
             }
         }
 
@@ -3511,7 +4245,7 @@
                         }) : 
                         'Recently';
                     
-                    // Status text - FIXED FOR PICKUP ORDERS
+                    // Status text
                     let statusText = '';
                     let statusClass = '';
                     
@@ -3535,7 +4269,6 @@
                             statusClass = 'status-text status-preparing';
                             break;
                         case 'packed':
-                            // Only show packed for pickup orders
                             statusText = isPickupOnly ? 'Packed' : 'Preparing';
                             statusClass = 'status-text status-packed';
                             break;
@@ -3550,6 +4283,10 @@
                         case 'dispatched':
                             statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched';
                             statusClass = 'status-text status-dispatched';
+                            break;
+                        case 'out_for_delivery':
+                            statusText = 'Out for Delivery';
+                            statusClass = 'status-text status-out_for_delivery';
                             break;
                         case 'delivered':
                             statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered';
@@ -3619,7 +4356,7 @@
                         itemsDisplay = 'No items';
                     }
                     
-                    // Customer info - FIXED ADDRESS ISSUE
+                    // Customer info
                     const customerName = order.customerName || order.name || order.userName || 
                                        (order.user && order.user.name) || 
                                        (order.customer && order.customer.name) || 
@@ -3630,7 +4367,7 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // FIXED: Address extraction
+                    // Address extraction
                     let customerAddress = 'N/A';
                     
                     // Try different address fields in order
@@ -3696,7 +4433,7 @@
                         couponBadge = ` <span class="badge bg-info" title="Coupon: ${order.couponCode}, Discount: ₹${couponDiscount.toFixed(2)}">Coupon Applied</span>`;
                     }
                     
-                    // Action buttons - FIXED FOR PICKUP/DELIVERY DIFFERENCES
+                    // Action buttons
                     let actionButtons = '';
                     const firestoreId = order.firestoreId || order.id;
                     
@@ -3718,19 +4455,11 @@
                             </div>
                         `;
                     } else if (order.status === 'confirmed') {
-                        if (isPickupOnly) {
-                            actionButtons = `
-                                <button class="action-btn btn-info" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                                    <i class="fas fa-utensils"></i> Start Preparing
-                                </button>
-                            `;
-                        } else {
-                            actionButtons = `
-                                <button class="action-btn btn-info" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
-                                    <i class="fas fa-utensils"></i> Start Preparing
-                                </button>
-                            `;
-                        }
+                        actionButtons = `
+                            <button class="action-btn btn-info" onclick="updateOrderStatus('${firestoreId}', 'preparing')">
+                                <i class="fas fa-utensils"></i> Start Preparing
+                            </button>
+                        `;
                     } else if (order.status === 'preparing') {
                         if (isPickupOnly) {
                             actionButtons = `
@@ -3759,6 +4488,12 @@
                         `;
                     } else if (order.status === 'dispatched') {
                         actionButtons = `
+                            <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'out_for_delivery')">
+                                <i class="fas fa-truck"></i> Out for Delivery
+                            </button>
+                        `;
+                    } else if (order.status === 'out_for_delivery') {
+                        actionButtons = `
                             <button class="action-btn btn-success" onclick="updateOrderStatus('${firestoreId}', 'delivered')">
                                 <i class="fas fa-check-circle"></i> Mark as Delivered
                             </button>
@@ -3784,6 +4519,15 @@
                         }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                    }
+                    
+                    // Add manage items button for preparing and packed orders
+                    if (order.status === 'preparing' || order.status === 'packed') {
+                        actionButtons += `
+                            <button class="action-btn btn-info mt-1" onclick="showOrderItemsModal('${firestoreId}')">
+                                <i class="fas fa-clipboard-list"></i> Manage Items
+                            </button>
+                        `;
                     }
                     
                     // Add refund status if refund exists
@@ -3861,14 +4605,21 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                await db.collection('orders').doc(firestoreId).update(updateData);
-                
-                if (newStatus === 'delivered' || newStatus === 'picked_up') {
-                    await db.collection('orders').doc(firestoreId).update({
-                        paymentStatus: 'paid',
-                        paymentUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                // Add status-specific fields
+                if (newStatus === 'preparing') {
+                    updateData.preparationStartTime = firebase.firestore.FieldValue.serverTimestamp();
+                } else if (newStatus === 'packed') {
+                    updateData.packedTime = firebase.firestore.FieldValue.serverTimestamp();
+                } else if (newStatus === 'ready_for_pickup') {
+                    updateData.readyForPickupTime = firebase.firestore.FieldValue.serverTimestamp();
+                } else if (newStatus === 'out_for_delivery') {
+                    updateData.outForDeliveryTime = firebase.firestore.FieldValue.serverTimestamp();
+                } else if (newStatus === 'delivered' || newStatus === 'picked_up') {
+                    updateData.deliveredTime = firebase.firestore.FieldValue.serverTimestamp();
+                    updateData.paymentStatus = 'paid';
                 }
+                
+                await db.collection('orders').doc(firestoreId).update(updateData);
                 
                 showToast(`Order ${newStatus.replace('_', ' ')}!`, 'success');
                 await loadOrders();
@@ -3902,6 +4653,98 @@
             }
         }
 
+        // Show order items modal
+        async function showOrderItemsModal(orderId) {
+            const order = orders.find(o => o.firestoreId === orderId);
+            if (!order) {
+                showToast('Order not found', 'error');
+                return;
+            }
+            
+            currentOrderItems = order.orderItems || order.items || [];
+            
+            let itemsHtml = '<p>Update individual item status:</p>';
+            
+            if (currentOrderItems.length === 0) {
+                itemsHtml += '<p class="text-muted">No items found in this order</p>';
+            } else {
+                currentOrderItems.forEach((item, index) => {
+                    const itemStatus = item.status || 'pending';
+                    const itemName = item.name || item.productName || `Item ${index + 1}`;
+                    const itemQuantity = item.quantity || 1;
+                    const itemPrice = item.price || 0;
+                    
+                    itemsHtml += `
+                        <div class="order-item-status-control">
+                            <div class="item-info">
+                                <div class="item-name">${itemQuantity}x ${itemName}</div>
+                                <div class="item-price">₹${itemPrice.toFixed(2)} each</div>
+                            </div>
+                            <div>
+                                <select class="form-select item-status-select" data-index="${index}">
+                                    <option value="pending" ${itemStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="preparing" ${itemStatus === 'preparing' ? 'selected' : ''}>Preparing</option>
+                                    <option value="packed" ${itemStatus === 'packed' ? 'selected' : ''}>Packed</option>
+                                    <option value="ready" ${itemStatus === 'ready' ? 'selected' : ''}>Ready</option>
+                                    <option value="delivered" ${itemStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                    <option value="cancelled" ${itemStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('orderItemsList').innerHTML = itemsHtml;
+            document.getElementById('orderItemsModal').classList.add('active');
+        }
+
+        function closeOrderItemsModal() {
+            document.getElementById('orderItemsModal').classList.remove('active');
+            currentOrderItems = [];
+        }
+
+        async function saveOrderItemsStatus() {
+            try {
+                showLoading(true);
+                
+                const selects = document.querySelectorAll('.item-status-select');
+                let hasChanges = false;
+                
+                for (let select of selects) {
+                    const index = parseInt(select.dataset.index);
+                    const newStatus = select.value;
+                    
+                    if (currentOrderItems[index] && currentOrderItems[index].status !== newStatus) {
+                        currentOrderItems[index].status = newStatus;
+                        hasChanges = true;
+                        
+                        // Update in orderItems collection if exists
+                        if (currentOrderItems[index].id) {
+                            await db.collection('orderItems').doc(currentOrderItems[index].id).update({
+                                status: newStatus,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                    }
+                }
+                
+                if (hasChanges) {
+                    showToast('Item statuses updated successfully!', 'success');
+                    closeOrderItemsModal();
+                    await loadOrders();
+                } else {
+                    showToast('No changes to save', 'info');
+                }
+                
+            } catch (error) {
+                console.error('Error saving item statuses:', error);
+                showToast('Error saving item statuses: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
         // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
@@ -3923,7 +4766,7 @@
                     }) : 
                     'Recently';
                 
-                // Customer info - FIXED ADDRESS ISSUE
+                // Customer info
                 const customerName = order.customerName || order.name || order.userName || 
                                    (order.user && order.user.name) || 
                                    (order.customer && order.customer.name) || 
@@ -3934,7 +4777,7 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // FIXED: Address extraction
+                // Address extraction
                 let customerAddress = 'N/A';
                 
                 // Try different address fields in order
@@ -3959,7 +4802,7 @@
                 
                 // Order items
                 let itemsHtml = '';
-                const orderItems = order.items || [];
+                const orderItems = order.orderItems || order.items || [];
                 
                 if (orderItems.length === 0) {
                     itemsHtml = '<p class="text-muted">No items in this order</p>';
@@ -3971,6 +4814,7 @@
                                     <th>Item</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
+                                    <th>Status</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
@@ -3979,11 +4823,46 @@
                     
                     orderItems.forEach((item, index) => {
                         const itemTotal = (item.price || 0) * (item.quantity || 1);
+                        const itemStatus = item.status || 'pending';
+                        let statusClass = '';
+                        let statusText = '';
+                        
+                        switch(itemStatus) {
+                            case 'pending':
+                                statusClass = 'order-item-status pending';
+                                statusText = 'Pending';
+                                break;
+                            case 'preparing':
+                                statusClass = 'order-item-status preparing';
+                                statusText = 'Preparing';
+                                break;
+                            case 'packed':
+                                statusClass = 'order-item-status packed';
+                                statusText = 'Packed';
+                                break;
+                            case 'ready':
+                                statusClass = 'order-item-status ready';
+                                statusText = 'Ready';
+                                break;
+                            case 'delivered':
+                                statusClass = 'order-item-status delivered';
+                                statusText = 'Delivered';
+                                break;
+                            case 'cancelled':
+                                statusClass = 'order-item-status cancelled';
+                                statusText = 'Cancelled';
+                                break;
+                            default:
+                                statusClass = 'order-item-status pending';
+                                statusText = itemStatus;
+                        }
+                        
                         itemsHtml += `
                             <tr>
                                 <td>${item.name || 'Product'}</td>
                                 <td>${item.quantity || 1}</td>
                                 <td>₹${(item.price || 0).toFixed(2)}</td>
+                                <td><span class="${statusClass}">${statusText}</span></td>
                                 <td>₹${itemTotal.toFixed(2)}</td>
                             </tr>
                         `;
@@ -4027,6 +4906,10 @@
                     case 'dispatched': 
                         statusText = order.isPartialOrder ? 'Dispatched (Partial)' : 'Dispatched'; 
                         statusClass = 'status-text status-dispatched';
+                        break;
+                    case 'out_for_delivery': 
+                        statusText = 'Out for Delivery'; 
+                        statusClass = 'status-text status-out_for_delivery';
                         break;
                     case 'delivered': 
                         statusText = order.isPartialOrder ? 'Delivered (Partial)' : 'Delivered'; 
@@ -4143,6 +5026,113 @@
                     `;
                 }
                 
+                // Timestamps
+                let timestampsHtml = '';
+                if (order.preparationStartTime || order.packedTime || order.readyForPickupTime || 
+                    order.outForDeliveryTime || order.deliveredTime) {
+                    
+                    timestampsHtml = `
+                        <div class="order-section">
+                            <h4><i class="fas fa-clock"></i> Order Timeline</h4>
+                            <div class="timeline">
+                    `;
+                    
+                    if (order.createdAt) {
+                        const createdTime = order.createdAt.toDate ? 
+                            order.createdAt.toDate().toLocaleTimeString() : 
+                            new Date(order.createdAt).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6>Order Placed</h6>
+                                    <p class="text-muted mb-0">${createdTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.preparationStartTime) {
+                        const prepTime = order.preparationStartTime.toDate ? 
+                            order.preparationStartTime.toDate().toLocaleTimeString() : 
+                            new Date(order.preparationStartTime).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-info"></div>
+                                <div class="timeline-content">
+                                    <h6>Preparation Started</h6>
+                                    <p class="text-muted mb-0">${prepTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.packedTime) {
+                        const packedTime = order.packedTime.toDate ? 
+                            order.packedTime.toDate().toLocaleTimeString() : 
+                            new Date(order.packedTime).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <h6>Order Packed</h6>
+                                    <p class="text-muted mb-0">${packedTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.readyForPickupTime) {
+                        const readyTime = order.readyForPickupTime.toDate ? 
+                            order.readyForPickupTime.toDate().toLocaleTimeString() : 
+                            new Date(order.readyForPickupTime).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6>Ready for Pickup</h6>
+                                    <p class="text-muted mb-0">${readyTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.outForDeliveryTime) {
+                        const deliveryTime = order.outForDeliveryTime.toDate ? 
+                            order.outForDeliveryTime.toDate().toLocaleTimeString() : 
+                            new Date(order.outForDeliveryTime).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-warning"></div>
+                                <div class="timeline-content">
+                                    <h6>Out for Delivery</h6>
+                                    <p class="text-muted mb-0">${deliveryTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.deliveredTime) {
+                        const deliveredTime = order.deliveredTime.toDate ? 
+                            order.deliveredTime.toDate().toLocaleTimeString() : 
+                            new Date(order.deliveredTime).toLocaleTimeString();
+                        timestampsHtml += `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6>Delivered</h6>
+                                    <p class="text-muted mb-0">${deliveredTime}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    timestampsHtml += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 const detailsHtml = `
                     <div class="order-details">
                         <!-- Order Information -->
@@ -4181,6 +5171,8 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        ${timestampsHtml}
                         
                         <!-- Customer Information -->
                         <div class="order-section">
@@ -4302,6 +5294,12 @@
                                 ` : ''}
                                 
                                 ${order.status === 'dispatched' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'out_for_delivery')">
+                                        <i class="fas fa-truck"></i> Out for Delivery
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'out_for_delivery' ? `
                                     <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
                                         <i class="fas fa-check-circle"></i> Mark as Delivered
                                     </button>
@@ -4316,6 +5314,12 @@
                                 ${(order.status === 'delivered' || order.status === 'picked_up') && (!order.refundStatus || order.refundStatus === 'none') ? `
                                     <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
                                         <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'preparing' || order.status === 'packed') ? `
+                                    <button class="action-btn btn-info" onclick="showOrderItemsModal('${order.firestoreId}')">
+                                        <i class="fas fa-clipboard-list"></i> Manage Items Status
                                     </button>
                                 ` : ''}
                             </div>
@@ -4347,6 +5351,7 @@
                 case 'ready_for_pickup': return 'status-text status-ready_for_pickup';
                 case 'picked_up': return 'status-text status-picked_up';
                 case 'dispatched': return 'status-text status-dispatched';
+                case 'out_for_delivery': return 'status-text status-out_for_delivery';
                 case 'delivered': return 'status-text status-delivered';
                 case 'cancelled': return 'status-text status-cancelled';
                 case 'rejected': return 'status-text status-rejected';
@@ -4354,6 +5359,8 @@
             }
         }
 
+        // ==================== REFUND MANAGEMENT ====================
+        
         // Load refunds function
         async function loadRefunds() {
             if (!currentShop) return;
@@ -4577,7 +5584,7 @@
                         <tr>
                             <td><strong>${refund.shortId || 'REF-' + refund.id.substring(refund.id.length - 6).toUpperCase()}</strong></td>
                             <td>${refund.orderId || 'N/A'}</td>
-                            <td>${refund.customerName || 'Customer'}</td>
+                            <td>${refund.customerName}</td>
                             <td><strong>₹${(refund.amount || 0).toFixed(2)}</strong></td>
                             <td>${refund.reason || 'No reason specified'}</td>
                             <td>
@@ -4622,7 +5629,7 @@
             const itemsList = document.getElementById('refundItemsList');
             let itemsHtml = '';
             
-            const orderItems = order.items || [];
+            const orderItems = order.orderItems || order.items || [];
             
             if (orderItems.length === 0) {
                 itemsHtml = '<p class="text-muted">No items in this order</p>';
@@ -4818,8 +5825,10 @@
             try {
                 showLoading(true);
                 
-                // Generate refund ID
-                const refundId = 'REF' + Date.now().toString().slice(-8);
+                // Generate refund ID with unified format
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const refundId = `REF_${timestamp}_${random}`;
                 
                 // Get customer name from order
                 const customerName = currentRefundOrder?.customerName || 
@@ -5295,40 +6304,6 @@
             document.getElementById('shopCloseTime').value = currentShop.closeTime || '21:00';
             document.getElementById('shopStatus').value = currentShop.status || 'open';
             document.getElementById('deliveryType').value = currentShop.deliveryType || 'both';
-            document.getElementById('couponEnabled').checked = currentShop.couponEnabled || false;
-            
-            const couponStatusLabel = document.getElementById('couponStatusLabel');
-            couponStatusLabel.textContent = currentShop.couponEnabled ? 
-                'Coupon System: Enabled' : 'Coupon System: Disabled';
-            
-            // Update coupon form
-            if (currentShop.couponSettings) {
-                document.getElementById('couponCode').value = currentShop.couponSettings.code || '';
-                document.getElementById('couponType').value = currentShop.couponSettings.type || 'percentage';
-                document.getElementById('couponValue').value = currentShop.couponSettings.value || '';
-                document.getElementById('couponMinAmount').value = currentShop.couponSettings.minAmount || '';
-                document.getElementById('couponMaxDiscount').value = currentShop.couponSettings.maxDiscount || '';
-                document.getElementById('couponExpiry').value = currentShop.couponSettings.expiry || '';
-                document.getElementById('couponMaxUses').value = currentShop.couponSettings.maxUses || '';
-                document.getElementById('couponActive').value = currentShop.couponSettings.active ? 'true' : 'false';
-                document.getElementById('couponDescription').value = currentShop.couponSettings.description || '';
-                
-                // Show coupon form if enabled
-                toggleCouponForm();
-            }
-            
-            // Update refund policy
-            if (currentShop.refundPolicy) {
-                document.getElementById('refundAvailable').checked = currentShop.refundPolicy.available || true;
-                document.getElementById('refundPeriod').value = currentShop.refundPolicy.period || 7;
-                document.getElementById('refundType').value = currentShop.refundPolicy.type || 'full_refund';
-                document.getElementById('refundConditions').value = currentShop.refundPolicy.conditions || 'Within 7 days of delivery, product must be unopened and in original condition';
-                document.getElementById('refundConditionText').textContent = currentShop.refundPolicy.conditions || 'Within 7 days of delivery, product must be unopened and in original condition';
-                
-                // Show/hide refund details
-                const refundDetailsSection = document.getElementById('refundDetailsSection');
-                refundDetailsSection.style.display = currentShop.refundPolicy.available ? 'block' : 'none';
-            }
             
             const serviceOptions = document.querySelectorAll('.service-option');
             serviceOptions.forEach(option => {
@@ -5337,164 +6312,6 @@
                     option.classList.add('active');
                 }
             });
-        }
-
-        // Toggle coupon form visibility
-        function toggleCouponForm() {
-            const couponEnabled = document.getElementById('couponEnabled').checked;
-            const couponFormSection = document.getElementById('couponFormSection');
-            const couponStatusLabel = document.getElementById('couponStatusLabel');
-            
-            couponStatusLabel.textContent = couponEnabled ? 
-                'Coupon System: Enabled' : 'Coupon System: Disabled';
-            
-            if (couponEnabled) {
-                couponFormSection.classList.add('active');
-            } else {
-                couponFormSection.classList.remove('active');
-            }
-        }
-
-        // Clear coupon form
-        function clearCouponForm() {
-            document.getElementById('couponCode').value = '';
-            document.getElementById('couponType').value = 'percentage';
-            document.getElementById('couponValue').value = '';
-            document.getElementById('couponMinAmount').value = '';
-            document.getElementById('couponMaxDiscount').value = '';
-            document.getElementById('couponExpiry').value = '';
-            document.getElementById('couponMaxUses').value = '';
-            document.getElementById('couponActive').value = 'true';
-            document.getElementById('couponDescription').value = '';
-            
-            showToast('Coupon form cleared', 'info');
-        }
-
-        // Save coupon settings
-        async function saveCouponSettings() {
-            const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
-            const couponType = document.getElementById('couponType').value;
-            const couponValue = parseFloat(document.getElementById('couponValue').value);
-            const couponMinAmount = parseFloat(document.getElementById('couponMinAmount').value) || 0;
-            const couponMaxDiscount = parseFloat(document.getElementById('couponMaxDiscount').value) || 0;
-            const couponExpiry = document.getElementById('couponExpiry').value;
-            const couponMaxUses = parseInt(document.getElementById('couponMaxUses').value) || 0;
-            const couponActive = document.getElementById('couponActive').value === 'true';
-            const couponDescription = document.getElementById('couponDescription').value.trim();
-            
-            // Validation
-            if (!couponCode) {
-                showToast('Please enter coupon code', 'error');
-                return;
-            }
-            
-            if (couponCode.length < 3 || couponCode.length > 10) {
-                showToast('Coupon code must be 3-10 characters', 'error');
-                return;
-            }
-            
-            if (isNaN(couponValue) || couponValue <= 0) {
-                showToast('Please enter a valid discount value', 'error');
-                return;
-            }
-            
-            if (couponType === 'percentage' && (couponValue < 1 || couponValue > 100)) {
-                showToast('Percentage discount must be between 1-100%', 'error');
-                return;
-            }
-            
-            // Check if coupon expiry date is valid
-            if (couponExpiry) {
-                const expiryDate = new Date(couponExpiry);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                if (expiryDate < today) {
-                    showToast('Expiry date cannot be in the past', 'error');
-                    return;
-                }
-            }
-            
-            const couponSettings = {
-                code: couponCode,
-                type: couponType,
-                value: couponValue,
-                minAmount: couponMinAmount,
-                maxDiscount: couponMaxDiscount,
-                expiry: couponExpiry || null,
-                maxUses: couponMaxUses,
-                active: couponActive,
-                description: couponDescription,
-                usesCount: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                showLoading(true);
-                
-                await db.collection('shops').doc(currentShop.id).update({
-                    couponEnabled: true,
-                    couponSettings: couponSettings,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                currentShop.couponEnabled = true;
-                currentShop.couponSettings = couponSettings;
-                
-                showToast('Coupon settings saved successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Error saving coupon settings:', error);
-                showToast('Error saving coupon settings: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Save refund policy
-        async function saveRefundPolicy() {
-            const refundAvailable = document.getElementById('refundAvailable').checked;
-            const refundPeriod = parseInt(document.getElementById('refundPeriod').value) || 7;
-            const refundType = document.getElementById('refundType').value;
-            const refundConditions = document.getElementById('refundConditions').value.trim();
-            
-            if (refundAvailable && !refundConditions) {
-                showToast('Please enter refund conditions', 'error');
-                return;
-            }
-            
-            const refundPolicy = {
-                available: refundAvailable,
-                period: refundPeriod,
-                type: refundType,
-                conditions: refundConditions,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                showLoading(true);
-                
-                await db.collection('shops').doc(currentShop.id).update({
-                    refundPolicy: refundPolicy,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                currentShop.refundPolicy = refundPolicy;
-                document.getElementById('refundConditionText').textContent = refundConditions;
-                
-                // Show/hide refund details section
-                const refundDetailsSection = document.getElementById('refundDetailsSection');
-                refundDetailsSection.style.display = refundAvailable ? 'block' : 'none';
-                
-                showToast('Refund policy saved successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Error saving refund policy:', error);
-                showToast('Error saving refund policy: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
         }
 
         // Handle profile form submission
@@ -5511,7 +6328,6 @@
                 closeTime: document.getElementById('shopCloseTime').value,
                 status: document.getElementById('shopStatus').value,
                 deliveryType: document.getElementById('deliveryType').value,
-                couponEnabled: document.getElementById('couponEnabled').checked,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -5520,21 +6336,11 @@
                 return;
             }
             
-            // If coupon is disabled, remove coupon settings
-            if (!profileData.couponEnabled && currentShop.couponSettings) {
-                profileData.couponSettings = null;
-            }
-            
             try {
                 showLoading(true);
                 await db.collection('shops').doc(currentShop.id).update(profileData);
                 currentShop = { ...currentShop, ...profileData };
                 showToast('Profile updated successfully!', 'success');
-                
-                // Update coupon status label
-                const couponStatusLabel = document.getElementById('couponStatusLabel');
-                couponStatusLabel.textContent = profileData.couponEnabled ? 
-                    'Coupon System: Enabled' : 'Coupon System: Disabled';
                     
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -5556,21 +6362,6 @@
                     this.classList.add('active');
                 });
             });
-            
-            // Setup refund checkbox change handler
-            document.getElementById('refundAvailable').addEventListener('change', function() {
-                const refundDetailsSection = document.getElementById('refundDetailsSection');
-                refundDetailsSection.style.display = this.checked ? 'block' : 'none';
-            });
-            
-            // Setup product refund checkbox change handler
-            const productRefundCheckbox = document.getElementById('productRefundAvailable');
-            if (productRefundCheckbox) {
-                productRefundCheckbox.addEventListener('change', function() {
-                    const productRefundDetails = document.getElementById('productRefundDetails');
-                    productRefundDetails.style.display = this.checked ? 'block' : 'none';
-                });
-            }
         }
 
         // Utility Functions
@@ -5593,6 +6384,18 @@
             
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            document.getElementById('upiSettingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveUPISettings();
+            });
+            document.getElementById('restrictionsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveRestrictions();
+            });
+            document.getElementById('orderSettingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveOrderSettings();
+            });
             
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', function(e) {

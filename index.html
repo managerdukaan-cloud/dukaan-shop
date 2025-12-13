@@ -25,6 +25,7 @@
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --info: #17a2b8;
         }
         
         * {
@@ -96,14 +97,66 @@
         }
         
         .btn-primary {
-            background: var(--accent);
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            color: var(--white);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 44, 89, 0.3);
         }
         
         .btn-outline {
             background: transparent;
             border: 2px solid var(--accent);
             color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(234, 219, 200, 0.1);
+            color: var(--accent);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+            color: white;
         }
         
         /* Main Content */
@@ -536,6 +589,7 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
+            color: var(--primary);
         }
         
         .form-group input,
@@ -547,6 +601,45 @@
             border-radius: 5px;
             font-size: 1rem;
             background: #fff;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 44, 89, 0.1);
+        }
+        
+        /* Checkbox Styles */
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .form-check:hover {
+            background: #e9ecef;
+        }
+        
+        .form-check-input {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         /* Toast Notification */
@@ -1321,6 +1414,137 @@
             border: 1px solid #ddd;
         }
 
+        /* Settings Cards - IMPROVED */
+        .settings-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .settings-card h5 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.75rem;
+        }
+
+        /* Enhanced Form Controls */
+        .settings-card .btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            min-width: 160px;
+        }
+
+        .settings-card .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            border: none;
+        }
+
+        .settings-card .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 44, 89, 0.3);
+        }
+
+        .settings-card .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .settings-card .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Order Items Status */
+        .order-item-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .order-item-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-item-status.preparing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-item-status.packed {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .order-item-status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-item-status.delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-item-status.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .action-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Profile Page Styles */
+        .profile-form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .profile-form-container .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -1382,6 +1606,19 @@
 
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .settings-card {
+                padding: 1rem;
+            }
+
+            .settings-card h5 {
+                font-size: 1.1rem;
+            }
+
+            .settings-card .btn {
+                width: 100%;
+                margin-top: 0.5rem;
             }
         }
 
@@ -1592,122 +1829,6 @@
         .timeline-content h6 {
             margin-bottom: 0.25rem;
             color: #495057;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
-        .action-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-        }
-
-        .action-btn i {
-            font-size: 0.9rem;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .btn-info:hover {
-            background: #138496;
-        }
-
-        /* Settings Cards */
-        .settings-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid var(--primary);
-        }
-
-        .settings-card h5 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Order Items Status */
-        .order-item-status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .order-item-status.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .order-item-status.preparing {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .order-item-status.packed {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .order-item-status.ready {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .order-item-status.delivered {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .order-item-status.cancelled {
-            background: #f8d7da;
-            color: #721c24;
         }
     </style>
 </head>
@@ -1963,6 +2084,7 @@
                 <div id="settingsPage" class="content-page">
                     <h2 style="margin-bottom: 2rem; color: var(--primary);">Shop Settings</h2>
                     
+                    <!-- UPI & Payment Settings Card -->
                     <div class="settings-card">
                         <h5><i class="fas fa-qrcode"></i> UPI & Payment Settings</h5>
                         <form id="upiSettingsForm">
@@ -1978,7 +2100,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Accepted Payment Methods</label>
-                                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 10px;">
+                                <div style="margin-top: 10px;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="acceptCash" checked>
                                         <label class="form-check-label" for="acceptCash">
@@ -2005,7 +2127,7 @@
                         </form>
                     </div>
 
-                    <!-- Coupon Management -->
+                    <!-- Coupon Management Card -->
                     <div class="settings-card">
                         <h5><i class="fas fa-ticket-alt"></i> Coupon Management</h5>
                         <div style="display: flex; align-items: center; margin-bottom: 1rem;">
@@ -2091,7 +2213,7 @@
                         </div>
                     </div>
 
-                    <!-- Shop Restrictions -->
+                    <!-- Shop Restrictions Card -->
                     <div class="settings-card">
                         <h5><i class="fas fa-ban"></i> Shop Restrictions</h5>
                         <form id="restrictionsForm">
@@ -2139,7 +2261,7 @@
                         </form>
                     </div>
 
-                    <!-- Order Management Settings -->
+                    <!-- Order Management Settings Card -->
                     <div class="settings-card">
                         <h5><i class="fas fa-cogs"></i> Order Management Settings</h5>
                         <form id="orderSettingsForm">
@@ -2214,7 +2336,7 @@
                         </form>
                     </div>
 
-                    <!-- Advanced Settings -->
+                    <!-- Advanced Settings Card -->
                     <div class="settings-card">
                         <h5><i class="fas fa-sliders-h"></i> Advanced Settings</h5>
                         <div class="form-group">
@@ -2247,7 +2369,7 @@
                 <div id="profilePage" class="content-page">
                     <h2 style="margin-bottom: 2rem; color: var(--primary);">Shop Profile</h2>
                     
-                    <div class="auth-card">
+                    <div class="profile-form-container">
                         <form id="profileForm">
                             <div class="form-group">
                                 <label>Shop Name</label>
@@ -2538,7 +2660,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Order Items</label>
+                    <label>Refund Items</label>
                     <div id="refundItemsList">
                         <!-- Items will be loaded here -->
                     </div>
@@ -2630,36 +2752,36 @@
 
         // Cloudinary Configuration
         const cloudinaryConfig = {
-    cloudName: 'db1rbtgpe',
-    uploadPreset: 'dukaan-platform',
-    apiKey: '156538295145313',
-    sources: ['local', 'camera', 'url'],
-    folder: 'samples/ecommerce',
-    multiple: false,
-    resourceType: 'image',
-    clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
-    maxFileSize: 5000000,
-    theme: 'white',
-    cropping: false,  // ✅ Add this
-    showAdvancedOptions: false,  // ✅ Add this
-    styles: {
-        palette: {
-            window: "#FFFFFF",
-            windowBorder: "#0F2C59",
-            tabIcon: "#0F2C59",
-            menuIcons: "#0F2C59",
-            textDark: "#000000",
-            textLight: "#FFFFFF",
-            link: "#0F2C59",
-            action: "#0F2C59",
-            inactiveTabIcon: "#555555",
-            error: "#F44235",
-            inProgress: "#0078FF",
-            complete: "#20B832",
-            sourceBg: "#E4EBF1"
-        }
-    }
-};
+            cloudName: 'db1rbtgpe',
+            uploadPreset: 'dukaan-platform',
+            apiKey: '156538295145313',
+            sources: ['local', 'camera', 'url'],
+            folder: 'samples/ecommerce',
+            multiple: false,
+            resourceType: 'image',
+            clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
+            maxFileSize: 5000000,
+            theme: 'white',
+            cropping: false,
+            showAdvancedOptions: false,
+            styles: {
+                palette: {
+                    window: "#FFFFFF",
+                    windowBorder: "#0F2C59",
+                    tabIcon: "#0F2C59",
+                    menuIcons: "#0F2C59",
+                    textDark: "#000000",
+                    textLight: "#FFFFFF",
+                    link: "#0F2C59",
+                    action: "#0F2C59",
+                    inactiveTabIcon: "#555555",
+                    error: "#F44235",
+                    inProgress: "#0078FF",
+                    complete: "#20B832",
+                    sourceBg: "#E4EBF1"
+                }
+            }
+        };
 
         // Initialize Firebase
         let auth = null;
@@ -2687,7 +2809,6 @@
         // Initialize App
         function initApp() {
             try {
-                // Check if Firebase is already initialized
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 } else {
@@ -2698,27 +2819,19 @@
                 db = firebase.firestore();
                 storage = firebase.storage();
                 
-                // Initialize notification sound
                 notificationSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3');
                 notificationSound.volume = 0.5;
                 
-                // Setup push notifications
                 setupPushNotifications();
-
-                // Setup real-time order listener
                 setupOrderListener();
                 
-                // Check if user is already logged in
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
                         await loadShopData(user.uid);
                     }
                 });
 
-                // Setup online/offline detection
                 setupNetworkDetection();
-                
-                // Initialize Cloudinary Widget
                 initializeCloudinaryWidget();
                 
             } catch (error) {
@@ -2728,101 +2841,70 @@
         }
 
         // Initialize Cloudinary Widget
-function initializeCloudinaryWidget() {
-    try {
-        cloudinaryWidget = cloudinary.createUploadWidget(
-            cloudinaryConfig,
-            (error, result) => {
-                console.log('🔍 Cloudinary Response:', { error, result });
-                
-                if (error) {
-                    console.error('❌ Cloudinary Error:', error);
-                    console.error('❌ Error Status:', error.status);
-                    console.error('❌ Error Message:', error.message);
-                    
-                    // Show detailed error to user
-                    alert('Cloudinary Upload Error:\n\n' + 
-                          'Status: ' + (error.status || 'Unknown') + '\n' +
-                          'Message: ' + (error.message || 'Please check Cloudinary configuration') + '\n\n' +
-                          'Possible issues:\n' +
-                          '1. Upload preset not found\n' +
-                          '2. Upload preset not set to "Unsigned"\n' +
-                          '3. Cloud name incorrect');
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                    return;
-                }
-                
-                if (result && result.event === "queues-start") {
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                }
-                
-                if (result && result.event === "success") {
-                    console.log('✅ Cloudinary Success!');
-                    console.log('📸 Image URL:', result.info.secure_url);
-                    console.log('🆔 Public ID:', result.info.public_id);
-                    
-                    const imageUrl = result.info.secure_url;
-                    
-                    // Set the image URL in the form
-                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
-                    
-                    // Also update the URL input for consistency
-                    document.getElementById('productImage').value = imageUrl;
-                    
-                    // Show preview
-                    const preview = document.getElementById('cloudinaryImagePreview');
-                    preview.src = imageUrl;
-                    preview.style.display = 'block';
-                    
-                    // Show success message
-                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                    
-                    showToast('✅ Image uploaded to Cloudinary successfully!', 'success');
-                }
-                
-                if (result && result.event === "close") {
-                    console.log('📌 Cloudinary widget closed');
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                }
+        function initializeCloudinaryWidget() {
+            try {
+                cloudinaryWidget = cloudinary.createUploadWidget(
+                    cloudinaryConfig,
+                    (error, result) => {
+                        if (error) {
+                            console.error('Cloudinary Error:', error);
+                            showToast('Cloudinary upload error', 'error');
+                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                            return;
+                        }
+                        
+                        if (result && result.event === "queues-start") {
+                            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                        }
+                        
+                        if (result && result.event === "success") {
+                            const imageUrl = result.info.secure_url;
+                            document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                            document.getElementById('productImage').value = imageUrl;
+                            
+                            const preview = document.getElementById('cloudinaryImagePreview');
+                            preview.src = imageUrl;
+                            preview.style.display = 'block';
+                            
+                            document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                            
+                            showToast('✅ Image uploaded successfully!', 'success');
+                        }
+                        
+                        if (result && result.event === "close") {
+                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error initializing Cloudinary widget:', error);
+                showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
             }
-        );
-    } catch (error) {
-        console.error('Error initializing Cloudinary widget:', error);
-        showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
-    }
-}
+        }
 
-// Open Cloudinary uploader
-function openCloudinaryUploader() {
-    console.log('🚀 Opening Cloudinary Uploader...');
-    console.log('☁️ Cloud Name:', cloudinaryConfig.cloudName);
-    console.log('📝 Upload Preset:', cloudinaryConfig.uploadPreset);
-    console.log('📁 Folder:', cloudinaryConfig.folder);
-    
-    if (!cloudinaryWidget) {
-        console.error('❌ Cloudinary widget not initialized');
-        showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
-        return;
-    }
-    
-    try {
-        // Show loading status
-        document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-        document.getElementById('cloudinaryImagePreview').style.display = 'none';
-        document.getElementById('cloudinaryImageInfo').style.display = 'none';
-        
-        cloudinaryWidget.open();
-    } catch (error) {
-        console.error('❌ Error opening Cloudinary widget:', error);
-        showToast('Cannot open uploader: ' + error.message, 'error');
-    }
-}
+        // Open Cloudinary uploader
+        function openCloudinaryUploader() {
+            if (!cloudinaryWidget) {
+                showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryImageInfo').style.display = 'none';
+                
+                cloudinaryWidget.open();
+            } catch (error) {
+                console.error('Error opening Cloudinary widget:', error);
+                showToast('Cannot open uploader: ' + error.message, 'error');
+            }
+        }
 
         // Setup push notifications
         async function setupPushNotifications() {
             try {
-                // Request notification permission
                 if (!('Notification' in window)) {
                     console.log('This browser does not support notifications');
                     return;
@@ -2833,35 +2915,27 @@ function openCloudinaryUploader() {
                     if (permission === 'granted') {
                         console.log('Notification permission granted');
                         
-                        // Initialize Firebase Messaging
                         if (firebase.messaging.isSupported()) {
                             messaging = firebase.messaging();
                             
-                            // Get FCM token
                             messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
                                 .then((currentToken) => {
                                     if (currentToken && currentShop) {
-                                        // Save token to shop document
                                         db.collection('shops').doc(currentShop.id).update({
                                             fcmToken: currentToken,
                                             notificationEnabled: true,
                                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                                         });
-                                        console.log('FCM Token saved:', currentToken);
                                     }
                                 })
                                 .catch((err) => {
                                     console.log('Error getting FCM token:', err);
                                 });
 
-                            // Handle foreground messages
                             messaging.onMessage((payload) => {
                                 console.log('Message received in foreground:', payload);
-                                
-                                // Play sound
                                 playNotificationSound();
                                 
-                                // Show notification
                                 if (payload.notification) {
                                     showNotification(
                                         payload.notification.title || 'New Order',
@@ -2869,7 +2943,6 @@ function openCloudinaryUploader() {
                                     );
                                 }
                                 
-                                // Refresh data
                                 if (currentShop) {
                                     loadOrders();
                                     loadDashboardData();
@@ -2878,11 +2951,9 @@ function openCloudinaryUploader() {
                         }
                     }
                 } else if (Notification.permission === 'granted') {
-                    // Already have permission
                     if (firebase.messaging.isSupported()) {
                         messaging = firebase.messaging();
                         
-                        // Get FCM token
                         messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
                             .then((currentToken) => {
                                 if (currentToken && currentShop) {
@@ -2906,7 +2977,6 @@ function openCloudinaryUploader() {
             if (!currentShop || !db) return;
             
             try {
-                // Listen for new pending orders
                 ordersListener = db.collection('orders')
                     .where('shopId', '==', currentShop.id)
                     .where('status', '==', 'pending')
@@ -2914,17 +2984,11 @@ function openCloudinaryUploader() {
                         snapshot.docChanges().forEach((change) => {
                             if (change.type === 'added') {
                                 const order = change.doc.data();
-                                
-                                // Play sound
                                 playNotificationSound();
-                                
-                                // Show notification
                                 showNotification(
                                     '🛍️ New Order Received!',
                                     `Order #${order.orderId?.substring(order.orderId.length - 6) || 'N/A'} from ${order.customerName || 'Customer'}`
                                 );
-                                
-                                // Refresh data
                                 loadOrders();
                                 loadDashboardData();
                             }
@@ -2951,14 +3015,12 @@ function openCloudinaryUploader() {
                     tag: 'new-order'
                 });
                 
-                // Focus on app when notification is clicked
                 notification.onclick = function() {
                     window.focus();
                     notification.close();
                     navigateToPage('orders');
                 };
                 
-                // Auto close after 10 seconds
                 setTimeout(() => {
                     notification.close();
                 }, 10000);
@@ -2987,7 +3049,6 @@ function openCloudinaryUploader() {
         function switchImageTab(type) {
             currentImageTab = type;
             
-            // Update tab styles
             document.querySelectorAll('.upload-tab').forEach(tab => {
                 tab.classList.remove('active');
                 if (tab.dataset.type === type) {
@@ -2995,11 +3056,9 @@ function openCloudinaryUploader() {
                 }
             });
             
-            // Show/hide tabs
             document.getElementById('urlTab').classList.toggle('active', type === 'url');
             document.getElementById('cloudinaryTab').classList.toggle('active', type === 'cloudinary');
             
-            // Reset previews
             if (type === 'url') {
                 document.getElementById('productImage').value = '';
                 document.getElementById('urlImagePreview').style.display = 'none';
@@ -3021,7 +3080,6 @@ function openCloudinaryUploader() {
                     showToast('Could not load image from URL', 'error');
                     preview.style.display = 'none';
                 };
-                // Also set the cloudinary URL
                 document.getElementById('cloudinaryImageUrl').value = url;
             }
         }
@@ -3030,19 +3088,16 @@ function openCloudinaryUploader() {
         function setupNetworkDetection() {
             const offlineWarning = document.getElementById('offlineWarning');
             
-            // Initial state
             if (!isOnline) {
                 offlineWarning.style.display = 'block';
                 showToast('No internet connection. Some features may not work.', 'warning');
             }
             
-            // Listen for online/offline events
             window.addEventListener('online', async function() {
                 isOnline = true;
                 offlineWarning.style.display = 'none';
                 showToast('Internet connection restored!', 'success');
                 
-                // Auto reload data when connection is restored
                 if (currentShop) {
                     await loadProducts();
                     await loadOrders();
@@ -3058,7 +3113,6 @@ function openCloudinaryUploader() {
                 showToast('No internet connection. Working offline mode.', 'warning');
             });
             
-            // Check connection every 30 seconds
             setInterval(() => {
                 if (navigator.onLine !== isOnline) {
                     isOnline = navigator.onLine;
@@ -3089,10 +3143,7 @@ function openCloudinaryUploader() {
                 if (shopDoc.exists) {
                     currentShop = { id: shopId, ...shopDoc.data() };
                     
-                    // Load shop categories
                     await loadShopCategories();
-                    
-                    // Load shop config
                     await loadShopConfig();
                     
                     await loadProducts();
@@ -3103,7 +3154,6 @@ function openCloudinaryUploader() {
                     showAppScreen();
                     showToast('Welcome back to your shop!', 'success');
                     
-                    // Setup real-time order listener
                     setupOrderListener();
                     
                 } else {
@@ -3129,7 +3179,6 @@ function openCloudinaryUploader() {
                     const data = shopCategoriesDoc.data();
                     shopCategories = data.categories || shopCategories;
                 } else {
-                    // Create default categories document
                     await db.collection('shop_categories').doc(currentShop.id).set({
                         categories: shopCategories,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -3137,7 +3186,6 @@ function openCloudinaryUploader() {
                     });
                 }
                 
-                // Update category dropdowns
                 updateCategoryDropdowns();
                 
             } catch (error) {
@@ -3147,18 +3195,13 @@ function openCloudinaryUploader() {
 
         // Update category dropdowns
         function updateCategoryDropdowns() {
-            // Update product category dropdown
             const productCategorySelect = document.getElementById('productCategory');
             const shopCategorySelect = document.getElementById('shopCategory');
             
             if (productCategorySelect) {
-                // Store current value
                 const currentValue = productCategorySelect.value;
-                
-                // Clear options except "other"
                 productCategorySelect.innerHTML = '';
                 
-                // Add standard options
                 shopCategories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category;
@@ -3166,24 +3209,18 @@ function openCloudinaryUploader() {
                     productCategorySelect.appendChild(option);
                 });
                 
-                // Add "other" option
                 const otherOption = document.createElement('option');
                 otherOption.value = 'other';
                 otherOption.textContent = 'Other (Custom)';
                 productCategorySelect.appendChild(otherOption);
                 
-                // Restore current value
                 productCategorySelect.value = currentValue || 'groceries';
             }
             
             if (shopCategorySelect) {
-                // Store current value
                 const currentValue = shopCategorySelect.value;
-                
-                // Clear options except "other"
                 shopCategorySelect.innerHTML = '';
                 
-                // Add standard options
                 shopCategories.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category;
@@ -3191,13 +3228,11 @@ function openCloudinaryUploader() {
                     shopCategorySelect.appendChild(option);
                 });
                 
-                // Add "other" option
                 const otherOption = document.createElement('option');
                 otherOption.value = 'other';
                 otherOption.textContent = 'Other (Create New)';
                 shopCategorySelect.appendChild(otherOption);
                 
-                // Restore current value
                 shopCategorySelect.value = currentValue || 'groceries';
             }
         }
@@ -3209,23 +3244,18 @@ function openCloudinaryUploader() {
             }
             
             try {
-                // Format category name (lowercase, replace spaces with underscores)
                 const formattedCategory = categoryName.trim().toLowerCase().replace(/\s+/g, '_');
                 
-                // Check if category already exists
                 if (!shopCategories.includes(formattedCategory)) {
                     shopCategories.push(formattedCategory);
                     
-                    // Update in Firestore
                     await db.collection('shop_categories').doc(currentShop.id).update({
                         categories: shopCategories,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
-                    // Update dropdowns
                     updateCategoryDropdowns();
                     
-                    // Also update categories in customer app by updating shop document
                     await db.collection('shops').doc(currentShop.id).update({
                         availableCategories: shopCategories,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3277,20 +3307,17 @@ function openCloudinaryUploader() {
                 await db.collection('shops').doc(userId).set(shopData);
                 currentShop = { id: userId, ...shopData };
                 
-                // Create shop categories document
                 await db.collection('shop_categories').doc(userId).set({
                     categories: shopCategories,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Create default shop config
                 await createDefaultShopConfig(userId);
                 
                 showAppScreen();
                 showToast('New shop created! Please update your profile.', 'success');
                 
-                // Setup real-time order listener
                 setupOrderListener();
                 
             } catch (error) {
@@ -3314,7 +3341,6 @@ function openCloudinaryUploader() {
                 }
             } catch (error) {
                 console.error('Error loading shop config:', error);
-                // Create default config if doesn't exist
                 await createDefaultShopConfig(currentShop.id);
             }
         }
@@ -3412,7 +3438,6 @@ function openCloudinaryUploader() {
             document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
             document.getElementById('couponDescription').value = couponSettings.description || '';
             
-            // Show/hide coupon settings section
             toggleCouponSystem();
             
             // Restrictions
@@ -3482,7 +3507,6 @@ function openCloudinaryUploader() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update current config
                 if (currentShopConfig) {
                     currentShopConfig.upiSettings = upiSettings;
                 }
@@ -3497,7 +3521,7 @@ function openCloudinaryUploader() {
             }
         }
 
-        // Save coupon settings
+        // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
         async function saveCouponSettings() {
             if (!currentShop) return;
             
@@ -3517,7 +3541,6 @@ function openCloudinaryUploader() {
                     description: document.getElementById('couponDescription').value.trim()
                 };
                 
-                // Validate coupon code
                 if (couponSettings.enabled && !couponSettings.code) {
                     showToast('Please enter coupon code', 'error');
                     return;
@@ -3534,17 +3557,25 @@ function openCloudinaryUploader() {
                     return;
                 }
                 
+                // Save to shop_config
                 await db.collection('shop_config').doc(currentShop.id).update({
                     'couponSettings': couponSettings,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update current config
+                // ALSO UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+                await db.collection('shops').doc(currentShop.id).update({
+                    couponEnabled: couponSettings.enabled,
+                    couponCode: couponSettings.code,
+                    couponSettings: couponSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 if (currentShopConfig) {
                     currentShopConfig.couponSettings = couponSettings;
                 }
                 
-                showToast('Coupon settings saved successfully!', 'success');
+                showToast('Coupon settings saved successfully! Synced with customer app.', 'success');
                 
             } catch (error) {
                 console.error('Error saving coupon settings:', error);
@@ -3581,7 +3612,6 @@ function openCloudinaryUploader() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update current config
                 if (currentShopConfig) {
                     currentShopConfig.restrictions = restrictions;
                 }
@@ -3623,7 +3653,6 @@ function openCloudinaryUploader() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update current config
                 if (currentShopConfig) {
                     currentShopConfig.orderSettings = orderSettings;
                 }
@@ -3660,11 +3689,18 @@ function openCloudinaryUploader() {
             try {
                 showLoading(true);
                 
-                // Update shop document with config data
+                // Update shop document with all config data
                 await db.collection('shops').doc(currentShop.id).update({
                     configUpdated: true,
                     lastConfigSync: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Also sync specific settings
+                    upiId: document.getElementById('upiId').value.trim(),
+                    deliveryHours: {
+                        start: document.getElementById('deliveryStartTime').value || '09:00',
+                        end: document.getElementById('deliveryEndTime').value || '21:00'
+                    },
+                    minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0
                 });
                 
                 showToast('Settings synced with customer app!', 'success');
@@ -3684,7 +3720,6 @@ function openCloudinaryUploader() {
             try {
                 showLoading(true);
                 
-                // Gather all data
                 const exportData = {
                     shop: currentShop,
                     config: currentShopConfig,
@@ -3694,10 +3729,7 @@ function openCloudinaryUploader() {
                     exportDate: new Date().toISOString()
                 };
                 
-                // Convert to JSON
                 const jsonData = JSON.stringify(exportData, null, 2);
-                
-                // Create download link
                 const blob = new Blob([jsonData], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -3806,7 +3838,6 @@ function openCloudinaryUploader() {
             document.getElementById('authScreen').style.display = 'block';
             document.getElementById('appScreen').style.display = 'none';
             
-            // Clean up listeners
             if (ordersListener) {
                 ordersListener();
                 ordersListener = null;
@@ -3820,13 +3851,11 @@ function openCloudinaryUploader() {
         }
 
         function logout() {
-            // Clean up listeners first
             if (ordersListener) {
                 ordersListener();
                 ordersListener = null;
             }
             
-            // Then log out
             auth.signOut();
             showAuthScreen();
             showToast('Logged out successfully', 'info');
@@ -4002,15 +4031,12 @@ function openCloudinaryUploader() {
                     }
                 }
 
-                // Use the uploaded image (Cloudinary URL or other URL)
                 const productImage = product.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
 
-                // Check refund availability
                 const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
                 const refundType = product.refundType || 'use_shop_default';
                 const refundConditions = product.refundConditions || '';
                 
-                // Determine refund badge
                 let refundBadge = '';
                 if (!refundAvailable) {
                     refundBadge = '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">No Refund</span>';
@@ -4044,7 +4070,6 @@ function openCloudinaryUploader() {
                             
                             ${product.description ? `<p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">${product.description.substring(0, 60)}${product.description.length > 60 ? '...' : ''}</p>` : ''}
                             
-                            <!-- Show refund info if available -->
                             ${refundConditions ? `<p style="color: #f39c12; font-size: 0.8rem; margin-top: 0.5rem;"><i class="fas fa-info-circle"></i> ${refundConditions.substring(0, 50)}${refundConditions.length > 50 ? '...' : ''}</p>` : ''}
                             
                             <div class="product-actions">
@@ -4077,18 +4102,13 @@ function openCloudinaryUploader() {
             document.getElementById('customCategoryName').value = '';
             document.getElementById('customCategoryInput').style.display = 'none';
             
-            // Set default refund values
             document.getElementById('productRefundAvailable').checked = true;
             document.getElementById('productRefundPeriod').value = 7;
             document.getElementById('productRefundType').value = 'use_shop_default';
             document.getElementById('productRefundConditions').value = '';
-            
-            // Show refund details by default
             document.getElementById('productRefundDetails').style.display = 'block';
             
-            // Reset to URL tab
             switchImageTab('url');
-            
             document.getElementById('productModal').classList.add('active');
         }
 
@@ -4109,28 +4129,21 @@ function openCloudinaryUploader() {
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productDescription').value = product.description || '';
             
-            // Set refund values
             const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
             document.getElementById('productRefundAvailable').checked = refundAvailable;
             document.getElementById('productRefundPeriod').value = product.refundPeriod || 7;
             document.getElementById('productRefundType').value = product.refundType || 'use_shop_default';
             document.getElementById('productRefundConditions').value = product.refundConditions || '';
-            
-            // Show/hide refund details
             document.getElementById('productRefundDetails').style.display = refundAvailable ? 'block' : 'none';
             
-            // Check if category is custom
             const category = product.category || 'groceries';
             if (!shopCategories.includes(category) && category !== 'other') {
-                // This is a custom category that doesn't exist in the list
                 document.getElementById('productCategory').value = 'other';
                 document.getElementById('customCategoryName').value = category;
                 document.getElementById('customCategoryInput').style.display = 'block';
             }
             
-            // Check if image exists
             if (product.image) {
-                // Check if image is a Cloudinary URL (contains cloudinary.com or res.cloudinary.com)
                 if (product.image.includes('cloudinary.com') || product.image.includes('res.cloudinary.com')) {
                     document.getElementById('cloudinaryImageUrl').value = product.image;
                     switchImageTab('cloudinary');
@@ -4139,7 +4152,6 @@ function openCloudinaryUploader() {
                     preview.style.display = 'block';
                     document.getElementById('cloudinaryImageInfo').style.display = 'block';
                 } else {
-                    // This is a regular URL
                     switchImageTab('url');
                     document.getElementById('productImage').value = product.image;
                     const preview = document.getElementById('urlImagePreview');
@@ -4147,7 +4159,6 @@ function openCloudinaryUploader() {
                     preview.style.display = 'block';
                 }
             } else {
-                // No image, default to URL tab
                 switchImageTab('url');
             }
             
@@ -4181,7 +4192,6 @@ function openCloudinaryUploader() {
                 return;
             }
             
-            // Handle category
             let category = document.getElementById('productCategory').value;
             if (category === 'other') {
                 const customCategory = document.getElementById('customCategoryName').value.trim();
@@ -4190,7 +4200,6 @@ function openCloudinaryUploader() {
                     return;
                 }
                 
-                // Add new category
                 const success = await addNewCategory(customCategory);
                 if (success) {
                     category = customCategory.toLowerCase().replace(/\s+/g, '_');
@@ -4199,11 +4208,9 @@ function openCloudinaryUploader() {
                 }
             }
             
-            // Get image URL based on selected tab
             let imageUrl = '';
             if (currentImageTab === 'url') {
                 imageUrl = document.getElementById('productImage').value.trim();
-                // If URL is empty, use cloudinary image URL
                 if (!imageUrl) {
                     imageUrl = document.getElementById('cloudinaryImageUrl').value;
                 }
@@ -4211,12 +4218,10 @@ function openCloudinaryUploader() {
                 imageUrl = document.getElementById('cloudinaryImageUrl').value;
             }
             
-            // If still no image, use placeholder
             if (!imageUrl) {
                 imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
             }
             
-            // Get refund settings
             const refundAvailable = document.getElementById('productRefundAvailable').checked;
             const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
             const refundType = document.getElementById('productRefundType').value;
@@ -4291,7 +4296,6 @@ function openCloudinaryUploader() {
                 orders = [];
                 
                 try {
-                    // Query orders using shopId field directly
                     const allOrdersSnapshot = await db.collection('orders')
                         .where('shopId', '==', currentShop.id)
                         .orderBy('createdAt', 'desc')
@@ -4300,8 +4304,6 @@ function openCloudinaryUploader() {
                     
                     allOrdersSnapshot.forEach(doc => {
                         const data = doc.data();
-                        
-                        // Ensure order belongs to current shop
                         if (data.shopId === currentShop.id) {
                             const orderIdFromCustomer = data.orderId || doc.id;
                             const customerId = data.customerId || data.userId || (data.user && data.user.id);
@@ -4320,7 +4322,6 @@ function openCloudinaryUploader() {
                 } catch (error) {
                     console.log('Query error:', error.message);
                     
-                    // Alternative query without orderBy
                     try {
                         const allOrdersSnapshot = await db.collection('orders')
                             .where('shopId', '==', currentShop.id)
@@ -4328,7 +4329,6 @@ function openCloudinaryUploader() {
                         
                         allOrdersSnapshot.forEach(doc => {
                             const data = doc.data();
-                            
                             if (data.shopId === currentShop.id) {
                                 const orderIdFromCustomer = data.orderId || doc.id;
                                 const customerId = data.customerId || data.userId || (data.user && data.user.id);
@@ -4345,7 +4345,6 @@ function openCloudinaryUploader() {
                             }
                         });
                         
-                        // Sort manually by date
                         orders.sort((a, b) => {
                             const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0);
                             const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0);
@@ -4357,10 +4356,7 @@ function openCloudinaryUploader() {
                     }
                 }
                 
-                // Load order items for each order
                 await loadOrderItemsForOrders();
-                
-                // Load refund status for each order
                 await updateOrdersWithRefundInfo();
                 
                 filterOrders();
@@ -4384,7 +4380,6 @@ function openCloudinaryUploader() {
             
             try {
                 for (let order of orders) {
-                    // Try to load order items from orderItems collection
                     try {
                         const orderItemsSnapshot = await db.collection('orderItems')
                             .where('orderId', '==', order.id)
@@ -4398,7 +4393,6 @@ function openCloudinaryUploader() {
                             });
                             order.orderItems = items;
                         } else {
-                            // If no order items collection, use items from order
                             order.orderItems = order.items || [];
                         }
                     } catch (error) {
@@ -4480,16 +4474,11 @@ function openCloudinaryUploader() {
                         }) : 
                         'Recently';
                     
-                    // Status text
                     let statusText = '';
                     let statusClass = '';
                     
-                    // Check if shop offers pickup only
                     const isPickupOnly = currentShop.deliveryType === 'pickup_only';
-                    const isDeliveryOnly = currentShop.deliveryType === 'delivery_only';
-                    const isBoth = currentShop.deliveryType === 'both';
                     
-                    // Determine status based on shop service type
                     switch(order.status) {
                         case 'pending':
                             statusText = 'Pending';
@@ -4540,7 +4529,6 @@ function openCloudinaryUploader() {
                             statusClass = 'status-text';
                     }
                     
-                    // Order items display
                     let itemsDisplay = '';
                     let partialBadge = '';
                     
@@ -4591,7 +4579,6 @@ function openCloudinaryUploader() {
                         itemsDisplay = 'No items';
                     }
                     
-                    // Customer info
                     const customerName = order.customerName || order.name || order.userName || 
                                        (order.user && order.user.name) || 
                                        (order.customer && order.customer.name) || 
@@ -4602,25 +4589,69 @@ function openCloudinaryUploader() {
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // Address extraction
+                    // IMPROVED ADDRESS EXTRACTION
                     let customerAddress = 'N/A';
                     
-                    // Try different address fields in order
-                    if (order.shippingAddress && typeof order.shippingAddress === 'string') {
-                        customerAddress = order.shippingAddress;
-                    } else if (order.address && typeof order.address === 'string') {
-                        customerAddress = order.address;
+                    // Try different address fields with better extraction
+                    if (order.shippingAddress) {
+                        if (typeof order.shippingAddress === 'string') {
+                            customerAddress = order.shippingAddress;
+                        } else if (typeof order.shippingAddress === 'object') {
+                            // Handle structured address object
+                            const addr = order.shippingAddress;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
+                    } else if (order.address) {
+                        if (typeof order.address === 'string') {
+                            customerAddress = order.address;
+                        } else if (typeof order.address === 'object') {
+                            const addr = order.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
                     } else if (order.customerAddress && typeof order.customerAddress === 'string') {
                         customerAddress = order.customerAddress;
-                    } else if (order.user && order.user.address && typeof order.user.address === 'string') {
-                        customerAddress = order.user.address;
-                    } else if (order.customer && order.customer.address && typeof order.customer.address === 'string') {
-                        customerAddress = order.customer.address;
+                    } else if (order.user && order.user.address) {
+                        if (typeof order.user.address === 'string') {
+                            customerAddress = order.user.address;
+                        } else if (typeof order.user.address === 'object') {
+                            const addr = order.user.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
+                    } else if (order.customer && order.customer.address) {
+                        if (typeof order.customer.address === 'string') {
+                            customerAddress = order.customer.address;
+                        } else if (typeof order.customer.address === 'object') {
+                            const addr = order.customer.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
                     } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                         customerAddress = order.deliveryAddress;
                     }
                     
-                    // Payment method
                     let paymentText = '';
                     const paymentMethod = order.paymentMethod || 'cod';
                     let paymentStatus = order.paymentStatus || 'pending';
@@ -4653,7 +4684,6 @@ function openCloudinaryUploader() {
                         }
                     }
                     
-                    // Order amount
                     let orderAmount = 0;
                     if (order.isPartialOrder) {
                         orderAmount = order.acceptedTotal || order.total || 0;
@@ -4661,18 +4691,15 @@ function openCloudinaryUploader() {
                         orderAmount = order.total || order.totalAmount || 0;
                     }
                     
-                    // Check coupon usage
                     let couponBadge = '';
                     if (order.couponCode) {
                         const couponDiscount = order.couponDiscount || 0;
                         couponBadge = ` <span class="badge bg-info" title="Coupon: ${order.couponCode}, Discount: ₹${couponDiscount.toFixed(2)}">Coupon Applied</span>`;
                     }
                     
-                    // Action buttons
                     let actionButtons = '';
                     const firestoreId = order.firestoreId || order.id;
                     
-                    // Check if order has refund
                     const hasRefund = order.refundStatus && order.refundStatus !== 'none';
                     
                     if (order.status === 'pending') {
@@ -4744,7 +4771,6 @@ function openCloudinaryUploader() {
                             actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                         
-                        // Add refund button for delivered orders (only if no refund exists)
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
                                 <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
@@ -4756,7 +4782,6 @@ function openCloudinaryUploader() {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
                     }
                     
-                    // Add manage items button for preparing and packed orders
                     if (order.status === 'preparing' || order.status === 'packed') {
                         actionButtons += `
                             <button class="action-btn btn-info mt-1" onclick="showOrderItemsModal('${firestoreId}')">
@@ -4765,7 +4790,6 @@ function openCloudinaryUploader() {
                         `;
                     }
                     
-                    // Add refund status if refund exists
                     if (hasRefund) {
                         let refundStatusText = '';
                         let refundStatusClass = '';
@@ -4790,7 +4814,6 @@ function openCloudinaryUploader() {
                         `;
                     }
                     
-                    // Add view details button
                     actionButtons += `
                         <button class="action-btn btn-info mt-1" onclick="viewOrderDetails('${firestoreId}')">
                             <i class="fas fa-eye"></i> View Details
@@ -4840,7 +4863,6 @@ function openCloudinaryUploader() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                // Add status-specific fields
                 if (newStatus === 'preparing') {
                     updateData.preparationStartTime = firebase.firestore.FieldValue.serverTimestamp();
                 } else if (newStatus === 'packed') {
@@ -4954,7 +4976,6 @@ function openCloudinaryUploader() {
                         currentOrderItems[index].status = newStatus;
                         hasChanges = true;
                         
-                        // Update in orderItems collection if exists
                         if (currentOrderItems[index].id) {
                             await db.collection('orderItems').doc(currentOrderItems[index].id).update({
                                 status: newStatus,
@@ -5001,7 +5022,6 @@ function openCloudinaryUploader() {
                     }) : 
                     'Recently';
                 
-                // Customer info
                 const customerName = order.customerName || order.name || order.userName || 
                                    (order.user && order.user.name) || 
                                    (order.customer && order.customer.name) || 
@@ -5012,20 +5032,67 @@ function openCloudinaryUploader() {
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // Address extraction
+                // IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
                 let customerAddress = 'N/A';
                 
-                // Try different address fields in order
-                if (order.shippingAddress && typeof order.shippingAddress === 'string') {
-                    customerAddress = order.shippingAddress;
-                } else if (order.address && typeof order.address === 'string') {
-                    customerAddress = order.address;
+                if (order.shippingAddress) {
+                    if (typeof order.shippingAddress === 'string') {
+                        customerAddress = order.shippingAddress;
+                    } else if (typeof order.shippingAddress === 'object') {
+                        const addr = order.shippingAddress;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                } else if (order.address) {
+                    if (typeof order.address === 'string') {
+                        customerAddress = order.address;
+                    } else if (typeof order.address === 'object') {
+                        const addr = order.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
                 } else if (order.customerAddress && typeof order.customerAddress === 'string') {
                     customerAddress = order.customerAddress;
-                } else if (order.user && order.user.address && typeof order.user.address === 'string') {
-                    customerAddress = order.user.address;
-                } else if (order.customer && order.customer.address && typeof order.customer.address === 'string') {
-                    customerAddress = order.customer.address;
+                } else if (order.user && order.user.address) {
+                    if (typeof order.user.address === 'string') {
+                        customerAddress = order.user.address;
+                    } else if (typeof order.user.address === 'object') {
+                        const addr = order.user.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                } else if (order.customer && order.customer.address) {
+                    if (typeof order.customer.address === 'string') {
+                        customerAddress = order.customer.address;
+                    } else if (typeof order.customer.address === 'object') {
+                        const addr = order.customer.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
                 } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                     customerAddress = order.deliveryAddress;
                 }
@@ -5035,7 +5102,6 @@ function openCloudinaryUploader() {
                                     (order.customer && order.customer.email) ||
                                     'N/A';
                 
-                // Order items
                 let itemsHtml = '';
                 const orderItems = order.orderItems || order.items || [];
                 
@@ -5106,11 +5172,9 @@ function openCloudinaryUploader() {
                     itemsHtml += '</tbody></table>';
                 }
                 
-                // Status
                 let statusText = '';
                 let statusClass = '';
                 
-                // Check if shop offers pickup only
                 const isPickupOnly = currentShop.deliveryType === 'pickup_only';
                 
                 switch(order.status) {
@@ -5163,7 +5227,6 @@ function openCloudinaryUploader() {
                         statusClass = 'status-text';
                 }
                 
-                // Payment
                 const paymentMethod = order.paymentMethod || 'cod';
                 const paymentStatus = order.paymentStatus || 'pending';
                 
@@ -5178,7 +5241,6 @@ function openCloudinaryUploader() {
                 let paymentStatusText = paymentStatus === 'paid' ? 'Paid' : 'Unpaid';
                 let paymentStatusClass = paymentStatus === 'paid' ? 'payment-text payment-paid' : 'payment-text payment-unpaid';
                 
-                // Order amount
                 let orderAmount = 0;
                 if (order.isPartialOrder) {
                     orderAmount = order.acceptedTotal || order.total || 0;
@@ -5186,7 +5248,6 @@ function openCloudinaryUploader() {
                     orderAmount = order.total || order.totalAmount || 0;
                 }
                 
-                // Coupon info
                 let couponInfoHtml = '';
                 if (order.couponCode) {
                     const couponDiscount = order.couponDiscount || 0;
@@ -5207,7 +5268,6 @@ function openCloudinaryUploader() {
                     `;
                 }
                 
-                // Partial order info
                 let partialInfoHtml = '';
                 if (order.isPartialOrder) {
                     const acceptedItems = order.acceptedItems || [];
@@ -5236,7 +5296,6 @@ function openCloudinaryUploader() {
                     }
                 }
                 
-                // Service type info
                 let serviceTypeHtml = '';
                 if (currentShop.deliveryType === 'pickup_only') {
                     serviceTypeHtml = `
@@ -5261,7 +5320,6 @@ function openCloudinaryUploader() {
                     `;
                 }
                 
-                // Timestamps
                 let timestampsHtml = '';
                 if (order.preparationStartTime || order.packedTime || order.readyForPickupTime || 
                     order.outForDeliveryTime || order.deliveredTime) {
@@ -5409,7 +5467,7 @@ function openCloudinaryUploader() {
                         
                         ${timestampsHtml}
                         
-                        <!-- Customer Information -->
+                        <!-- Customer Information - WITH IMPROVED ADDRESS -->
                         <div class="order-section">
                             <h4><i class="fas fa-user"></i> Customer Information</h4>
                             <div class="order-grid">
@@ -5427,7 +5485,7 @@ function openCloudinaryUploader() {
                                 </div>
                                 <div class="order-info-item">
                                     <div class="order-info-label">Address:</div>
-                                    <div class="order-info-value">${customerAddress}</div>
+                                    <div class="order-info-value" style="white-space: pre-wrap;">${customerAddress}</div>
                                 </div>
                             </div>
                         </div>
@@ -5594,93 +5652,83 @@ function openCloudinaryUploader() {
             }
         }
 
-        // ==================== REFUND MANAGEMENT ====================
+        // ==================== REFUND MANAGEMENT - FIXED ====================
         
         // Load refunds function
-async function loadRefunds() {
-    if (!currentShop) return;
-    
-    try {
-        showLoading(true);
-        
-        refunds = [];
-        
-        // Query refunds collection by shopId
-        try {
-            const refundsSnapshot = await db.collection('refunds')
-                .where('shopId', '==', currentShop.id)
-                .orderBy('initiatedAt', 'desc')
-                .get();
+        async function loadRefunds() {
+            if (!currentShop) return;
             
-            refundsSnapshot.forEach(doc => {
-                const refundData = doc.data();
-                refunds.push({ 
-                    id: doc.id, 
-                    ...refundData,
-                    shortId: 'REF-' + (refundData.refundId ? 
-                        refundData.refundId.substring(refundData.refundId.length - 6) : 
-                        doc.id.substring(doc.id.length - 6)).toUpperCase()
-                });
-            });
-        } catch (error) {
-            console.error('Error querying refunds:', error);
-            
-            // Try alternative query without orderBy
             try {
-                const refundsSnapshot = await db.collection('refunds')
-                    .where('shopId', '==', currentShop.id)
-                    .get();
+                showLoading(true);
                 
-                refundsSnapshot.forEach(doc => {
-                    const refundData = doc.data();
-                    refunds.push({ 
-                        id: doc.id, 
-                        ...refundData,
-                        shortId: 'REF-' + (refundData.refundId ? 
-                            refundData.refundId.substring(refundData.refundId.length - 6) : 
-                            doc.id.substring(doc.id.length - 6)).toUpperCase()
+                refunds = [];
+                
+                try {
+                    const refundsSnapshot = await db.collection('refunds')
+                        .where('shopId', '==', currentShop.id)
+                        .orderBy('initiatedAt', 'desc')
+                        .get();
+                    
+                    refundsSnapshot.forEach(doc => {
+                        const refundData = doc.data();
+                        refunds.push({ 
+                            id: doc.id, 
+                            ...refundData,
+                            shortId: 'REF-' + (refundData.refundId ? 
+                                refundData.refundId.substring(refundData.refundId.length - 6) : 
+                                doc.id.substring(doc.id.length - 6)).toUpperCase()
+                        });
                     });
-                });
+                } catch (error) {
+                    console.error('Error querying refunds:', error);
+                    
+                    try {
+                        const refundsSnapshot = await db.collection('refunds')
+                            .where('shopId', '==', currentShop.id)
+                            .get();
+                        
+                        refundsSnapshot.forEach(doc => {
+                            const refundData = doc.data();
+                            refunds.push({ 
+                                id: doc.id, 
+                                ...refundData,
+                                shortId: 'REF-' + (refundData.refundId ? 
+                                    refundData.refundId.substring(refundData.refundId.length - 6) : 
+                                    doc.id.substring(doc.id.length - 6)).toUpperCase()
+                            });
+                        });
+                        
+                        refunds.sort((a, b) => {
+                            const dateA = a.initiatedAt ? (a.initiatedAt.toDate ? a.initiatedAt.toDate() : new Date(a.initiatedAt)) : new Date(0);
+                            const dateB = b.initiatedAt ? (b.initiatedAt.toDate ? b.initiatedAt.toDate() : new Date(b.initiatedAt)) : new Date(0);
+                            return dateB - dateA;
+                        });
+                        
+                    } catch (secondError) {
+                        console.error('Alternative query also failed:', secondError);
+                    }
+                }
                 
-                // Sort manually by date
-                refunds.sort((a, b) => {
-                    const dateA = a.initiatedAt ? (a.initiatedAt.toDate ? a.initiatedAt.toDate() : new Date(a.initiatedAt)) : new Date(0);
-                    const dateB = b.initiatedAt ? (b.initiatedAt.toDate ? b.initiatedAt.toDate() : new Date(b.initiatedAt)) : new Date(0);
-                    return dateB - dateA;
-                });
+                filterRefunds();
+                updateRefundStats();
+                await updateOrdersWithRefundInfo();
                 
-            } catch (secondError) {
-                console.error('Alternative query also failed:', secondError);
+            } catch (error) {
+                console.error("Error loading refunds:", error);
+                showToast('Error loading refunds: ' + error.message, 'error');
+                refunds = [];
+                filteredRefunds = [];
+                renderRefunds();
+            } finally {
+                showLoading(false);
             }
         }
-        
-        // Filter refunds
-        filterRefunds();
-        
-        // Update refund stats
-        updateRefundStats();
-        
-        // Also update orders with refund info
-        await updateOrdersWithRefundInfo();
-        
-    } catch (error) {
-        console.error("Error loading refunds:", error);
-        showToast('Error loading refunds: ' + error.message, 'error');
-        refunds = [];
-        filteredRefunds = [];
-        renderRefunds();
-    } finally {
-        showLoading(false);
-    }
-}
 
         // Update orders with refund info
         async function updateOrdersWithRefundInfo() {
-            // Update orders array with refund information
             for (let i = 0; i < orders.length; i++) {
                 const order = orders[i];
                 
-                // Try to find refund for this order
                 const orderRefunds = refunds.filter(r => 
                     r.orderId === order.id || 
                     r.orderId === order.orderId ||
@@ -5697,7 +5745,6 @@ async function loadRefunds() {
                 }
             }
             
-            // Re-render orders to show refund status
             renderOrders();
         }
 
@@ -5767,7 +5814,6 @@ async function loadRefunds() {
                             })) : 
                         'N/A';
                     
-                    // Status text
                     let statusText = '';
                     let statusClass = '';
                     
@@ -5789,7 +5835,6 @@ async function loadRefunds() {
                             statusClass = 'status-text';
                     }
                     
-                    // Action buttons
                     let actionButtons = '';
                     
                     if (refund.status === 'pending') {
@@ -5838,7 +5883,7 @@ async function loadRefunds() {
             refundsList.innerHTML = refundsHtml;
         }
 
-        // Show initiate refund modal
+        // Show initiate refund modal - FIXED TO SHOW ONLY UNFULFILLED ITEMS
         function showInitiateRefundModal(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -5848,19 +5893,16 @@ async function loadRefunds() {
             
             currentRefundOrder = order;
             
-            // Populate form
             document.getElementById('refundOrderId').value = order.id;
             document.getElementById('refundCustomerId').value = order.customerId || '';
             document.getElementById('displayOrderId').value = order.id;
             
-            // Customer info
             const customerName = order.customerName || order.name || order.userName || 
                                (order.user && order.user.name) || 
                                (order.customer && order.customer.name) || 
                                'Customer';
             document.getElementById('refundCustomerName').value = customerName;
             
-            // Load order items
             const itemsList = document.getElementById('refundItemsList');
             let itemsHtml = '';
             
@@ -5869,113 +5911,128 @@ async function loadRefunds() {
             if (orderItems.length === 0) {
                 itemsHtml = '<p class="text-muted">No items in this order</p>';
             } else {
-                itemsHtml = '<p>Select items to refund:</p>';
+                itemsHtml = '<p>Select items to refund (only unfulfilled items shown):</p>';
                 
                 // For partial orders, automatically select rejected items
                 const rejectedItems = order.rejectedItems || [];
                 const acceptedItems = order.acceptedItems || [];
                 
+                // Filter items to show only unfulfilled items
+                const unfulfilledItems = [];
+                
                 orderItems.forEach((item, index) => {
-                    const itemTotal = (item.price || 0) * (item.quantity || 1);
-                    
-                    // Check if this item was rejected in partial order
-                    let isRejectedItem = false;
-                    let rejectedQuantity = 0;
-                    
-                    if (order.isPartialOrder && rejectedItems.length > 0) {
-                        const rejectedItem = rejectedItems.find(ri => ri.name === item.name || ri.productId === item.productId);
-                        if (rejectedItem) {
-                            isRejectedItem = true;
-                            rejectedQuantity = rejectedItem.quantity || 0;
-                        }
-                    }
-                    
-                    // Check if this item was accepted in partial order
                     let isAcceptedItem = false;
                     let acceptedQuantity = 0;
                     
                     if (order.isPartialOrder && acceptedItems.length > 0) {
-                        const acceptedItem = acceptedItems.find(ai => ai.name === item.name || ai.productId === item.productId);
+                        const acceptedItem = acceptedItems.find(ai => 
+                            ai.name === item.name || 
+                            ai.productId === item.productId ||
+                            ai.id === item.id
+                        );
                         if (acceptedItem) {
                             isAcceptedItem = true;
                             acceptedQuantity = acceptedItem.quantity || 0;
                         }
                     }
                     
-                    // Determine default checkbox state and quantity
-                    let isChecked = false;
-                    let defaultQuantity = 0;
-                    let maxQuantity = item.quantity || 1;
-                    
-                    if (order.isPartialOrder) {
-                        // For partial orders, default to rejected items
-                        if (isRejectedItem) {
-                            isChecked = true;
-                            defaultQuantity = rejectedQuantity;
-                        } else if (isAcceptedItem) {
-                            // For accepted items, allow full refund
-                            isChecked = true;
-                            defaultQuantity = acceptedQuantity;
-                        }
-                    } else {
-                        // For full orders, default to full quantity
-                        isChecked = true;
-                        defaultQuantity = maxQuantity;
+                    // If it's not an accepted item, or if quantity delivered is less than ordered
+                    if (!isAcceptedItem || acceptedQuantity < (item.quantity || 1)) {
+                        unfulfilledItems.push({
+                            ...item,
+                            index: index,
+                            maxQuantity: isAcceptedItem ? 
+                                ((item.quantity || 1) - acceptedQuantity) : 
+                                (item.quantity || 1)
+                        });
                     }
-                    
-                    itemsHtml += `
-                        <div class="refund-item-control">
-                            <div class="item-info">
-                                <input type="checkbox" class="refund-checkbox" id="item_${index}" 
-                                       data-price="${item.price || 0}" data-quantity="${maxQuantity}"
-                                       ${isChecked ? 'checked' : ''}
-                                       onchange="calculateRefundAmount()">
-                                <label for="item_${index}">
-                                    <div class="item-name">${item.name || 'Product'}</div>
-                                    <div class="item-price">₹${(item.price || 0).toFixed(2)} × ${maxQuantity} = ₹${itemTotal.toFixed(2)}</div>
-                                    ${order.isPartialOrder ? `
-                                        <small class="text-muted">
-                                            ${isRejectedItem ? `Rejected: ${rejectedQuantity} units` : ''}
-                                            ${isAcceptedItem ? `Accepted: ${acceptedQuantity} units` : ''}
-                                        </small>
-                                    ` : ''}
-                                </label>
-                            </div>
-                            <div>
-                                <input type="number" class="refund-quantity" id="quantity_${index}" 
-                                       min="0" max="${maxQuantity}" value="${defaultQuantity}"
-                                       onchange="calculateRefundAmount()" ${isChecked ? '' : 'disabled'}>
-                            </div>
-                        </div>
-                    `;
                 });
+                
+                if (unfulfilledItems.length === 0) {
+                    itemsHtml = '<p class="text-success"><i class="fas fa-check-circle"></i> All items were fulfilled. No refundable items found.</p>';
+                } else {
+                    unfulfilledItems.forEach((item) => {
+                        const itemTotal = (item.price || 0) * item.maxQuantity;
+                        const index = item.index;
+                        
+                        itemsHtml += `
+                            <div class="refund-item-control">
+                                <div class="item-info">
+                                    <input type="checkbox" class="refund-checkbox" id="item_${index}" 
+                                           data-price="${item.price || 0}" data-quantity="${item.maxQuantity}"
+                                           checked
+                                           onchange="calculateRefundAmount()">
+                                    <label for="item_${index}">
+                                        <div class="item-name">${item.name || 'Product'} <span class="badge bg-warning">Unfulfilled</span></div>
+                                        <div class="item-price">₹${(item.price || 0).toFixed(2)} × ${item.maxQuantity} = ₹${itemTotal.toFixed(2)}</div>
+                                        ${order.isPartialOrder ? `
+                                            <small class="text-muted">
+                                                Ordered: ${item.quantity || 1}, Fulfilled: ${(item.quantity || 1) - item.maxQuantity}
+                                            </small>
+                                        ` : ''}
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="number" class="refund-quantity" id="quantity_${index}" 
+                                           min="0" max="${item.maxQuantity}" value="${item.maxQuantity}"
+                                           onchange="calculateRefundAmount()">
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
             }
             
             itemsList.innerHTML = itemsHtml;
             
-            // Set max refund amount
+            // Calculate max refund amount based on unfulfilled items
             let maxAmount = 0;
+            
             if (order.isPartialOrder) {
-                // For partial orders, max amount is accepted total
-                maxAmount = order.acceptedTotal || 0;
-                
-                // Also include value of rejected items
+                // For partial orders, max amount is rejected items total
                 const rejectedItems = order.rejectedItems || [];
-                const rejectedAmount = rejectedItems.reduce((sum, item) => {
+                maxAmount = rejectedItems.reduce((sum, item) => {
                     return sum + ((item.price || 0) * (item.quantity || 1));
                 }, 0);
                 
-                maxAmount += rejectedAmount;
+                // Also add difference for partially fulfilled items
+                const acceptedItems = order.acceptedItems || [];
+                orderItems.forEach(item => {
+                    const acceptedItem = acceptedItems.find(ai => 
+                        ai.name === item.name || 
+                        ai.productId === item.productId ||
+                        ai.id === item.id
+                    );
+                    if (acceptedItem) {
+                        const orderedQuantity = item.quantity || 1;
+                        const acceptedQuantity = acceptedItem.quantity || 0;
+                        if (acceptedQuantity < orderedQuantity) {
+                            maxAmount += (item.price || 0) * (orderedQuantity - acceptedQuantity);
+                        }
+                    }
+                });
             } else {
-                maxAmount = order.total || order.totalAmount || 0;
+                // For full orders, check if all items were delivered
+                const isFullyDelivered = order.status === 'delivered' || order.status === 'picked_up';
+                if (!isFullyDelivered) {
+                    // If not delivered, refund entire amount
+                    maxAmount = order.total || order.totalAmount || 0;
+                } else {
+                    // If delivered, only refund unfulfilled items
+                    maxAmount = orderItems.reduce((sum, item) => {
+                        const itemStatus = item.status || 'delivered';
+                        if (itemStatus !== 'delivered') {
+                            return sum + ((item.price || 0) * (item.quantity || 1));
+                        }
+                        return sum;
+                    }, 0);
+                }
             }
             
             document.getElementById('maxRefundAmount').textContent = maxAmount.toFixed(2);
             
-            // Calculate initial refund amount
             calculateRefundAmount();
             
-            // Show modal
             document.getElementById('initiateRefundModal').classList.add('active');
         }
 
@@ -6028,14 +6085,12 @@ async function loadRefunds() {
                 return;
             }
             
-            // Check if amount is greater than max refund amount
             const maxAmount = parseFloat(document.getElementById('maxRefundAmount').textContent);
             if (amount > maxAmount) {
                 showToast(`Refund amount cannot exceed ₹${maxAmount.toFixed(2)}`, 'error');
                 return;
             }
             
-            // Get selected items
             const refundItems = [];
             const checkboxes = document.querySelectorAll('.refund-checkbox:checked');
             
@@ -6060,12 +6115,10 @@ async function loadRefunds() {
             try {
                 showLoading(true);
                 
-                // Generate refund ID with unified format
                 const timestamp = Date.now();
                 const random = Math.random().toString(36).substring(2, 8).toUpperCase();
                 const refundId = `REF_${timestamp}_${random}`;
                 
-                // Get customer name from order
                 const customerName = currentRefundOrder?.customerName || 
                                    currentRefundOrder?.name || 
                                    currentRefundOrder?.userName || 
@@ -6092,10 +6145,8 @@ async function loadRefunds() {
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                // Save to Firestore
                 await db.collection('refunds').add(refundData);
                 
-                // Update order with refund status
                 if (currentRefundOrder && currentRefundOrder.firestoreId) {
                     await db.collection('orders').doc(currentRefundOrder.firestoreId).update({
                         refundStatus: 'pending',
@@ -6108,7 +6159,6 @@ async function loadRefunds() {
                 showToast('Refund initiated successfully!', 'success');
                 closeInitiateRefundModal();
                 
-                // Reload data
                 await loadRefunds();
                 await loadOrders();
                 await loadDashboardData();
@@ -6133,7 +6183,6 @@ async function loadRefunds() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
-                // Add timestamp based on status
                 if (newStatus === 'completed') {
                     updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
                     updateData.completedBy = currentShop.id;
@@ -6146,10 +6195,8 @@ async function loadRefunds() {
                     }
                 }
                 
-                // Update the refund document
                 await db.collection('refunds').doc(refundId).update(updateData);
                 
-                // Get the refund data to get orderId
                 const refundDoc = await db.collection('refunds').doc(refundId).get();
                 if (!refundDoc.exists) {
                     throw new Error('Refund document not found');
@@ -6159,12 +6206,9 @@ async function loadRefunds() {
                 const orderId = refundData.orderId;
                 const refundAmount = refundData.amount || 0;
                 
-                // Find and update the corresponding order
-                // Try by orderId field
                 let orderQuery = await db.collection('orders').where('orderId', '==', orderId).get();
                 
                 if (orderQuery.empty) {
-                    // Try by document ID
                     const orderDoc = await db.collection('orders').doc(orderId).get();
                     if (orderDoc.exists) {
                         await orderDoc.ref.update({
@@ -6174,7 +6218,6 @@ async function loadRefunds() {
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     } else {
-                        // Try by searching in all orders
                         const allOrders = await db.collection('orders')
                             .where('shopId', '==', currentShop.id)
                             .get();
@@ -6197,7 +6240,6 @@ async function loadRefunds() {
                         }
                     }
                 } else {
-                    // Update the found order
                     const orderDoc = orderQuery.docs[0];
                     await orderDoc.ref.update({
                         refundStatus: newStatus,
@@ -6209,7 +6251,6 @@ async function loadRefunds() {
                 
                 showToast(`Refund ${newStatus === 'completed' ? 'completed successfully!' : 'rejected!'}`, 'success');
                 
-                // Reload all data
                 await loadRefunds();
                 await loadOrders();
                 await loadDashboardData();
@@ -6556,7 +6597,6 @@ async function loadRefunds() {
             const shopCategory = document.getElementById('shopCategory').value;
             let finalCategory = shopCategory;
             
-            // Handle new category creation
             if (shopCategory === 'other') {
                 const newCategoryName = document.getElementById('newCategoryName').value.trim();
                 if (!newCategoryName) {
@@ -6564,7 +6604,6 @@ async function loadRefunds() {
                     return;
                 }
                 
-                // Add new category
                 const success = await addNewCategory(newCategoryName);
                 if (success) {
                     finalCategory = newCategoryName.toLowerCase().replace(/\s+/g, '_');
@@ -6638,65 +6677,16 @@ async function loadRefunds() {
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             
+            // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Profile form
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            
+            // Settings forms - FIXED EVENT LISTENERS
             document.getElementById('upiSettingsForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 saveUPISettings();
             });
-            document.getElementById('restrictionsForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveRestrictions();
-            });
-            document.getElementById('orderSettingsForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveOrderSettings();
-            });
             
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        navigateToPage(page);
-                    }
-                });
-            });
-            
-            // Category selection handlers
-            document.getElementById('shopCategory').addEventListener('change', function() {
-                const newCategoryInput = document.getElementById('newCategoryInput');
-                if (this.value === 'other') {
-                    newCategoryInput.style.display = 'block';
-                } else {
-                    newCategoryInput.style.display = 'none';
-                }
-            });
-            
-            document.getElementById('productCategory').addEventListener('change', function() {
-                const customCategoryInput = document.getElementById('customCategoryInput');
-                if (this.value === 'other') {
-                    customCategoryInput.style.display = 'block';
-                } else {
-                    customCategoryInput.style.display = 'none';
-                }
-            });
-            
-            const productSearch = document.getElementById('productSearch');
-            if (productSearch) {
-                productSearch.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    // Add search functionality here if needed
-                });
-            }
-            
-            document.getElementById('productForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveProduct();
-            });
-            
-            setupServiceOptions();
-        });
-    </script>
-</body>
-</html>
+            // Restricti

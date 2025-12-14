@@ -3408,7 +3408,7 @@
             }
         }
 
-        // Update settings form with current config
+        // Update settings form with current config - FIXED FOR COUPON SYSTEM
         function updateSettingsForm() {
             if (!currentShopConfig) return;
             
@@ -3422,11 +3422,14 @@
             document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
             document.getElementById('acceptCard').checked = acceptedMethods.card || false;
             
-            // Coupon Settings
+            // Coupon Settings - FIXED: Load from currentShop first, then from config
             const couponSettings = currentShopConfig.couponSettings || {};
-            document.getElementById('couponSystemEnabled').checked = couponSettings.enabled || false;
-            document.getElementById('couponSystemStatus').textContent = couponSettings.enabled ? 
-                'Coupon System: Enabled' : 'Coupon System: Disabled';
+            const couponEnabled = currentShop.couponEnabled || couponSettings.enabled || false;
+            
+            document.getElementById('couponSystemEnabled').checked = couponEnabled;
+            
+            // Update status label immediately
+            updateCouponStatusLabel(couponEnabled);
             
             document.getElementById('couponCode').value = couponSettings.code || '';
             document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
@@ -3438,6 +3441,7 @@
             document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
             document.getElementById('couponDescription').value = couponSettings.description || '';
             
+            // Toggle coupon section based on current state
             toggleCouponSystem();
             
             // Restrictions
@@ -3469,14 +3473,21 @@
             document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
         }
 
-        // Toggle coupon system
+        // Update coupon status label
+        function updateCouponStatusLabel(enabled) {
+            const statusLabel = document.getElementById('couponSystemStatus');
+            if (statusLabel) {
+                statusLabel.textContent = enabled ? 
+                    'Coupon System: Enabled' : 'Coupon System: Disabled';
+            }
+        }
+
+        // Toggle coupon system - FIXED
         function toggleCouponSystem() {
             const couponEnabled = document.getElementById('couponSystemEnabled').checked;
             const couponSection = document.getElementById('couponSettingsSection');
-            const statusLabel = document.getElementById('couponSystemStatus');
             
-            statusLabel.textContent = couponEnabled ? 
-                'Coupon System: Enabled' : 'Coupon System: Disabled';
+            updateCouponStatusLabel(couponEnabled);
             
             if (couponEnabled) {
                 couponSection.style.display = 'block';
@@ -3535,9 +3546,12 @@
             try {
                 showLoading(true);
                 
+                const couponEnabled = document.getElementById('couponSystemEnabled').checked;
+                const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+                
                 const couponSettings = {
-                    enabled: document.getElementById('couponSystemEnabled').checked,
-                    code: document.getElementById('couponCode').value.trim().toUpperCase(),
+                    enabled: couponEnabled,
+                    code: couponCode,
                     discountType: document.getElementById('couponDiscountType').value,
                     value: parseFloat(document.getElementById('couponValue').value) || 0,
                     minOrder: parseFloat(document.getElementById('couponMinOrder').value) || 0,
@@ -3548,41 +3562,55 @@
                     description: document.getElementById('couponDescription').value.trim()
                 };
                 
-                if (couponSettings.enabled && !couponSettings.code) {
-                    showToast('Please enter coupon code', 'error');
-                    return;
+                // Validation
+                if (couponEnabled) {
+                    if (!couponCode) {
+                        showToast('Please enter coupon code', 'error');
+                        return;
+                    }
+                    
+                    if (couponCode.length < 3) {
+                        showToast('Coupon code must be at least 3 characters', 'error');
+                        return;
+                    }
+                    
+                    if (couponSettings.discountType === 'percentage' && 
+                        (couponSettings.value < 1 || couponSettings.value > 100)) {
+                        showToast('Percentage discount must be between 1-100%', 'error');
+                        return;
+                    }
                 }
                 
-                if (couponSettings.enabled && couponSettings.code.length < 3) {
-                    showToast('Coupon code must be at least 3 characters', 'error');
-                    return;
-                }
-                
-                if (couponSettings.enabled && couponSettings.discountType === 'percentage' && 
-                    (couponSettings.value < 1 || couponSettings.value > 100)) {
-                    showToast('Percentage discount must be between 1-100%', 'error');
-                    return;
-                }
-                
-                // Save to shop_config
+                // 1. Save to shop_config
                 await db.collection('shop_config').doc(currentShop.id).update({
                     'couponSettings': couponSettings,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // ALSO UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+                // 2. UPDATE MAIN SHOP DOCUMENT - THIS IS CRITICAL FOR CUSTOMER APP
                 await db.collection('shops').doc(currentShop.id).update({
-                    couponEnabled: couponSettings.enabled,
-                    couponCode: couponSettings.code,
+                    couponEnabled: couponEnabled,
+                    couponCode: couponEnabled ? couponCode : '',
                     couponSettings: couponSettings,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
+                // 3. Also update currentShop object
+                if (currentShop) {
+                    currentShop.couponEnabled = couponEnabled;
+                    currentShop.couponCode = couponEnabled ? couponCode : '';
+                    currentShop.couponSettings = couponSettings;
+                }
+                
+                // 4. Update config
                 if (currentShopConfig) {
                     currentShopConfig.couponSettings = couponSettings;
                 }
                 
-                showSettingsSavedMessage('Coupon settings saved successfully! Synced with customer app.');
+                // 5. Update UI
+                updateCouponStatusLabel(couponEnabled);
+                
+                showSettingsSavedMessage('Coupon settings saved and synced with customer app!');
                 
             } catch (error) {
                 console.error('Error saving coupon settings:', error);
@@ -3704,6 +3732,10 @@
             try {
                 showLoading(true);
                 
+                // Get current coupon settings
+                const couponEnabled = document.getElementById('couponSystemEnabled').checked;
+                const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+                
                 // Update shop document with all config data
                 await db.collection('shops').doc(currentShop.id).update({
                     configUpdated: true,
@@ -3711,6 +3743,8 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     // Also sync specific settings
                     upiId: document.getElementById('upiId').value.trim(),
+                    couponEnabled: couponEnabled,
+                    couponCode: couponEnabled ? couponCode : '',
                     deliveryHours: {
                         start: document.getElementById('deliveryStartTime').value || '09:00',
                         end: document.getElementById('deliveryEndTime').value || '21:00'

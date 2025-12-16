@@ -3506,26 +3506,8 @@ document.getElementById('couponSystemEnabled').checked = couponEnabled;
             try {
                 showLoading(true);
                 
-                const qrFileInput = document.getElementById('qrCodeImage');
-
-// ✅ keep existing QR if no new file uploaded
-let qrImageUrl = currentShopConfig?.qrCodeImage || '';
-
-if (qrFileInput.files && qrFileInput.files[0]) {
-    const formData = new FormData();
-    formData.append('file', qrFileInput.files[0]);
-    formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-    formData.append('public_id', 'qr_' + Date.now()); // ✅ force new URL every time
-
-
-    const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-        { method: 'POST', body: formData }
-    );
-
-    const data = await res.json();
-    qrImageUrl = data.secure_url; // ✅ overwrite only when new upload
-}
+                // Reuse product Cloudinary upload result
+const qrImageUrl = document.getElementById('cloudinaryImageUrl').value;
 
 const upiSettings = {
     upiId: document.getElementById('upiId').value.trim(),

@@ -2095,7 +2095,11 @@
                             </div>
                             <div class="form-group">
                             <label for="qrCodeImage">Upload QR Code Image</label>
-                            <input type="file" id="qrCodeImage" accept="image/*" class="form-control">
+                            <!-- Reuse Product Cloudinary uploader for QR -->
+<button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
+    <i class="fas fa-cloud-upload-alt"></i> Upload QR Code
+</button>
+<input type="hidden" id="cloudinaryImageUrl">
                             <small class="text-muted">Upload your shop QR code image (PNG / JPG)</small>
                         </div>
                                 <div class="form-group">

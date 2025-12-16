@@ -3413,19 +3413,17 @@
         }
 
         // Update settings form with current config - FIXED FOR COUPON SYSTEM
-        function updateSettingsForm() {
-            if (!currentShopConfig) return;
-            
-            // UPI Settings (UPDATED FOR REALTIME + FILE UPLOAD)
-document.getElementById('upiId').value = currentShopConfig.upiId || '';
+function updateSettingsForm() {
+    if (!currentShopConfig) return;
+    
+    // UPI Settings
+    document.getElementById('upiId').value = currentShopConfig.upiId || '';
 
-// ❌ File input value cannot be set programmatically
-// ✅ QR image URL is already saved in Firestore and used in customer app
-
-const acceptedMethods = currentShopConfig.acceptedMethods || {};
-document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
-document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
-document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+    const acceptedMethods = currentShopConfig.acceptedMethods || {};
+    document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
+    document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
+    document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+}
 
 // Coupon Settings
 const couponEnabled =

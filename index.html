@@ -3511,8 +3511,7 @@ document.getElementById('couponSystemEnabled').checked = couponEnabled;
                 showLoading(true);
                 
                 // Reuse product Cloudinary upload result
-const qrImageUrl = document.getElementById('cloudinaryImageUrl').value;
-
+const qrImageUrl = document.getElementById('cloudinaryImageUrl').value || currentShopConfig?.qrCodeImage || '';
 const upiSettings = {
     upiId: document.getElementById('upiId').value.trim(),
     qrCodeImage: qrImageUrl,

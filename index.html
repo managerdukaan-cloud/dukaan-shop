@@ -3515,6 +3515,8 @@ if (qrFileInput.files && qrFileInput.files[0]) {
     const formData = new FormData();
     formData.append('file', qrFileInput.files[0]);
     formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+    formData.append('public_id', 'qr_' + Date.now()); // ✅ force new URL every time
+
 
     const res = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,

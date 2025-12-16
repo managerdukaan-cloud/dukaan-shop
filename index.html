@@ -3504,40 +3504,45 @@ function updateSettingsForm() {
 
         // Save UPI settings
 async function saveUPISettings() {
+    if (!currentShop) return;
+    
     try {
         showLoading(true);
 
         // 🔑 ensure QR URL is picked from Cloudinary uploader
         const qrImageUrl =
             document.getElementById('cloudinaryImageUrl')?.value ||
-            currentShopConfig?.qrCodeImage ||
+            currentShopConfig?.upiSettings?.qrCodeImage ||
             '';
                 
-                // Reuse product Cloudinary upload result
-const upiSettings = {
-    upiId: document.getElementById('upiId').value.trim(),
-    qrCodeImage: qrImageUrl,
-    acceptedMethods: {
-        cash: document.getElementById('acceptCash').checked,
-        upi: document.getElementById('acceptUPI').checked,
-        card: document.getElementById('acceptCard').checked
-    }
-};
+        const upiSettings = {
+            upiId: document.getElementById('upiId').value.trim(),
+            qrCodeImage: qrImageUrl,
+            acceptedMethods: {
+                cash: document.getElementById('acceptCash').checked,
+                upi: document.getElementById('acceptUPI').checked,
+                card: document.getElementById('acceptCard').checked
+            }
+        };
 
-db.collection('shop_config')
-    .doc('settings')
-    .update({
-        upiId: upiSettings.upiId,
-        qrCodeImage: upiSettings.qrCodeImage,
-        acceptedMethods: upiSettings.acceptedMethods,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => showSettingsSavedMessage('Payment settings saved successfully!'))
-    .catch(err => {
-        console.error('Error saving UPI settings:', err);
+        await db.collection('shop_config').doc(currentShop.id).update({
+            upiSettings: upiSettings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        if (currentShopConfig) {
+            currentShopConfig.upiSettings = upiSettings;
+        }
+        
+        showSettingsSavedMessage('Payment settings saved successfully!');
+        
+    } catch (error) {
+        console.error('Error saving UPI settings:', error);
         showToast('Error saving payment settings', 'error');
-    })
-    .finally(() => showLoading(false));
+    } finally {
+        showLoading(false);
+    }
+}
 }   // ✅ CLOSE saveUPISettings HERE
 
 // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT

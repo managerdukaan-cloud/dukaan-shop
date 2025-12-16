@@ -3413,71 +3413,71 @@
         }
 
         // Update settings form with current config - FIXED FOR COUPON SYSTEM
+// Update settings form with current config - FIXED
 function updateSettingsForm() {
     if (!currentShopConfig) return;
     
     // UPI Settings
-    document.getElementById('upiId').value = currentShopConfig.upiId || '';
+    const upiSettings = currentShopConfig.upiSettings || {};
+    document.getElementById('upiId').value = upiSettings.upiId || '';
 
-    const acceptedMethods = currentShopConfig.acceptedMethods || {};
+    const acceptedMethods = upiSettings.acceptedMethods || {};
     document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
     document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
     document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+
+    // Coupon Settings
+    const couponEnabled = 
+        currentShop?.couponEnabled ?? 
+        (currentShopConfig.couponSettings?.enabled || false);
+
+    document.getElementById('couponSystemEnabled').checked = couponEnabled;
+    
+    // Update status label immediately
+    updateCouponStatusLabel(couponEnabled);
+    
+    const couponSettings = currentShopConfig.couponSettings || {};
+    document.getElementById('couponCode').value = couponSettings.code || '';
+    document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
+    document.getElementById('couponValue').value = couponSettings.value || '';
+    document.getElementById('couponMinOrder').value = couponSettings.minOrder || 0;
+    document.getElementById('couponMaxDiscount').value = couponSettings.maxDiscount || 0;
+    document.getElementById('couponValidUntil').value = couponSettings.validUntil || '';
+    document.getElementById('couponUsageLimit').value = couponSettings.usageLimit || 0;
+    document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
+    document.getElementById('couponDescription').value = couponSettings.description || '';
+    
+    // Toggle coupon section based on current state
+    toggleCouponSystem();
+    
+    // Restrictions
+    const restrictions = currentShopConfig.restrictions || {};
+    document.getElementById('maxOrderDistance').value = restrictions.maxOrderDistance || 0;
+    document.getElementById('minOrderAmount').value = restrictions.minOrderAmount || 0;
+    document.getElementById('maxItemsPerOrder').value = restrictions.maxItemsPerOrder || 0;
+    
+    const deliveryHours = restrictions.deliveryHours || {};
+    document.getElementById('deliveryStartTime').value = deliveryHours.start || '09:00';
+    document.getElementById('deliveryEndTime').value = deliveryHours.end || '21:00';
+    
+    document.getElementById('blockedCustomers').value = (restrictions.blockedCustomers || []).join(', ');
+    
+    // Order Settings
+    const orderSettings = currentShopConfig.orderSettings || {};
+    document.getElementById('autoAcceptOrders').checked = orderSettings.autoAccept || false;
+    
+    const autoReject = orderSettings.autoReject || {};
+    document.getElementById('rejectOutOfStock').checked = autoReject.outOfStock !== false;
+    document.getElementById('rejectAfterHours').checked = autoReject.afterHours !== false;
+    document.getElementById('rejectBelowMinAmount').checked = autoReject.belowMinAmount !== false;
+    
+    document.getElementById('defaultPrepTime').value = orderSettings.defaultPrepTime || 30;
+    
+    const notifications = orderSettings.notifications || {};
+    document.getElementById('notifyOnAccept').checked = notifications.onAccept !== false;
+    document.getElementById('notifyOnReady').checked = notifications.onReady !== false;
+    document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
 }
-
-// Coupon Settings
-const couponEnabled =
-    currentShop.couponEnabled ??
-    currentShopConfig.couponsEnabled ??
-    false;
-
-document.getElementById('couponSystemEnabled').checked = couponEnabled;
-
-            
-            // Update status label immediately
-            updateCouponStatusLabel(couponEnabled);
-            
-            document.getElementById('couponCode').value = couponSettings.code || '';
-            document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
-            document.getElementById('couponValue').value = couponSettings.value || '';
-            document.getElementById('couponMinOrder').value = couponSettings.minOrder || 0;
-            document.getElementById('couponMaxDiscount').value = couponSettings.maxDiscount || 0;
-            document.getElementById('couponValidUntil').value = couponSettings.validUntil || '';
-            document.getElementById('couponUsageLimit').value = couponSettings.usageLimit || 0;
-            document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
-            document.getElementById('couponDescription').value = couponSettings.description || '';
-            
-            // Toggle coupon section based on current state
-            toggleCouponSystem();
-            
-            // Restrictions
-            const restrictions = currentShopConfig.restrictions || {};
-            document.getElementById('maxOrderDistance').value = restrictions.maxOrderDistance || 0;
-            document.getElementById('minOrderAmount').value = restrictions.minOrderAmount || 0;
-            document.getElementById('maxItemsPerOrder').value = restrictions.maxItemsPerOrder || 0;
-            
-            const deliveryHours = restrictions.deliveryHours || {};
-            document.getElementById('deliveryStartTime').value = deliveryHours.start || '09:00';
-            document.getElementById('deliveryEndTime').value = deliveryHours.end || '21:00';
-            
-            document.getElementById('blockedCustomers').value = (restrictions.blockedCustomers || []).join(', ');
-            
-            // Order Settings
-            const orderSettings = currentShopConfig.orderSettings || {};
-            document.getElementById('autoAcceptOrders').checked = orderSettings.autoAccept || false;
-            
-            const autoReject = orderSettings.autoReject || {};
-            document.getElementById('rejectOutOfStock').checked = autoReject.outOfStock !== false;
-            document.getElementById('rejectAfterHours').checked = autoReject.afterHours !== false;
-            document.getElementById('rejectBelowMinAmount').checked = autoReject.belowMinAmount !== false;
-            
-            document.getElementById('defaultPrepTime').value = orderSettings.defaultPrepTime || 30;
-            
-            const notifications = orderSettings.notifications || {};
-            document.getElementById('notifyOnAccept').checked = notifications.onAccept !== false;
-            document.getElementById('notifyOnReady').checked = notifications.onReady !== false;
-            document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
-        }
 
         // Update coupon status label
         function updateCouponStatusLabel(enabled) {

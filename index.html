@@ -3513,21 +3513,14 @@
                     }
                 };
                 
-                await db.collection('shop_config').doc(currentShop.id).update({
-                    'upiSettings': upiSettings,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                if (currentShopConfig) {
-                    currentShopConfig.upiSettings = upiSettings;
-                }
-                
-                // Also update main shop document
-                await db.collection('shops').doc(currentShop.id).update({
-                    upiId: upiSettings.upiId,
-                    qrCodeImage: upiSettings.qrCodeImage,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                await db.collection('shop_config')
+    .doc('settings')
+    .set({
+        upiId: upiSettings.upiId,
+        qrCodeImage: upiSettings.qrCodeImage,
+        acceptedMethods: upiSettings.acceptedMethods,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
                 
                 showSettingsSavedMessage('Payment settings saved successfully!');
                 

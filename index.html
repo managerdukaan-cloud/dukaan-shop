@@ -3538,9 +3538,10 @@ db.collection('shop_config')
         showToast('Error saving payment settings', 'error');
     })
     .finally(() => showLoading(false));
-                        
-        // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
-        async function saveCouponSettings() {
+}   // ✅ CLOSE saveUPISettings HERE
+
+// Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
+async function saveCouponSettings() {
             if (!currentShop) return;
             
             try {

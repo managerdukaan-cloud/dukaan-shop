@@ -3507,7 +3507,9 @@ document.getElementById('couponSystemEnabled').checked = couponEnabled;
                 showLoading(true);
                 
                 const qrFileInput = document.getElementById('qrCodeImage');
-let qrImageUrl = '';
+
+// ✅ keep existing QR if no new file uploaded
+let qrImageUrl = currentShopConfig?.qrCodeImage || '';
 
 if (qrFileInput.files && qrFileInput.files[0]) {
     const formData = new FormData();
@@ -3516,17 +3518,14 @@ if (qrFileInput.files && qrFileInput.files[0]) {
 
     const res = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-        {
-            method: 'POST',
-            body: formData
-        }
+        { method: 'POST', body: formData }
     );
 
     const data = await res.json();
-    qrImageUrl = data.secure_url;
+    qrImageUrl = data.secure_url; // ✅ overwrite only when new upload
 }
-              
-                const upiSettings = {
+
+const upiSettings = {
     upiId: document.getElementById('upiId').value.trim(),
     qrCodeImage: qrImageUrl,
     acceptedMethods: {

@@ -2094,11 +2094,11 @@
                                 <small class="text-muted">Enter your UPI ID for QR code payments</small>
                             </div>
                             <div class="form-group">
-                                <label for="qrCodeImage">QR Code Image URL</label>
-                                <input type="text" id="qrCodeImage" placeholder="https://example.com/qr-code.png" class="form-control">
-                                <small class="text-muted">Upload your QR code image and enter the URL here</small>
-                            </div>
-                            <div class="form-group">
+                            <label for="qrCodeImage">Upload QR Code Image</label>
+                            <input type="file" id="qrCodeImage" accept="image/*" class="form-control">
+                            <small class="text-muted">Upload your shop QR code image (PNG / JPG)</small>
+                        </div>
+                                <div class="form-group">
                                 <label>Accepted Payment Methods</label>
                                 <div style="margin-top: 10px;">
                                     <div class="form-check">
@@ -3412,21 +3412,25 @@
         function updateSettingsForm() {
             if (!currentShopConfig) return;
             
-            // UPI Settings
-            const upiSettings = currentShopConfig.upiSettings || {};
-            document.getElementById('upiId').value = upiSettings.upiId || '';
-            document.getElementById('qrCodeImage').value = upiSettings.qrCodeImage || '';
-            
-            const acceptedMethods = upiSettings.acceptedMethods || {};
-            document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
-            document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
-            document.getElementById('acceptCard').checked = acceptedMethods.card || false;
-            
-            // Coupon Settings - FIXED: Load from currentShop first, then from config
-            const couponSettings = currentShopConfig.couponSettings || {};
-            const couponEnabled = currentShop.couponEnabled || couponSettings.enabled || false;
-            
-            document.getElementById('couponSystemEnabled').checked = couponEnabled;
+            // UPI Settings (UPDATED FOR REALTIME + FILE UPLOAD)
+document.getElementById('upiId').value = currentShopConfig.upiId || '';
+
+// ❌ File input value cannot be set programmatically
+// ✅ QR image URL is already saved in Firestore and used in customer app
+
+const acceptedMethods = currentShopConfig.acceptedMethods || {};
+document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
+document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
+document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+
+// Coupon Settings
+const couponEnabled =
+    currentShop.couponEnabled ??
+    currentShopConfig.couponsEnabled ??
+    false;
+
+document.getElementById('couponSystemEnabled').checked = couponEnabled;
+
             
             // Update status label immediately
             updateCouponStatusLabel(couponEnabled);
@@ -3503,16 +3507,26 @@
             try {
                 showLoading(true);
                 
-                const upiSettings = {
-                    upiId: document.getElementById('upiId').value.trim(),
-                    qrCodeImage: document.getElementById('qrCodeImage').value.trim(),
-                    acceptedMethods: {
-                        cash: document.getElementById('acceptCash').checked,
-                        upi: document.getElementById('acceptUPI').checked,
-                        card: document.getElementById('acceptCard').checked
-                    }
-                };
-                
+                const qrFileInput = document.getElementById('qrCodeImage');
+let qrImageUrl = '';
+
+if (qrFileInput.files && qrFileInput.files[0]) {
+    const formData = new FormData();
+    formData.append('file', qrFileInput.files[0]);
+    formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+
+    const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+        {
+            method: 'POST',
+            body: formData
+        }
+    );
+
+    const data = await res.json();
+    qrImageUrl = data.secure_url;
+}
+              
                 await db.collection('shop_config')
     .doc('settings')
     .set({

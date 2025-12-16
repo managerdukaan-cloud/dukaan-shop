@@ -3526,7 +3526,17 @@ if (qrFileInput.files && qrFileInput.files[0]) {
     qrImageUrl = data.secure_url;
 }
               
-                await db.collection('shop_config')
+                const upiSettings = {
+    upiId: document.getElementById('upiId').value.trim(),
+    qrCodeImage: qrImageUrl,
+    acceptedMethods: {
+        cash: document.getElementById('acceptCash').checked,
+        upi: document.getElementById('acceptUPI').checked,
+        card: document.getElementById('acceptCard').checked
+    }
+};
+
+await db.collection('shop_config')
     .doc('settings')
     .set({
         upiId: upiSettings.upiId,

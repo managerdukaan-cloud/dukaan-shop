@@ -3524,29 +3524,21 @@ const upiSettings = {
     }
 };
 
-await db.collection('shop_config')
+db.collection('shop_config')
     .doc('settings')
     .update({
-        upiId: document.getElementById('upiId').value.trim(),
-        qrCodeImage: qrImageUrl,
-        acceptedMethods: {
-            cash: document.getElementById('acceptCash').checked,
-            upi: document.getElementById('acceptUPI').checked,
-            card: document.getElementById('acceptCard').checked
-        },
+        upiId: upiSettings.upiId,
+        qrCodeImage: upiSettings.qrCodeImage,
+        acceptedMethods: upiSettings.acceptedMethods,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-                
-                showSettingsSavedMessage('Payment settings saved successfully!');
-                
-            } catch (error) {
-                console.error('Error saving UPI settings:', error);
-                showToast('Error saving payment settings: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
+    })
+    .then(() => showSettingsSavedMessage('Payment settings saved successfully!'))
+    .catch(err => {
+        console.error('Error saving UPI settings:', err);
+        showToast('Error saving payment settings', 'error');
+    })
+    .finally(() => showLoading(false));
+                        
         // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
         async function saveCouponSettings() {
             if (!currentShop) return;

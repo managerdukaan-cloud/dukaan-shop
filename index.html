@@ -3505,10 +3505,15 @@ document.getElementById('couponSystemEnabled').checked = couponEnabled;
         }
 
         // Save UPI settings
-        async function saveUPISettings() {
-            
-            try {
-                showLoading(true);
+async function saveUPISettings() {
+    try {
+        showLoading(true);
+
+        // 🔑 ensure QR URL is picked from Cloudinary uploader
+        const qrImageUrl =
+            document.getElementById('cloudinaryImageUrl')?.value ||
+            currentShopConfig?.qrCodeImage ||
+            '';
                 
                 // Reuse product Cloudinary upload result
 const qrImageUrl = document.getElementById('cloudinaryImageUrl').value || currentShopConfig?.qrCodeImage || '';

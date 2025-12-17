@@ -2094,15 +2094,11 @@
                                 <small class="text-muted">Enter your UPI ID for QR code payments</small>
                             </div>
                             <div class="form-group">
-                            <label for="qrCodeImage">Upload QR Code Image</label>
-                            <!-- Reuse Product Cloudinary uploader for QR -->
-<button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
-    <i class="fas fa-cloud-upload-alt"></i> Upload QR Code
-</button>
-<input type="hidden" id="cloudinaryImageUrl">
-                            <small class="text-muted">Upload your shop QR code image (PNG / JPG)</small>
-                        </div>
-                                <div class="form-group">
+                                <label for="qrCodeImage">QR Code Image URL</label>
+                                <input type="text" id="qrCodeImage" placeholder="https://example.com/qr-code.png" class="form-control">
+                                <small class="text-muted">Enter URL of your QR code image</small>
+                            </div>
+                            <div class="form-group">
                                 <label>Accepted Payment Methods</label>
                                 <div style="margin-top: 10px;">
                                     <div class="form-check">
@@ -3412,84 +3408,72 @@
             }
         }
 
+        // Update settings form with current config - FIXED
         function updateSettingsForm() {
-    if (!currentShopConfig) return;
+            if (!currentShopConfig) return;
+            
+            // UPI Settings
+            const upiSettings = currentShopConfig.upiSettings || {};
+            document.getElementById('upiId').value = upiSettings.upiId || '';
+            document.getElementById('qrCodeImage').value = upiSettings.qrCodeImage || '';
 
-    // ================= UPI SETTINGS =================
-    // FIX: support both old (upiSettings) and new (flat) structure
-    const upiId =
-        currentShopConfig.upiSettings?.upiId ??
-        currentShopConfig.upiId ??
-        '';
+            const acceptedMethods = upiSettings.acceptedMethods || {};
+            document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
+            document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
+            document.getElementById('acceptCard').checked = acceptedMethods.card || false;
 
-    const acceptedMethods =
-        currentShopConfig.upiSettings?.acceptedMethods ??
-        currentShopConfig.acceptedMethods ??
-        {};
+            // Coupon Settings
+            const couponEnabled = 
+                currentShop?.couponEnabled ?? 
+                (currentShopConfig.couponSettings?.enabled || false);
 
-    document.getElementById('upiId').value = upiId;
-
-    document.getElementById('acceptCash').checked =
-        acceptedMethods.cash !== false;
-
-    document.getElementById('acceptUPI').checked =
-        acceptedMethods.upi !== false;
-
-    document.getElementById('acceptCard').checked =
-        acceptedMethods.card === true;
-}
-    // Coupon Settings
-    const couponEnabled = 
-        currentShop?.couponEnabled ?? 
-        (currentShopConfig.couponSettings?.enabled || false);
-
-    document.getElementById('couponSystemEnabled').checked = couponEnabled;
-    
-    // Update status label immediately
-    updateCouponStatusLabel(couponEnabled);
-    
-    const couponSettings = currentShopConfig.couponSettings || {};
-    document.getElementById('couponCode').value = couponSettings.code || '';
-    document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
-    document.getElementById('couponValue').value = couponSettings.value || '';
-    document.getElementById('couponMinOrder').value = couponSettings.minOrder || 0;
-    document.getElementById('couponMaxDiscount').value = couponSettings.maxDiscount || 0;
-    document.getElementById('couponValidUntil').value = couponSettings.validUntil || '';
-    document.getElementById('couponUsageLimit').value = couponSettings.usageLimit || 0;
-    document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
-    document.getElementById('couponDescription').value = couponSettings.description || '';
-    
-    // Toggle coupon section based on current state
-    toggleCouponSystem();
-    
-    // Restrictions
-    const restrictions = currentShopConfig.restrictions || {};
-    document.getElementById('maxOrderDistance').value = restrictions.maxOrderDistance || 0;
-    document.getElementById('minOrderAmount').value = restrictions.minOrderAmount || 0;
-    document.getElementById('maxItemsPerOrder').value = restrictions.maxItemsPerOrder || 0;
-    
-    const deliveryHours = restrictions.deliveryHours || {};
-    document.getElementById('deliveryStartTime').value = deliveryHours.start || '09:00';
-    document.getElementById('deliveryEndTime').value = deliveryHours.end || '21:00';
-    
-    document.getElementById('blockedCustomers').value = (restrictions.blockedCustomers || []).join(', ');
-    
-    // Order Settings
-    const orderSettings = currentShopConfig.orderSettings || {};
-    document.getElementById('autoAcceptOrders').checked = orderSettings.autoAccept || false;
-    
-    const autoReject = orderSettings.autoReject || {};
-    document.getElementById('rejectOutOfStock').checked = autoReject.outOfStock !== false;
-    document.getElementById('rejectAfterHours').checked = autoReject.afterHours !== false;
-    document.getElementById('rejectBelowMinAmount').checked = autoReject.belowMinAmount !== false;
-    
-    document.getElementById('defaultPrepTime').value = orderSettings.defaultPrepTime || 30;
-    
-    const notifications = orderSettings.notifications || {};
-    document.getElementById('notifyOnAccept').checked = notifications.onAccept !== false;
-    document.getElementById('notifyOnReady').checked = notifications.onReady !== false;
-    document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
-}
+            document.getElementById('couponSystemEnabled').checked = couponEnabled;
+            
+            // Update status label immediately
+            updateCouponStatusLabel(couponEnabled);
+            
+            const couponSettings = currentShopConfig.couponSettings || {};
+            document.getElementById('couponCode').value = couponSettings.code || '';
+            document.getElementById('couponDiscountType').value = couponSettings.discountType || 'percentage';
+            document.getElementById('couponValue').value = couponSettings.value || '';
+            document.getElementById('couponMinOrder').value = couponSettings.minOrder || 0;
+            document.getElementById('couponMaxDiscount').value = couponSettings.maxDiscount || 0;
+            document.getElementById('couponValidUntil').value = couponSettings.validUntil || '';
+            document.getElementById('couponUsageLimit').value = couponSettings.usageLimit || 0;
+            document.getElementById('couponActive').value = couponSettings.active ? 'true' : 'false';
+            document.getElementById('couponDescription').value = couponSettings.description || '';
+            
+            // Toggle coupon section based on current state
+            toggleCouponSystem();
+            
+            // Restrictions
+            const restrictions = currentShopConfig.restrictions || {};
+            document.getElementById('maxOrderDistance').value = restrictions.maxOrderDistance || 0;
+            document.getElementById('minOrderAmount').value = restrictions.minOrderAmount || 0;
+            document.getElementById('maxItemsPerOrder').value = restrictions.maxItemsPerOrder || 0;
+            
+            const deliveryHours = restrictions.deliveryHours || {};
+            document.getElementById('deliveryStartTime').value = deliveryHours.start || '09:00';
+            document.getElementById('deliveryEndTime').value = deliveryHours.end || '21:00';
+            
+            document.getElementById('blockedCustomers').value = (restrictions.blockedCustomers || []).join(', ');
+            
+            // Order Settings
+            const orderSettings = currentShopConfig.orderSettings || {};
+            document.getElementById('autoAcceptOrders').checked = orderSettings.autoAccept || false;
+            
+            const autoReject = orderSettings.autoReject || {};
+            document.getElementById('rejectOutOfStock').checked = autoReject.outOfStock !== false;
+            document.getElementById('rejectAfterHours').checked = autoReject.afterHours !== false;
+            document.getElementById('rejectBelowMinAmount').checked = autoReject.belowMinAmount !== false;
+            
+            document.getElementById('defaultPrepTime').value = orderSettings.defaultPrepTime || 30;
+            
+            const notifications = orderSettings.notifications || {};
+            document.getElementById('notifyOnAccept').checked = notifications.onAccept !== false;
+            document.getElementById('notifyOnReady').checked = notifications.onReady !== false;
+            document.getElementById('notifyOnDelivery').checked = notifications.onDelivery !== false;
+        }
 
         // Update coupon status label
         function updateCouponStatusLabel(enabled) {
@@ -3514,46 +3498,44 @@
             }
         }
 
-        // ================= SAVE UPI SETTINGS =================
-async function saveUPISettings() {
-    try {
-        showLoading(true);
-
-        const qrImageUrl =
-            document.getElementById('cloudinaryImageUrl')?.value ||
-            currentShopConfig?.qrCodeImage ||
-            '';
-
-        const upiSettings = {
-            upiId: document.getElementById('upiId').value.trim(),
-            qrCodeImage: qrImageUrl,
-            acceptedMethods: {
-                cash: document.getElementById('acceptCash').checked,
-                upi: document.getElementById('acceptUPI').checked,
-                card: document.getElementById('acceptCard').checked
+        // Save UPI settings - FIXED
+        async function saveUPISettings() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const upiSettings = {
+                    upiId: document.getElementById('upiId').value.trim(),
+                    qrCodeImage: document.getElementById('qrCodeImage').value.trim(),
+                    acceptedMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked,
+                        card: document.getElementById('acceptCard').checked
+                    }
+                };
+                
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    upiSettings: upiSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                if (currentShopConfig) {
+                    currentShopConfig.upiSettings = upiSettings;
+                }
+                
+                showSettingsSavedMessage('Payment settings saved successfully!');
+                
+            } catch (error) {
+                console.error('Error saving UPI settings:', error);
+                showToast('Error saving payment settings', 'error');
+            } finally {
+                showLoading(false);
             }
-        };
+        }
 
-        await db.collection('shop_config')
-            .doc('settings')
-            .set({
-                upiId: upiSettings.upiId,
-                qrCodeImage: upiSettings.qrCodeImage,
-                acceptedMethods: upiSettings.acceptedMethods,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-
-        showSettingsSavedMessage('Payment settings saved successfully!');
-    } catch (error) {
-        console.error('Error saving UPI settings:', error);
-        showToast('Error saving payment settings', 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-// Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
-async function saveCouponSettings() {
+        // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
+        async function saveCouponSettings() {
             if (!currentShop) return;
             
             try {

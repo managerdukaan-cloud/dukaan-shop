@@ -3412,20 +3412,32 @@
             }
         }
 
-        // Update settings form with current config - FIXED FOR COUPON SYSTEM
-// Update settings form with current config - FIXED
-function updateSettingsForm() {
+        function updateSettingsForm() {
     if (!currentShopConfig) return;
-    
-    // UPI Settings
-    const upiSettings = currentShopConfig.upiSettings || {};
-    document.getElementById('upiId').value = upiSettings.upiId || '';
 
-    const acceptedMethods = upiSettings.acceptedMethods || {};
-    document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
-    document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
-    document.getElementById('acceptCard').checked = acceptedMethods.card || false;
+    // ================= UPI SETTINGS =================
+    // FIX: support both old (upiSettings) and new (flat) structure
+    const upiId =
+        currentShopConfig.upiSettings?.upiId ??
+        currentShopConfig.upiId ??
+        '';
 
+    const acceptedMethods =
+        currentShopConfig.upiSettings?.acceptedMethods ??
+        currentShopConfig.acceptedMethods ??
+        {};
+
+    document.getElementById('upiId').value = upiId;
+
+    document.getElementById('acceptCash').checked =
+        acceptedMethods.cash !== false;
+
+    document.getElementById('acceptUPI').checked =
+        acceptedMethods.upi !== false;
+
+    document.getElementById('acceptCard').checked =
+        acceptedMethods.card === true;
+}
     // Coupon Settings
     const couponEnabled = 
         currentShop?.couponEnabled ?? 

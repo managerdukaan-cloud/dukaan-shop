@@ -2094,23 +2094,16 @@
             <small class="text-muted">Enter your UPI ID for QR code payments</small>
         </div>
         
-        <!-- EXISTING QR Code Image URL Field -->
+        <!-- QR Code Image Upload Section -->
         <div class="form-group">
-            <label for="qrCodeImage">QR Code Image URL</label>
-            <input type="text" id="qrCodeImage" placeholder="https://example.com/qr-code.png" class="form-control">
-            <small class="text-muted">Enter URL of your QR code image</small>
-        </div>
-        
-        <!-- NEW QR Code Upload Section -->
-        <div class="form-group">
-            <label>QR Code Image Upload</label>
+            <label>QR Code Image</label>
             <div class="image-upload-container">
                 <div class="image-upload-option">
-                    <div class="upload-tab active" data-type="qr-url" onclick="switchQRImageTab('url')">
+                    <div class="upload-tab active" data-type="url" onclick="switchQRImageTab('url')">
                         <i class="fas fa-link"></i>
                         <span>Image URL</span>
                     </div>
-                    <div class="upload-tab" data-type="qr-cloudinary" onclick="switchQRImageTab('cloudinary')">
+                    <div class="upload-tab" data-type="cloudinary" onclick="switchQRImageTab('cloudinary')">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <span>Upload with Cloudinary</span>
                     </div>
@@ -2152,19 +2145,13 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="acceptCash" checked>
                     <label class="form-check-label" for="acceptCash">
-                        <i class="fas fa-money-bill-wave"></i> Cash
+                        <i class="fas fa-money-bill-wave"></i> Cash on Delivery
                     </label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="acceptUPI" checked>
                     <label class="form-check-label" for="acceptUPI">
-                        <i class="fas fa-qrcode"></i> UPI/QR Code
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="acceptCard">
-                    <label class="form-check-label" for="acceptCard">
-                        <i class="fas fa-credit-card"></i> Card
+                        <i class="fas fa-qrcode"></i> UPI/QR Code Payment
                     </label>
                 </div>
             </div>
@@ -2795,7 +2782,8 @@
             projectId: "dukaan-platform",
             storageBucket: "dukaan-platform.firebasestorage.app",
             messagingSenderId: "75765851780",
-            appId: "1:75765851780:web:dd9567db1d39c3b09c84d1"
+            appId: "1:75765851780:web:dd9567db1d39c3b09c84d1",
+            measurementId: "G-QJB3MFSSSS"
         };
 
         // Cloudinary Configuration
@@ -2804,7 +2792,7 @@
             uploadPreset: 'dukaan-platform',
             apiKey: '156538295145313',
             sources: ['local', 'camera', 'url'],
-            folder: 'samples/ecommerce',
+            folder: 'shopkeeper_qr_codes',
             multiple: false,
             resourceType: 'image',
             clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
@@ -2848,7 +2836,9 @@
         let ordersListener = null;
         let messaging = null;
         let currentImageTab = 'url';
+        let currentQRImageTab = 'url';
         let cloudinaryWidget = null;
+        let cloudinaryQRWidget = null;
         let notificationSound = null;
         let currentShopConfig = null;
         let currentOrderItems = [];
@@ -2880,7 +2870,7 @@
                 });
 
                 setupNetworkDetection();
-                initializeCloudinaryWidget();
+                initializeCloudinaryWidgets();
                 
             } catch (error) {
                 console.error("Firebase initialization error:", error);
@@ -2888,50 +2878,98 @@
             }
         }
 
-        // Initialize Cloudinary Widget
-        function initializeCloudinaryWidget() {
+        // Initialize Cloudinary Widgets
+        function initializeCloudinaryWidgets() {
             try {
+                // Product Image Upload Widget
                 cloudinaryWidget = cloudinary.createUploadWidget(
-                    cloudinaryConfig,
+                    {
+                        ...cloudinaryConfig,
+                        folder: 'shop_products'
+                    },
                     (error, result) => {
-                        if (error) {
-                            console.error('Cloudinary Error:', error);
-                            showToast('Cloudinary upload error', 'error');
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                            return;
-                        }
-                        
-                        if (result && result.event === "queues-start") {
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                        }
-                        
-                        if (result && result.event === "success") {
-                            const imageUrl = result.info.secure_url;
-                            document.getElementById('cloudinaryImageUrl').value = imageUrl;
-                            document.getElementById('productImage').value = imageUrl;
-                            
-                            const preview = document.getElementById('cloudinaryImagePreview');
-                            preview.src = imageUrl;
-                            preview.style.display = 'block';
-                            
-                            document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                            
-                            showToast('✅ Image uploaded successfully!', 'success');
-                        }
-                        
-                        if (result && result.event === "close") {
-                            document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                        }
+                        handleCloudinaryUpload(error, result, 'product');
+                    }
+                );
+
+                // QR Code Upload Widget
+                cloudinaryQRWidget = cloudinary.createUploadWidget(
+                    {
+                        ...cloudinaryConfig,
+                        folder: 'shop_qr_codes',
+                        cropping: true,
+                        croppingAspectRatio: 1,
+                        croppingShowDimensions: true
+                    },
+                    (error, result) => {
+                        handleCloudinaryUpload(error, result, 'qr');
                     }
                 );
             } catch (error) {
-                console.error('Error initializing Cloudinary widget:', error);
+                console.error('Error initializing Cloudinary widgets:', error);
                 showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
             }
         }
 
-        // Open Cloudinary uploader
+        // Handle Cloudinary Upload
+        function handleCloudinaryUpload(error, result, type) {
+            if (error) {
+                console.error('Cloudinary Error:', error);
+                showToast('Cloudinary upload error', 'error');
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
+                return;
+            }
+            
+            if (result && result.event === "queues-start") {
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                }
+            }
+            
+            if (result && result.event === "success") {
+                const imageUrl = result.info.secure_url;
+                
+                if (type === 'product') {
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
+                    document.getElementById('qrCodeImageUrl').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryQRImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
+                
+                showToast('✅ Image uploaded successfully!', 'success');
+            }
+            
+            if (result && result.event === "close") {
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
+            }
+        }
+
+        // Open Cloudinary uploader for product
         function openCloudinaryUploader() {
             if (!cloudinaryWidget) {
                 showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
@@ -2947,6 +2985,64 @@
             } catch (error) {
                 console.error('Error opening Cloudinary widget:', error);
                 showToast('Cannot open uploader: ' + error.message, 'error');
+            }
+        }
+
+        // Open Cloudinary uploader for QR code
+        function openCloudinaryQRUploader() {
+            if (!cloudinaryQRWidget) {
+                showToast('QR Code uploader not initialized. Please refresh page.', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+                
+                cloudinaryQRWidget.open();
+            } catch (error) {
+                console.error('Error opening Cloudinary QR widget:', error);
+                showToast('Cannot open QR uploader: ' + error.message, 'error');
+            }
+        }
+
+        // QR Code Image Tab Functions
+        function switchQRImageTab(type) {
+            currentQRImageTab = type;
+            
+            document.querySelectorAll('.upload-tab[data-type^="qr"]').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === 'qr-' + type) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            document.getElementById('qrUrlTab').classList.toggle('active', type === 'url');
+            document.getElementById('qrCloudinaryTab').classList.toggle('active', type === 'cloudinary');
+            
+            if (type === 'url') {
+                document.getElementById('qrCodeImageUrl').value = '';
+                document.getElementById('qrUrlImagePreview').style.display = 'none';
+            } else {
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                document.getElementById('cloudinaryQRImageUrl').value = '';
+            }
+        }
+
+        function previewQRImageFromUrl() {
+            const url = document.getElementById('qrCodeImageUrl').value;
+            if (url) {
+                const preview = document.getElementById('qrUrlImagePreview');
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    showToast('Could not load QR image from URL', 'error');
+                    preview.style.display = 'none';
+                };
+                document.getElementById('cloudinaryQRImageUrl').value = url;
             }
         }
 
@@ -2966,7 +3062,10 @@
                         if (firebase.messaging.isSupported()) {
                             messaging = firebase.messaging();
                             
-                            messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
+                            // VAPID Key for push notifications
+                            const vapidKey = "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9";
+                            
+                            messaging.getToken({vapidKey: vapidKey})
                                 .then((currentToken) => {
                                     if (currentToken && currentShop) {
                                         db.collection('shops').doc(currentShop.id).update({
@@ -3002,7 +3101,9 @@
                     if (firebase.messaging.isSupported()) {
                         messaging = firebase.messaging();
                         
-                        messaging.getToken({vapidKey: "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9"})
+                        const vapidKey = "BC8-qBqG-JuB3xKp-6nE3lNlUq4pE2g7pW8w9Xj4kF5yM8rV9tH1jK2lP3mN4oQ5rS6tU7vW8xY9zA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9";
+                        
+                        messaging.getToken({vapidKey: vapidKey})
                             .then((currentToken) => {
                                 if (currentToken && currentShop) {
                                     db.collection('shops').doc(currentShop.id).update({
@@ -3097,7 +3198,7 @@
         function switchImageTab(type) {
             currentImageTab = type;
             
-            document.querySelectorAll('.upload-tab').forEach(tab => {
+            document.querySelectorAll('.upload-tab[data-type="url"], .upload-tab[data-type="cloudinary"]').forEach(tab => {
                 tab.classList.remove('active');
                 if (tab.dataset.type === type) {
                     tab.classList.add('active');
@@ -3403,8 +3504,7 @@
                         qrCodeImage: '',
                         acceptedMethods: {
                             cash: true,
-                            upi: true,
-                            card: false
+                            upi: true
                         }
                     },
                     couponSettings: {
@@ -3456,19 +3556,33 @@
             }
         }
 
-        // Update settings form with current config - FIXED
+        // Update settings form with current config
         function updateSettingsForm() {
             if (!currentShopConfig) return;
             
             // UPI Settings
             const upiSettings = currentShopConfig.upiSettings || {};
             document.getElementById('upiId').value = upiSettings.upiId || '';
-            document.getElementById('qrCodeImage').value = upiSettings.qrCodeImage || '';
+            
+            // QR Code Image
+            const qrCodeImage = upiSettings.qrCodeImage || '';
+            if (qrCodeImage.includes('cloudinary.com')) {
+                switchQRImageTab('cloudinary');
+                document.getElementById('cloudinaryQRImageUrl').value = qrCodeImage;
+                document.getElementById('qrCodeImageUrl').value = qrCodeImage;
+                document.getElementById('cloudinaryQRImagePreview').src = qrCodeImage;
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'block';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
+            } else if (qrCodeImage) {
+                switchQRImageTab('url');
+                document.getElementById('qrCodeImageUrl').value = qrCodeImage;
+                document.getElementById('qrUrlImagePreview').src = qrCodeImage;
+                document.getElementById('qrUrlImagePreview').style.display = 'block';
+            }
 
             const acceptedMethods = upiSettings.acceptedMethods || {};
             document.getElementById('acceptCash').checked = acceptedMethods.cash !== false;
             document.getElementById('acceptUPI').checked = acceptedMethods.upi !== false;
-            document.getElementById('acceptCard').checked = acceptedMethods.card || false;
 
             // Coupon Settings
             const couponEnabled = 
@@ -3532,7 +3646,7 @@
             }
         }
 
-        // Toggle coupon system - FIXED
+        // Toggle coupon system
         function toggleCouponSystem() {
             const couponEnabled = document.getElementById('couponSystemEnabled').checked;
             const couponSection = document.getElementById('couponSettingsSection');
@@ -3546,64 +3660,113 @@
             }
         }
 
-        // FIXED: saveUPISettings function
-async function saveUPISettings() {
-    if (!currentShop) return;
-    
-    try {
-        showLoading(true);
-        
-        const upiId = document.getElementById('upiId').value.trim();
-        const qrCodeImage = document.getElementById('qrCodeImage').value.trim();
-        
-        const upiSettings = {
-            upiId: upiId,
-            qrCodeImage: qrCodeImage,
-            acceptedMethods: {
-                cash: document.getElementById('acceptCash').checked,
-                upi: document.getElementById('acceptUPI').checked,
-                card: document.getElementById('acceptCard').checked
+        // SAVE UPI SETTINGS - COMPLETELY FIXED FOR REAL-TIME SYNC
+        async function saveUPISettings() {
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const upiId = document.getElementById('upiId').value.trim();
+                
+                // Get QR Code Image URL
+                let qrCodeImage = '';
+                if (currentQRImageTab === 'url') {
+                    qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
+                } else {
+                    qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
+                }
+                
+                // If empty, use default QR code
+                if (!qrCodeImage && upiId) {
+                    qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
+                }
+                
+                const upiSettings = {
+                    upiId: upiId,
+                    qrCodeImage: qrCodeImage,
+                    acceptedMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked
+                    }
+                };
+                
+                // 1. Save to shop_config
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    upiSettings: upiSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // 2. CRITICAL: UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP (REAL-TIME SYNC)
+                const shopUpdateData = {
+                    upiId: upiId,
+                    qrCodeImage: qrCodeImage,
+                    paymentMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
+                
+                // 3. Update local variables
+                if (currentShopConfig) {
+                    currentShopConfig.upiSettings = upiSettings;
+                }
+                
+                if (currentShop) {
+                    currentShop.upiId = upiId;
+                    currentShop.qrCodeImage = qrCodeImage;
+                    currentShop.paymentMethods = upiSettings.acceptedMethods;
+                }
+                
+                showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
+                
+                // 4. Notify all customers (optional)
+                try {
+                    await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
+                } catch (notifyError) {
+                    console.log('Customer notification skipped:', notifyError);
+                }
+                
+            } catch (error) {
+                console.error('Error saving UPI settings:', error);
+                showToast('Error saving payment settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
-        };
-        
-        // 1. Save to shop_config
-        await db.collection('shop_config').doc(currentShop.id).update({
-            upiSettings: upiSettings,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // 2. CRITICAL: ALSO UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
-        await db.collection('shops').doc(currentShop.id).update({
-            upiId: upiId,
-            qrCodeImage: qrCodeImage,
-            paymentMethods: {
-                cash: document.getElementById('acceptCash').checked,
-                upi: document.getElementById('acceptUPI').checked,
-                card: document.getElementById('acceptCard').checked
-            },
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // 3. Update local variables
-        if (currentShopConfig) {
-            currentShopConfig.upiSettings = upiSettings;
         }
-        
-        if (currentShop) {
-            currentShop.upiId = upiId;
-            currentShop.qrCodeImage = qrCodeImage;
-            currentShop.paymentMethods = upiSettings.acceptedMethods;
+
+        // Notify customers about payment update
+        async function notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage) {
+            try {
+                // Get all orders for this shop
+                const ordersSnapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .limit(50)
+                    .get();
+                
+                if (!ordersSnapshot.empty) {
+                    const batch = db.batch();
+                    
+                    ordersSnapshot.forEach(doc => {
+                        const orderRef = db.collection('orders').doc(doc.id);
+                        batch.update(orderRef, {
+                            shopUPIUpdated: true,
+                            shopUPIId: upiId,
+                            shopQRCode: qrCodeImage,
+                            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    
+                    await batch.commit();
+                    console.log('Notified customers about payment update');
+                }
+            } catch (error) {
+                console.error('Error notifying customers:', error);
+            }
         }
-        
-        showSettingsSavedMessage('Payment settings saved and synced with customer app!');
-        
-    } catch (error) {
-        console.error('Error saving UPI settings:', error);
-        showToast('Error saving payment settings: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
 
         // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
         async function saveCouponSettings() {
@@ -3676,7 +3839,7 @@ async function saveUPISettings() {
                 // 5. Update UI
                 updateCouponStatusLabel(couponEnabled);
                 
-                showSettingsSavedMessage('Coupon settings saved and synced with customer app!');
+                showSettingsSavedMessage('✅ Coupon settings saved and synced with customer app!');
                 
             } catch (error) {
                 console.error('Error saving coupon settings:', error);
@@ -3725,7 +3888,7 @@ async function saveUPISettings() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                showSettingsSavedMessage('Restrictions saved successfully!');
+                showSettingsSavedMessage('✅ Restrictions saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving restrictions:', error);
@@ -3766,7 +3929,7 @@ async function saveUPISettings() {
                     currentShopConfig.orderSettings = orderSettings;
                 }
                 
-                showSettingsSavedMessage('Order settings saved successfully!');
+                showSettingsSavedMessage('✅ Order settings saved successfully!');
                 
             } catch (error) {
                 console.error('Error saving order settings:', error);
@@ -3809,6 +3972,9 @@ async function saveUPISettings() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     // Also sync specific settings
                     upiId: document.getElementById('upiId').value.trim(),
+                    qrCodeImage: currentQRImageTab === 'url' ? 
+                        document.getElementById('qrCodeImageUrl').value.trim() : 
+                        document.getElementById('cloudinaryQRImageUrl').value,
                     couponEnabled: couponEnabled,
                     couponCode: couponEnabled ? couponCode : '',
                     deliveryHours: {
@@ -3818,7 +3984,7 @@ async function saveUPISettings() {
                     minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0
                 });
                 
-                showSettingsSavedMessage('Settings synced with customer app!');
+                showSettingsSavedMessage('✅ Settings synced with customer app!');
                 
             } catch (error) {
                 console.error('Error syncing shop config:', error);
@@ -3855,7 +4021,7 @@ async function saveUPISettings() {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showSettingsSavedMessage('Data exported successfully!');
+                showSettingsSavedMessage('✅ Data exported successfully!');
                 
             } catch (error) {
                 console.error('Error exporting data:', error);
@@ -3875,7 +4041,7 @@ async function saveUPISettings() {
                 showLoading(true);
                 
                 await createDefaultShopConfig(currentShop.id);
-                showSettingsSavedMessage('Settings reset to defaults!');
+                showSettingsSavedMessage('✅ Settings reset to defaults!');
                 
             } catch (error) {
                 console.error('Error resetting settings:', error);
@@ -5818,7 +5984,7 @@ async function saveUPISettings() {
             }
         }
 
-        // ==================== REFUND MANAGEMENT - FIXED ====================
+        // ==================== REFUND MANAGEMENT ====================
         
         // Load refunds function
         async function loadRefunds() {
@@ -6803,7 +6969,7 @@ async function saveUPISettings() {
                 currentShop = { ...currentShop, ...profileData };
                 
                 // Show success message
-                showSettingsSavedMessage('Profile updated successfully!');
+                showSettingsSavedMessage('✅ Profile updated successfully!');
                     
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -6950,10 +7116,10 @@ async function saveUPISettings() {
             // Setup checkbox event listeners for settings
             setupSettingsCheckboxes();
             
-            // Initialize cloudinary widget
+            // Initialize cloudinary widgets
             setTimeout(() => {
                 if (typeof cloudinary !== 'undefined') {
-                    initializeCloudinaryWidget();
+                    initializeCloudinaryWidgets();
                 }
             }, 1000);
             
@@ -7541,7 +7707,7 @@ async function saveUPISettings() {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showSettingsSavedMessage(`${exportData.exportType} data exported successfully!`);
+                showSettingsSavedMessage(`✅ ${exportData.exportType} data exported successfully!`);
                 
             } catch (error) {
                 console.error('Error exporting data:', error);

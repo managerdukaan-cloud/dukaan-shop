@@ -3662,81 +3662,91 @@
 
         // SAVE UPI SETTINGS - COMPLETELY FIXED FOR REAL-TIME SYNC
         async function saveUPISettings() {
-            if (!currentShop) return;
-            
-            try {
-                showLoading(true);
-                
-                const upiId = document.getElementById('upiId').value.trim();
-                
-                // Get QR Code Image URL
-                let qrCodeImage = '';
-                if (currentQRImageTab === 'url') {
-                    qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
-                } else {
-                    qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
-                }
-                
-                // If empty, use default QR code
-                if (!qrCodeImage && upiId) {
-                    qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
-                }
-                
-                const upiSettings = {
-                    upiId: upiId,
-                    qrCodeImage: qrCodeImage,
-                    acceptedMethods: {
-                        cash: document.getElementById('acceptCash').checked,
-                        upi: document.getElementById('acceptUPI').checked
-                    }
-                };
-                
-                // 1. Save to shop_config
-                await db.collection('shop_config').doc(currentShop.id).update({
-                    upiSettings: upiSettings,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 2. CRITICAL: UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP (REAL-TIME SYNC)
-                const shopUpdateData = {
-                    upiId: upiId,
-                    qrCodeImage: qrCodeImage,
-                    paymentMethods: {
-                        cash: document.getElementById('acceptCash').checked,
-                        upi: document.getElementById('acceptUPI').checked
-                    },
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
-                
-                // 3. Update local variables
-                if (currentShopConfig) {
-                    currentShopConfig.upiSettings = upiSettings;
-                }
-                
-                if (currentShop) {
-                    currentShop.upiId = upiId;
-                    currentShop.qrCodeImage = qrCodeImage;
-                    currentShop.paymentMethods = upiSettings.acceptedMethods;
-                }
-                
-                showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
-                
-                // 4. Notify all customers (optional)
-                try {
-                    await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
-                } catch (notifyError) {
-                    console.log('Customer notification skipped:', notifyError);
-                }
-                
-            } catch (error) {
-                console.error('Error saving UPI settings:', error);
-                showToast('Error saving payment settings: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+    if (!currentShop) return;
+    
+    try {
+        showLoading(true);
+        
+        const upiId = document.getElementById('upiId').value.trim();
+        
+        // Get QR Code Image URL
+        let qrCodeImage = '';
+        if (currentQRImageTab === 'url') {
+            qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
+        } else {
+            qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
         }
+        
+        // If empty, use default QR code
+        if (!qrCodeImage && upiId) {
+            qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
+        }
+        
+        const upiSettings = {
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            acceptedMethods: {
+                cash: document.getElementById('acceptCash').checked,
+                upi: document.getElementById('acceptUPI').checked
+            }
+        };
+        
+        // 1. Save to shop_config (shop-specific)
+        await db.collection('shop_config').doc(currentShop.id).update({
+            upiSettings: upiSettings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+        const shopUpdateData = {
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            paymentMethods: {
+                cash: document.getElementById('acceptCash').checked,
+                upi: document.getElementById('acceptUPI').checked
+            },
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
+        
+        // ======== ADD THIS ========
+        // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
+        await db.collection('shop_config').doc('settings').set({
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            paymentMethods: shopUpdateData.paymentMethods,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        // ======== END ADD ========
+        
+        // 4. Update local variables
+        if (currentShopConfig) {
+            currentShopConfig.upiSettings = upiSettings;
+        }
+        
+        if (currentShop) {
+            currentShop.upiId = upiId;
+            currentShop.qrCodeImage = qrCodeImage;
+            currentShop.paymentMethods = upiSettings.acceptedMethods;
+        }
+        
+        showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
+        
+        // 5. Notify all customers (optional)
+        try {
+            await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
+        } catch (notifyError) {
+            console.log('Customer notification skipped:', notifyError);
+        }
+        
+    } catch (error) {
+        console.error('Error saving UPI settings:', error);
+        showToast('Error saving payment settings: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         // Notify customers about payment update
         async function notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage) {

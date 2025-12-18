@@ -2620,56 +2620,92 @@
                 </div>
                 
                 <!-- Cloudinary Image Upload Section -->
-                <div class="form-group">
-                    <label>Product Image</label>
-                    <div class="image-upload-container">
-                        <div class="image-upload-option">
-                            <div class="upload-tab active" data-type="url" onclick="switchImageTab('url')">
-                                <i class="fas fa-link"></i>
-                                <span>Image URL</span>
-                            </div>
-                            <div class="upload-tab" data-type="cloudinary" onclick="switchImageTab('cloudinary')">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <span>Upload with Cloudinary</span>
-                            </div>
-                        </div>
-                        
-                        <!-- URL Input -->
-                        <div class="image-preview-container active" id="urlTab">
-                            <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
-                            <button type="button" class="upload-btn" onclick="previewImageFromUrl()">
-                                <i class="fas fa-eye"></i> Preview Image
-                            </button>
-                            <img id="urlImagePreview" class="image-preview" style="display: none;">
-                        </div>
-                        
-                        <!-- Cloudinary Upload -->
-                        <div class="image-preview-container" id="cloudinaryTab">
-                            <button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
-                                <i class="fas fa-cloud-upload-alt"></i> Upload Product Image
-                            </button>
-                            <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span>Uploading to Cloudinary...</span>
-                                </div>
-                            </div>
-                            <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
-                            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
-                                <i class="fas fa-check-circle text-success"></i>
-                                <span>Image uploaded to Cloudinary successfully</span>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" id="cloudinaryImageUrl">
+<div class="form-group">
+    <label>Product Image</label>
+    <div class="image-upload-container">
+        <div class="image-upload-option">
+            <div class="upload-tab active" data-type="url" onclick="switchImageTab('url')">
+                <i class="fas fa-link"></i>
+                <span>Image URL</span>
+            </div>
+            <div class="upload-tab" data-type="cloudinary" onclick="switchImageTab('cloudinary')">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Upload with Cloudinary</span>
+            </div>
+            <div class="upload-tab" data-type="device" onclick="switchImageTab('device')">
+                <i class="fas fa-upload"></i>
+                <span>Upload from Device</span>
+            </div>
+        </div>
+        
+        <!-- URL Input -->
+        <div class="image-preview-container active" id="urlTab">
+            <input type="url" id="productImage" placeholder="https://example.com/image.jpg" class="form-control">
+            <button type="button" class="upload-btn" onclick="previewImageFromUrl()">
+                <i class="fas fa-eye"></i> Preview Image
+            </button>
+            <img id="urlImagePreview" class="image-preview" style="display: none;">
+        </div>
+        
+        <!-- Cloudinary Upload -->
+        <div class="image-preview-container" id="cloudinaryTab">
+            <div class="alert alert-info mb-2">
+                <i class="fas fa-info-circle"></i>
+                Click the button below to upload image via Cloudinary
+            </div>
+            <button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
+                <i class="fas fa-cloud-upload-alt"></i> Select & Upload Image
+            </button>
+            <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
+                <div class="alert alert-warning">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Uploading image to Cloudinary...</span>
                 </div>
-            </form>
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+            </div>
+            <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
+            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-check-circle text-success"></i>
+                <span>Image uploaded successfully!</span>
+                <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="document.getElementById('cloudinaryTab').querySelector('.upload-btn').click()">
+                    <i class="fas fa-redo"></i> Change Image
+                </button>
+            </div>
+        </div>
+        
+        <!-- Device Upload -->
+        <div class="image-preview-container" id="deviceTab">
+            <div class="alert alert-info mb-2">
+                <i class="fas fa-info-circle"></i>
+                Select image from your device
+            </div>
+            <input type="file" id="deviceImageInput" accept="image/*" class="form-control" 
+                   onchange="handleDeviceImageUpload(event)">
+            <div id="deviceUploadStatus" style="display: none; margin-top: 10px;">
+                <div class="alert alert-warning">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Processing image...</span>
+                </div>
+            </div>
+            <img id="deviceImagePreview" class="image-preview" style="display: none;">
+            <div id="deviceImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-check-circle text-success"></i>
+                <span>Image selected!</span>
+                <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="document.getElementById('deviceImageInput').click()">
+                    <i class="fas fa-redo"></i> Change Image
+                </button>
             </div>
         </div>
     </div>
+    <input type="hidden" id="cloudinaryImageUrl">
+    <input type="hidden" id="deviceImageUrl">
+</div>
+</form>
+<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+    <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+</div>
+</div>
+</div>
 
     <!-- Partial Order Modal -->
     <div class="modal" id="partialOrderModal">

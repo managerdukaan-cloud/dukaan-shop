@@ -2632,10 +2632,6 @@
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>Upload with Cloudinary</span>
             </div>
-            <div class="upload-tab" data-type="device" onclick="switchImageTab('device')">
-                <i class="fas fa-upload"></i>
-                <span>Upload from Device</span>
-            </div>
         </div>
         
         <!-- URL Input -->
@@ -2651,53 +2647,66 @@
         <div class="image-preview-container" id="cloudinaryTab">
             <div class="alert alert-info mb-2">
                 <i class="fas fa-info-circle"></i>
-                Click the button below to upload image via Cloudinary
+                Click the button below to upload image via Cloudinary widget
             </div>
-            <button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
+            
+            <!-- Cloudinary Upload Button -->
+            <button type="button" class="upload-btn" id="cloudinaryUploadBtn">
                 <i class="fas fa-cloud-upload-alt"></i> Select & Upload Image
             </button>
+            
+            <!-- Cloudinary Widget Container (Required by Cloudinary) -->
+            <div id="cloudinaryWidgetContainer" style="display: none;"></div>
+            
+            <!-- Upload Status -->
             <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
                 <div class="alert alert-warning">
                     <div class="spinner-border spinner-border-sm me-2" role="status"></div>
                     <span>Uploading image to Cloudinary...</span>
                 </div>
             </div>
+            
+            <!-- Upload Progress -->
+            <div id="cloudinaryUploadProgress" style="display: none; margin-top: 10px;">
+                <div class="progress">
+                    <div id="cloudinaryProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+                <small class="text-muted d-block text-center mt-1" id="cloudinaryProgressText">0%</small>
+            </div>
+            
+            <!-- Image Preview -->
             <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
-            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
-                <i class="fas fa-check-circle text-success"></i>
-                <span>Image uploaded successfully!</span>
-                <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="document.getElementById('cloudinaryTab').querySelector('.upload-btn').click()">
-                    <i class="fas fa-redo"></i> Change Image
-                </button>
-            </div>
-        </div>
-        
-        <!-- Device Upload -->
-        <div class="image-preview-container" id="deviceTab">
-            <div class="alert alert-info mb-2">
-                <i class="fas fa-info-circle"></i>
-                Select image from your device
-            </div>
-            <input type="file" id="deviceImageInput" accept="image/*" class="form-control" 
-                   onchange="handleDeviceImageUpload(event)">
-            <div id="deviceUploadStatus" style="display: none; margin-top: 10px;">
-                <div class="alert alert-warning">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    <span>Processing image...</span>
+            
+            <!-- Success Message -->
+            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px;">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Image uploaded successfully!</span>
+                    <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="resetCloudinaryUpload()">
+                        <i class="fas fa-redo"></i> Upload Different Image
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> Image URL automatically saved
+                    </small>
                 </div>
             </div>
-            <img id="deviceImagePreview" class="image-preview" style="display: none;">
-            <div id="deviceImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
-                <i class="fas fa-check-circle text-success"></i>
-                <span>Image selected!</span>
-                <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="document.getElementById('deviceImageInput').click()">
-                    <i class="fas fa-redo"></i> Change Image
-                </button>
+            
+            <!-- Error Message -->
+            <div id="cloudinaryUploadError" style="display: none; margin-top: 10px;">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="cloudinaryErrorText">Upload failed. Please try again.</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="retryCloudinaryUpload()">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     <input type="hidden" id="cloudinaryImageUrl">
-    <input type="hidden" id="deviceImageUrl">
 </div>
 </form>
 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">

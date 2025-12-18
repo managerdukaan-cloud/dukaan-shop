@@ -2932,13 +2932,25 @@
                     {
                         ...cloudinaryConfig,
                         folder: 'shop_products',
-                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
+                        sources: ['local', 'camera', 'url'],
                         showCompletedButton: true,
                         showUploadMoreButton: true,
                         language: 'en',
                         text: {
                             en: {
-                                // REMOVED: dropbox, facebook, instagram text
+                                local: {
+                                    browse: "Browse files",
+                                    or: "or",
+                                    drag_and_drop: "Drag & drop files here",
+                                    drop_files: "Drop files here",
+                                    edit_image: "Edit image",
+                                    add_more: "Add more files",
+                                    close: "Close",
+                                    back: "Back",
+                                    upload: "Upload",
+                                    cancel: "Cancel",
+                                    done: "Done"
+                                }
                             }
                         }
                     },
@@ -2955,7 +2967,7 @@
                         cropping: true,
                         croppingAspectRatio: 1,
                         croppingShowDimensions: true,
-                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
+                        sources: ['local', 'camera', 'url'],
                         showCompletedButton: true,
                         showUploadMoreButton: true
                     },
@@ -5020,27 +5032,11 @@
                     // Check for structured address first
                     if (order.shippingAddress && typeof order.shippingAddress === 'object') {
                         const addr = order.shippingAddress;
-                        const parts = [];
-                        if (addr.address) parts.push(addr.address);
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        customerAddress = extractFullAddress(addr);
                     }
                     else if (order.address && typeof order.address === 'object') {
                         const addr = order.address;
-                        const parts = [];
-                        if (addr.address) parts.push(addr.address);
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        customerAddress = extractFullAddress(addr);
                     }
                     else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
                         customerAddress = order.shippingAddress;
@@ -5055,15 +5051,7 @@
                         if (typeof order.user.address === 'string') {
                             customerAddress = order.user.address;
                         } else if (typeof order.user.address === 'object') {
-                            const addr = order.user.address;
-                            const parts = [];
-                            if (addr.address) parts.push(addr.address);
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
+                            customerAddress = extractFullAddress(order.user.address);
                         }
                     }
                     else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
@@ -5258,7 +5246,7 @@
                             <td>
                                 <div><strong>${customerName}</strong></div>
                                 <small class="text-muted">${customerPhone}</small>
-                                <small class="text-muted d-block">${customerAddress}</small>
+                                <small class="text-muted d-block" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${customerAddress}</small>
                             </td>
                             <td title="${itemsDisplay}">
                                 ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
@@ -5279,6 +5267,22 @@
             });
             
             ordersList.innerHTML = ordersHtml;
+        }
+
+        // Helper function to extract full address
+        function extractFullAddress(addressObj) {
+            if (!addressObj) return 'N/A';
+            
+            const parts = [];
+            if (addressObj.address) parts.push(addressObj.address);
+            if (addressObj.street) parts.push(addressObj.street);
+            if (addressObj.area) parts.push(addressObj.area);
+            if (addressObj.city) parts.push(addressObj.city);
+            if (addressObj.state) parts.push(addressObj.state);
+            if (addressObj.pincode) parts.push(addressObj.pincode);
+            if (addressObj.landmark) parts.push(`Landmark: ${addressObj.landmark}`);
+            
+            return parts.length > 0 ? parts.join(', ') : 'N/A';
         }
 
         async function updateOrderStatus(firestoreId, newStatus) {
@@ -5466,28 +5470,10 @@
                 
                 // Check for structured address first
                 if (order.shippingAddress && typeof order.shippingAddress === 'object') {
-                    const addr = order.shippingAddress;
-                    const parts = [];
-                    if (addr.address) parts.push(addr.address);
-                    if (addr.street) parts.push(addr.street);
-                    if (addr.area) parts.push(addr.area);
-                    if (addr.city) parts.push(addr.city);
-                    if (addr.state) parts.push(addr.state);
-                    if (addr.pincode) parts.push(addr.pincode);
-                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                    if (parts.length > 0) customerAddress = parts.join(', ');
+                    customerAddress = extractFullAddress(order.shippingAddress);
                 }
                 else if (order.address && typeof order.address === 'object') {
-                    const addr = order.address;
-                    const parts = [];
-                    if (addr.address) parts.push(addr.address);
-                    if (addr.street) parts.push(addr.street);
-                    if (addr.area) parts.push(addr.area);
-                    if (addr.city) parts.push(addr.city);
-                    if (addr.state) parts.push(addr.state);
-                    if (addr.pincode) parts.push(addr.pincode);
-                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                    if (parts.length > 0) customerAddress = parts.join(', ');
+                    customerAddress = extractFullAddress(order.address);
                 }
                 else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
                     customerAddress = order.shippingAddress;
@@ -5502,15 +5488,7 @@
                     if (typeof order.user.address === 'string') {
                         customerAddress = order.user.address;
                     } else if (typeof order.user.address === 'object') {
-                        const addr = order.user.address;
-                        const parts = [];
-                        if (addr.address) parts.push(addr.address);
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        customerAddress = extractFullAddress(order.user.address);
                     }
                 }
                 else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
@@ -7587,27 +7565,23 @@
                 // Check for new orders
                 const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
                 const newPendingOrders = await getNewPendingOrdersCount();
-                
                 if (newPendingOrders > pendingOrdersCount) {
-                    showNotification('📦 New Orders', `You have ${newPendingOrders - pendingOrdersCount} new pending orders!`);
-                    playNotificationSound();
-                    loadOrders();
+                    showToast(`🆕 You have ${newPendingOrders - pendingOrdersCount} new order(s)`, 'info');
+                    await loadOrders();
+                    await loadDashboardData();
                 }
                 
                 // Check for new refunds
                 const pendingRefundsCount = refunds.filter(r => r.status === 'pending').length;
                 const newPendingRefunds = await getNewPendingRefundsCount();
-                
                 if (newPendingRefunds > pendingRefundsCount) {
-                    showNotification('🔄 New Refunds', `You have ${newPendingRefunds - pendingRefundsCount} new refund requests!`);
-                    loadRefunds();
+                    showToast(`🆕 You have ${newPendingRefunds - pendingRefundsCount} new refund request(s)`, 'info');
+                    await loadRefunds();
+                    await loadDashboardData();
                 }
                 
-                // Update dashboard
-                loadDashboardData();
-                
             } catch (error) {
-                console.log('Update check error:', error);
+                console.log('Error checking for updates:', error);
             }
         }
 
@@ -7641,39 +7615,39 @@
                 // Ctrl/Cmd + S to save
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                     e.preventDefault();
-                    const activePage = document.querySelector('.content-page.active').id;
                     
-                    switch(activePage) {
-                        case 'productsPage':
-                            if (document.getElementById('productModal').classList.contains('active')) {
-                                saveProduct();
+                    // Check which page is active
+                    const activePage = document.querySelector('.content-page.active');
+                    if (!activePage) return;
+                    
+                    const pageId = activePage.id;
+                    
+                    if (pageId === 'productsPage' && document.getElementById('productModal').classList.contains('active')) {
+                        saveProduct();
+                    } else if (pageId === 'settingsPage') {
+                        const activeCard = document.querySelector('.settings-card.unsaved-changes');
+                        if (activeCard) {
+                            const saveBtn = activeCard.querySelector('.btn-primary, .btn-warning');
+                            if (saveBtn) {
+                                saveBtn.click();
                             }
-                            break;
-                        case 'settingsPage':
-                            // Check which settings card has focus
-                            const focusedInput = document.activeElement;
-                            if (focusedInput) {
-                                const settingsCard = focusedInput.closest('.settings-card');
-                                if (settingsCard) {
-                                    const saveBtn = settingsCard.querySelector('.btn-primary');
-                                    if (saveBtn) {
-                                        saveBtn.click();
-                                    }
-                                }
-                            }
-                            break;
+                        }
+                    } else if (pageId === 'profilePage') {
+                        document.getElementById('profileForm').dispatchEvent(new Event('submit'));
                     }
                 }
                 
-                // Escape to close modals
+                // Escape key to close modals
                 if (e.key === 'Escape') {
-                    const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
-                    if (activeModals.length > 0) {
-                        const lastModal = activeModals[activeModals.length - 1];
-                        const closeBtn = lastModal.querySelector('.close-modal');
-                        if (closeBtn) {
-                            closeBtn.click();
-                        }
+                    const activeModal = document.querySelector('.modal.active');
+                    if (activeModal) {
+                        const closeBtn = activeModal.querySelector('.close-modal');
+                        if (closeBtn) closeBtn.click();
+                    }
+                    
+                    const fullscreenModal = document.querySelector('.order-details-fullscreen.active');
+                    if (fullscreenModal) {
+                        closeOrderDetailsModal();
                     }
                 }
             });

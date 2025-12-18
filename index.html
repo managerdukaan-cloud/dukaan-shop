@@ -1893,7 +1893,9 @@
                     <a href="#" data-page="dashboard">Dashboard</a>
                     <a href="#" data-page="products">Products</a>
                     <a href="#" data-page="orders">Orders <span class="orders-badge" style="display: none;">0</span></a>
+                    <a href="#" data-page="refunds">Refunds</a>
                     <a href="#" data-page="settings">Settings</a>
+                    <a href="#" data-page="profile">Profile</a>
                     <button class="btn btn-outline" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -2930,15 +2932,13 @@
                     {
                         ...cloudinaryConfig,
                         folder: 'shop_products',
-                        sources: ['local', 'camera', 'url', 'dropbox', 'facebook', 'instagram'], // Added more sources
+                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
                         showCompletedButton: true,
                         showUploadMoreButton: true,
                         language: 'en',
                         text: {
                             en: {
-                                dropbox: "Dropbox",
-                                facebook: "Facebook",
-                                instagram: "Instagram"
+                                // REMOVED: dropbox, facebook, instagram text
                             }
                         }
                     },
@@ -2955,7 +2955,7 @@
                         cropping: true,
                         croppingAspectRatio: 1,
                         croppingShowDimensions: true,
-                        sources: ['local', 'camera', 'url', 'dropbox', 'facebook', 'instagram'], // Added more sources
+                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
                         showCompletedButton: true,
                         showUploadMoreButton: true
                     },
@@ -5014,45 +5014,50 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // IMPROVED ADDRESS EXTRACTION
+                    // IMPROVED ADDRESS EXTRACTION - FIXED TO SHOW FULL ADDRESS
                     let customerAddress = 'N/A';
                     
-                    // Try different address fields with better extraction
-                    if (order.shippingAddress) {
-                        if (typeof order.shippingAddress === 'string') {
-                            customerAddress = order.shippingAddress;
-                        } else if (typeof order.shippingAddress === 'object') {
-                            // Handle structured address object
-                            const addr = order.shippingAddress;
-                            const parts = [];
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
-                        }
-                    } else if (order.address) {
-                        if (typeof order.address === 'string') {
-                            customerAddress = order.address;
-                        } else if (typeof order.address === 'object') {
-                            const addr = order.address;
-                            const parts = [];
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
-                        }
-                    } else if (order.customerAddress && typeof order.customerAddress === 'string') {
+                    // Check for structured address first
+                    if (order.shippingAddress && typeof order.shippingAddress === 'object') {
+                        const addr = order.shippingAddress;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                    else if (order.address && typeof order.address === 'object') {
+                        const addr = order.address;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                    else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
+                        customerAddress = order.shippingAddress;
+                    }
+                    else if (order.address && typeof order.address === 'string') {
+                        customerAddress = order.address;
+                    }
+                    else if (order.customerAddress && typeof order.customerAddress === 'string') {
                         customerAddress = order.customerAddress;
-                    } else if (order.user && order.user.address) {
+                    }
+                    else if (order.user && order.user.address) {
                         if (typeof order.user.address === 'string') {
                             customerAddress = order.user.address;
                         } else if (typeof order.user.address === 'object') {
                             const addr = order.user.address;
                             const parts = [];
+                            if (addr.address) parts.push(addr.address);
                             if (addr.street) parts.push(addr.street);
                             if (addr.area) parts.push(addr.area);
                             if (addr.city) parts.push(addr.city);
@@ -5060,20 +5065,8 @@
                             if (addr.pincode) parts.push(addr.pincode);
                             if (parts.length > 0) customerAddress = parts.join(', ');
                         }
-                    } else if (order.customer && order.customer.address) {
-                        if (typeof order.customer.address === 'string') {
-                            customerAddress = order.customer.address;
-                        } else if (typeof order.customer.address === 'object') {
-                            const addr = order.customer.address;
-                            const parts = [];
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
-                        }
-                    } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
+                    }
+                    else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                         customerAddress = order.deliveryAddress;
                     }
                     
@@ -5437,7 +5430,7 @@
             }
         }
 
-        // View Order Details - FULL SCREEN with FIXED address and action buttons
+        // View Order Details - FIXED: Full address display and action buttons
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -5468,83 +5461,60 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // FIXED: COMPREHENSIVE ADDRESS EXTRACTION FOR ORDER DETAILS
+                // FIXED: COMPREHENSIVE ADDRESS EXTRACTION FOR ORDER DETAILS - FULL ADDRESS
                 let customerAddress = 'N/A';
-                let addressParts = [];
                 
-                // Try all possible address fields and structures
-                const possibleAddressFields = [
-                    'shippingAddress', 'address', 'customerAddress', 'user.address', 
-                    'customer.address', 'deliveryAddress', 'billingAddress', 'fullAddress'
-                ];
-                
-                let foundAddress = false;
-                
-                for (const field of possibleAddressFields) {
-                    if (foundAddress) break;
-                    
-                    if (field.includes('.')) {
-                        const [parent, child] = field.split('.');
-                        if (order[parent] && order[parent][child]) {
-                            const addr = order[parent][child];
-                            if (typeof addr === 'string') {
-                                customerAddress = addr;
-                                foundAddress = true;
-                                break;
-                            } else if (typeof addr === 'object') {
-                                if (addr.street) addressParts.push(addr.street);
-                                if (addr.area) addressParts.push(addr.area);
-                                if (addr.city) addressParts.push(addr.city);
-                                if (addr.state) addressParts.push(addr.state);
-                                if (addr.pincode) addressParts.push(addr.pincode);
-                                if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                                if (addressParts.length > 0) {
-                                    customerAddress = addressParts.join(', ');
-                                    foundAddress = true;
-                                    break;
-                                }
-                            }
-                        }
-                    } else if (order[field]) {
-                        if (typeof order[field] === 'string') {
-                            customerAddress = order[field];
-                            foundAddress = true;
-                            break;
-                        } else if (typeof order[field] === 'object') {
-                            const addr = order[field];
-                            if (addr.street) addressParts.push(addr.street);
-                            if (addr.area) addressParts.push(addr.area);
-                            if (addr.city) addressParts.push(addr.city);
-                            if (addr.state) addressParts.push(addr.state);
-                            if (addr.pincode) addressParts.push(addr.pincode);
-                            if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                            if (addressParts.length > 0) {
-                                customerAddress = addressParts.join(', ');
-                                foundAddress = true;
-                                break;
-                            }
-                        }
-                    }
+                // Check for structured address first
+                if (order.shippingAddress && typeof order.shippingAddress === 'object') {
+                    const addr = order.shippingAddress;
+                    const parts = [];
+                    if (addr.address) parts.push(addr.address);
+                    if (addr.street) parts.push(addr.street);
+                    if (addr.area) parts.push(addr.area);
+                    if (addr.city) parts.push(addr.city);
+                    if (addr.state) parts.push(addr.state);
+                    if (addr.pincode) parts.push(addr.pincode);
+                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                    if (parts.length > 0) customerAddress = parts.join(', ');
                 }
-                
-                // If no structured address found, try to extract from any string field that might contain address
-                if (!foundAddress) {
-                    // Search through all string fields for address-like content
-                    const searchFields = ['shippingAddress', 'address', 'customerAddress', 'deliveryAddress'];
-                    for (const field of searchFields) {
-                        if (order[field] && typeof order[field] === 'string' && order[field].length > 10) {
-                            customerAddress = order[field];
-                            foundAddress = true;
-                            break;
-                        }
-                    }
+                else if (order.address && typeof order.address === 'object') {
+                    const addr = order.address;
+                    const parts = [];
+                    if (addr.address) parts.push(addr.address);
+                    if (addr.street) parts.push(addr.street);
+                    if (addr.area) parts.push(addr.area);
+                    if (addr.city) parts.push(addr.city);
+                    if (addr.state) parts.push(addr.state);
+                    if (addr.pincode) parts.push(addr.pincode);
+                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                    if (parts.length > 0) customerAddress = parts.join(', ');
                 }
-                
-                // Final fallback
-                if (!foundAddress && order.customerAddress) {
-                    customerAddress = order.customerAddress;
-                } else if (!foundAddress && order.address) {
+                else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
+                    customerAddress = order.shippingAddress;
+                }
+                else if (order.address && typeof order.address === 'string') {
                     customerAddress = order.address;
+                }
+                else if (order.customerAddress && typeof order.customerAddress === 'string') {
+                    customerAddress = order.customerAddress;
+                }
+                else if (order.user && order.user.address) {
+                    if (typeof order.user.address === 'string') {
+                        customerAddress = order.user.address;
+                    } else if (typeof order.user.address === 'object') {
+                        const addr = order.user.address;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                }
+                else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
+                    customerAddress = order.deliveryAddress;
                 }
                 
                 const customerEmail = order.customerEmail || order.email || 
@@ -6004,7 +5974,7 @@
                         
                         ${timestampsHtml}
                         
-                        <!-- Customer Information - WITH FIXED ADDRESS -->
+                        <!-- Customer Information - WITH FIXED FULL ADDRESS -->
                         <div class="order-section">
                             <h4><i class="fas fa-user"></i> Customer Information</h4>
                             <div class="order-grid">
@@ -6022,7 +5992,8 @@
                                 </div>
                                 <div class="order-info-item">
                                     <div class="order-info-label">Address:</div>
-                                    <div class="order-info-value">${customerAddress</div>
+                                    <div class="order-info-value" style="white-space: pre-wrap; line-height: 1.6; max-width: 100%; overflow-wrap: break-word;">
+                                        ${customerAddress || 'Address not available'}
                                     </div>
                                 </div>
                             </div>
@@ -7268,34 +7239,100 @@
             // Setup keyboard shortcuts
             setupKeyboardShortcuts();
             
-            // FIXED: Mobile image upload issue - Add click handler to force gallery open
+            // FIXED: Mobile image upload fix - Add hidden file input
             setupMobileImageUploadFix();
         });
 
-        // Fix for mobile image upload not opening gallery
+        // FIXED: Mobile image upload fix
         function setupMobileImageUploadFix() {
+            // Create hidden file input for mobile
+            const hiddenFileInput = document.createElement('input');
+            hiddenFileInput.type = 'file';
+            hiddenFileInput.accept = 'image/*';
+            hiddenFileInput.style.display = 'none';
+            hiddenFileInput.id = 'hiddenFileInput';
+            document.body.appendChild(hiddenFileInput);
+            
             // Override Cloudinary widget's open method for mobile
             const originalCloudinaryOpen = cloudinary?.createUploadWidget;
             if (originalCloudinaryOpen && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                // Mobile device detected
-                console.log('Mobile device detected, applying image upload fix');
+                // Mobile device detected - use native file input
+                console.log('Mobile device detected, using native file upload');
                 
-                // Add touch event listeners to upload buttons
+                // Add click event listeners to upload buttons
                 document.addEventListener('click', function(e) {
-                    if (e.target.closest('.upload-btn') || e.target.closest('.upload-tab')) {
+                    const uploadBtn = e.target.closest('.upload-btn');
+                    const uploadTab = e.target.closest('.upload-tab');
+                    
+                    if (uploadBtn || uploadTab) {
                         // Check if we're on mobile
                         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                            // Small delay to ensure Cloudinary widget is ready
-                            setTimeout(() => {
-                                // Force focus on file input if Cloudinary fails
-                                const fileInputs = document.querySelectorAll('input[type="file"]');
-                                if (fileInputs.length > 0) {
-                                    fileInputs[0].click();
+                            e.preventDefault();
+                            
+                            // Trigger hidden file input
+                            hiddenFileInput.click();
+                            
+                            // Handle file selection
+                            hiddenFileInput.onchange = function(event) {
+                                const file = event.target.files[0];
+                                if (file) {
+                                    // Upload directly to Cloudinary using fetch
+                                    uploadFileToCloudinary(file);
                                 }
-                            }, 100);
+                            };
                         }
                     }
                 });
+            }
+        }
+
+        // Upload file directly to Cloudinary
+        async function uploadFileToCloudinary(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                formData.append('cloud_name', cloudinaryConfig.cloudName);
+                formData.append('folder', 'shop_products');
+                
+                // Show upload status
+                if (document.getElementById('cloudinaryUploadStatus')) {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                }
+                
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.secure_url) {
+                    const imageUrl = result.secure_url;
+                    
+                    // Set the image URL in the form
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    // Show preview
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                    
+                    showToast('✅ Image uploaded successfully!', 'success');
+                } else {
+                    throw new Error('Upload failed');
+                }
+                
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                showToast('Error uploading image: ' + error.message, 'error');
+                if (document.getElementById('cloudinaryUploadStatus')) {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                }
             }
         }
 
@@ -7601,156 +7638,46 @@
         // Setup keyboard shortcuts
         function setupKeyboardShortcuts() {
             document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + S to save current form
+                // Ctrl/Cmd + S to save
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                     e.preventDefault();
+                    const activePage = document.querySelector('.content-page.active').id;
                     
-                    // Check which page is active
-                    const activePage = document.querySelector('.content-page.active');
-                    if (!activePage) return;
-                    
-                    const pageId = activePage.id;
-                    
-                    switch(pageId) {
+                    switch(activePage) {
                         case 'productsPage':
-                            const productModal = document.getElementById('productModal');
-                            if (productModal.classList.contains('active')) {
+                            if (document.getElementById('productModal').classList.contains('active')) {
                                 saveProduct();
                             }
                             break;
-                            
                         case 'settingsPage':
-                            // Find which settings card has unsaved changes
-                            const unsavedCard = document.querySelector('.settings-card.unsaved-changes');
-                            if (unsavedCard) {
-                                const saveBtn = unsavedCard.querySelector('.btn-primary, .btn-warning');
-                                if (saveBtn) {
-                                    saveBtn.click();
+                            // Check which settings card has focus
+                            const focusedInput = document.activeElement;
+                            if (focusedInput) {
+                                const settingsCard = focusedInput.closest('.settings-card');
+                                if (settingsCard) {
+                                    const saveBtn = settingsCard.querySelector('.btn-primary');
+                                    if (saveBtn) {
+                                        saveBtn.click();
+                                    }
                                 }
                             }
                             break;
-                            
-                        case 'profilePage':
-                            document.getElementById('profileForm').dispatchEvent(new Event('submit'));
-                            break;
                     }
                 }
                 
-                // Escape key to close modals
+                // Escape to close modals
                 if (e.key === 'Escape') {
                     const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
                     if (activeModals.length > 0) {
-                        e.preventDefault();
-                        activeModals.forEach(modal => {
-                            const closeBtn = modal.querySelector('.close-modal');
-                            if (closeBtn) closeBtn.click();
-                        });
-                    }
-                }
-                
-                // F5 to refresh current page data
-                if (e.key === 'F5') {
-                    e.preventDefault();
-                    const activePage = document.querySelector('.content-page.active');
-                    if (activePage) {
-                        const pageId = activePage.id;
-                        switch(pageId) {
-                            case 'dashboardPage':
-                                loadDashboardData();
-                                showToast('Dashboard refreshed', 'info');
-                                break;
-                            case 'productsPage':
-                                loadProducts();
-                                showToast('Products refreshed', 'info');
-                                break;
-                            case 'ordersPage':
-                                loadOrders();
-                                showToast('Orders refreshed', 'info');
-                                break;
-                            case 'refundsPage':
-                                loadRefunds();
-                                showToast('Refunds refreshed', 'info');
-                                break;
+                        const lastModal = activeModals[activeModals.length - 1];
+                        const closeBtn = lastModal.querySelector('.close-modal');
+                        if (closeBtn) {
+                            closeBtn.click();
                         }
                     }
                 }
             });
         }
-
-        // Helper function to trigger settings saved event
-        function triggerSettingsSaved() {
-            window.dispatchEvent(new Event('settingsSaved'));
-        }
-
-        // Modified save functions to trigger event
-        const originalSaveUPISettings = saveUPISettings;
-        window.saveUPISettings = async function() {
-            await originalSaveUPISettings();
-            triggerSettingsSaved();
-        };
-        
-        const originalSaveCouponSettings = saveCouponSettings;
-        window.saveCouponSettings = async function() {
-            await originalSaveCouponSettings();
-            triggerSettingsSaved();
-        };
-        
-        const originalSaveRestrictions = saveRestrictions;
-        window.saveRestrictions = async function() {
-            await originalSaveRestrictions();
-            triggerSettingsSaved();
-        };
-        
-        const originalSaveOrderSettings = saveOrderSettings;
-        window.saveOrderSettings = async function() {
-            await originalSaveOrderSettings();
-            triggerSettingsSaved();
-        };
-
-        // Expose functions to global scope
-        window.navigateToPage = navigateToPage;
-        window.showAddProductModal = showAddProductModal;
-        window.closeProductModal = closeProductModal;
-        window.editProduct = editProduct;
-        window.saveProduct = saveProduct;
-        window.deleteProduct = deleteProduct;
-        window.updateOrderStatus = updateOrderStatus;
-        window.markAsPaid = markAsPaid;
-        window.viewOrderDetails = viewOrderDetails;
-        window.closeOrderDetailsModal = closeOrderDetailsModal;
-        window.showPartialOrderModal = showPartialOrderModal;
-        window.closePartialOrderModal = closePartialOrderModal;
-        window.confirmPartialOrder = confirmPartialOrder;
-        window.showOrderItemsModal = showOrderItemsModal;
-        window.closeOrderItemsModal = closeOrderItemsModal;
-        window.saveOrderItemsStatus = saveOrderItemsStatus;
-        window.showInitiateRefundModal = showInitiateRefundModal;
-        window.closeInitiateRefundModal = closeInitiateRefundModal;
-        window.submitRefund = submitRefund;
-        window.updateRefundStatus = updateRefundStatus;
-        window.viewRefundDetails = viewRefundDetails;
-        window.closeRefundDetailsModal = closeRefundDetailsModal;
-        window.filterOrders = filterOrders;
-        window.filterRefunds = filterRefunds;
-        window.saveUPISettings = saveUPISettings;
-        window.saveCouponSettings = saveCouponSettings;
-        window.clearCouponForm = clearCouponForm;
-        window.toggleCouponSystem = toggleCouponSystem;
-        window.saveRestrictions = saveRestrictions;
-        window.saveOrderSettings = saveOrderSettings;
-        window.syncShopConfig = syncShopConfig;
-        window.exportShopData = exportShopData;
-        window.resetSettings = resetSettings;
-        window.showForgotPassword = showForgotPassword;
-        window.logout = logout;
-        window.switchImageTab = switchImageTab;
-        window.previewImageFromUrl = previewImageFromUrl;
-        window.openCloudinaryUploader = openCloudinaryUploader;
-        window.switchQRImageTab = switchQRImageTab;
-        window.previewQRImageFromUrl = previewQRImageFromUrl;
-        window.openCloudinaryQRUploader = openCloudinaryQRUploader;
-        window.calculateRefundAmount = calculateRefundAmount;
-        window.changePartialQuantity = changePartialQuantity;
     </script>
 </body>
 </html>

@@ -2620,101 +2620,56 @@
                 </div>
                 
                 <!-- Cloudinary Image Upload Section -->
-<div class="form-group">
-    <label>Product Image</label>
-    <div class="image-upload-container">
-        <div class="image-upload-option">
-            <div class="upload-tab active" data-type="url" onclick="switchImageTab('url')">
-                <i class="fas fa-link"></i>
-                <span>Image URL</span>
-            </div>
-            <div class="upload-tab" data-type="cloudinary" onclick="switchImageTab('cloudinary')">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Upload with Cloudinary</span>
-            </div>
-        </div>
-        
-        <!-- URL Input -->
-        <div class="image-preview-container active" id="urlTab">
-            <input type="url" id="productImage" placeholder="https://example.com/image.jpg" class="form-control">
-            <button type="button" class="upload-btn" onclick="previewImageFromUrl()">
-                <i class="fas fa-eye"></i> Preview Image
-            </button>
-            <img id="urlImagePreview" class="image-preview" style="display: none;">
-        </div>
-        
-        <!-- Cloudinary Upload -->
-        <div class="image-preview-container" id="cloudinaryTab">
-            <div class="alert alert-info mb-2">
-                <i class="fas fa-info-circle"></i>
-                Click the button below to upload image via Cloudinary widget
-            </div>
-            
-            <!-- Cloudinary Upload Button -->
-            <button type="button" class="upload-btn" id="cloudinaryUploadBtn">
-                <i class="fas fa-cloud-upload-alt"></i> Select & Upload Image
-            </button>
-            
-            <!-- Cloudinary Widget Container (Required by Cloudinary) -->
-            <div id="cloudinaryWidgetContainer" style="display: none;"></div>
-            
-            <!-- Upload Status -->
-            <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
-                <div class="alert alert-warning">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    <span>Uploading image to Cloudinary...</span>
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-option">
+                            <div class="upload-tab active" data-type="url" onclick="switchImageTab('url')">
+                                <i class="fas fa-link"></i>
+                                <span>Image URL</span>
+                            </div>
+                            <div class="upload-tab" data-type="cloudinary" onclick="switchImageTab('cloudinary')">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Upload with Cloudinary</span>
+                            </div>
+                        </div>
+                        
+                        <!-- URL Input -->
+                        <div class="image-preview-container active" id="urlTab">
+                            <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                            <button type="button" class="upload-btn" onclick="previewImageFromUrl()">
+                                <i class="fas fa-eye"></i> Preview Image
+                            </button>
+                            <img id="urlImagePreview" class="image-preview" style="display: none;">
+                        </div>
+                        
+                        <!-- Cloudinary Upload -->
+                        <div class="image-preview-container" id="cloudinaryTab">
+                            <button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload Product Image
+                            </button>
+                            <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Uploading to Cloudinary...</span>
+                                </div>
+                            </div>
+                            <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
+                            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span>Image uploaded to Cloudinary successfully</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="cloudinaryImageUrl">
                 </div>
-            </div>
-            
-            <!-- Upload Progress -->
-            <div id="cloudinaryUploadProgress" style="display: none; margin-top: 10px;">
-                <div class="progress">
-                    <div id="cloudinaryProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                         role="progressbar" style="width: 0%"></div>
-                </div>
-                <small class="text-muted d-block text-center mt-1" id="cloudinaryProgressText">0%</small>
-            </div>
-            
-            <!-- Image Preview -->
-            <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
-            
-            <!-- Success Message -->
-            <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px;">
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Image uploaded successfully!</span>
-                    <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="resetCloudinaryUpload()">
-                        <i class="fas fa-redo"></i> Upload Different Image
-                    </button>
-                </div>
-                <div class="mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle"></i> Image URL automatically saved
-                    </small>
-                </div>
-            </div>
-            
-            <!-- Error Message -->
-            <div id="cloudinaryUploadError" style="display: none; margin-top: 10px;">
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="cloudinaryErrorText">Upload failed. Please try again.</span>
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="retryCloudinaryUpload()">
-                        <i class="fas fa-redo"></i> Retry
-                    </button>
-                </div>
+            </form>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
             </div>
         </div>
     </div>
-    <input type="hidden" id="cloudinaryImageUrl">
-</div>
-</form>
-<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-    <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-    <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
-</div>
-</div>
-</div>
 
     <!-- Partial Order Modal -->
     <div class="modal" id="partialOrderModal">
@@ -2877,13 +2832,13 @@
             measurementId: "G-QJB3MFSSSS"
         };
 
-        // Cloudinary Configuration - FIXED FOR MOBILE
+        // Cloudinary Configuration
         const cloudinaryConfig = {
             cloudName: 'db1rbtgpe',
             uploadPreset: 'dukaan-platform',
             apiKey: '156538295145313',
-            sources: ['local', 'camera'],
-            folder: 'shop_products',
+            sources: ['local', 'camera', 'url'],
+            folder: 'shopkeeper_qr_codes',
             multiple: false,
             resourceType: 'image',
             clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
@@ -2969,33 +2924,21 @@
             }
         }
 
-        // Initialize Cloudinary Widgets - FIXED FOR MOBILE
+        // Initialize Cloudinary Widgets
         function initializeCloudinaryWidgets() {
             try {
-                // Product Image Upload Widget - FIXED FOR MOBILE
+                // Product Image Upload Widget
                 cloudinaryWidget = cloudinary.createUploadWidget(
                     {
                         ...cloudinaryConfig,
                         folder: 'shop_products',
-                        sources: ['local', 'camera'],
+                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
                         showCompletedButton: true,
                         showUploadMoreButton: true,
                         language: 'en',
                         text: {
                             en: {
-                                local: {
-                                    browse: "Browse files",
-                                    or: "or",
-                                    drag_and_drop: "Drag & drop files here",
-                                    drop_files: "Drop files here",
-                                    edit_image: "Edit image",
-                                    add_more: "Add more files",
-                                    close: "Close",
-                                    back: "Back",
-                                    upload: "Upload",
-                                    cancel: "Cancel",
-                                    done: "Done"
-                                }
+                                // REMOVED: dropbox, facebook, instagram text
                             }
                         }
                     },
@@ -3012,7 +2955,7 @@
                         cropping: true,
                         croppingAspectRatio: 1,
                         croppingShowDimensions: true,
-                        sources: ['local', 'camera'],
+                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
                         showCompletedButton: true,
                         showUploadMoreButton: true
                     },
@@ -3084,7 +3027,7 @@
             }
         }
 
-        // Open Cloudinary uploader for product - FIXED FOR MOBILE
+        // Open Cloudinary uploader for product
         function openCloudinaryUploader() {
             if (!cloudinaryWidget) {
                 showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
@@ -3092,43 +3035,18 @@
             }
             
             try {
-                // Check if mobile device
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // Use native file input for mobile
-                    const fileInput = document.getElementById('mobileFileInput');
-                    if (fileInput) {
-                        fileInput.click();
-                    } else {
-                        // Create file input for mobile
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.id = 'mobileFileInput';
-                        input.style.display = 'none';
-                        input.onchange = (e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                uploadFileDirectly(file, 'product');
-                            }
-                        };
-                        document.body.appendChild(input);
-                        input.click();
-                    }
-                } else {
-                    // Use Cloudinary widget for desktop
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                    document.getElementById('cloudinaryImagePreview').style.display = 'none';
-                    document.getElementById('cloudinaryImageInfo').style.display = 'none';
-                    
-                    cloudinaryWidget.open();
-                }
+                document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryImageInfo').style.display = 'none';
+                
+                cloudinaryWidget.open();
             } catch (error) {
                 console.error('Error opening Cloudinary widget:', error);
                 showToast('Cannot open uploader: ' + error.message, 'error');
             }
         }
 
-        // Open Cloudinary uploader for QR code - FIXED FOR MOBILE
+        // Open Cloudinary uploader for QR code
         function openCloudinaryQRUploader() {
             if (!cloudinaryQRWidget) {
                 showToast('QR Code uploader not initialized. Please refresh page.', 'error');
@@ -3136,102 +3054,14 @@
             }
             
             try {
-                // Check if mobile device
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // Use native file input for mobile
-                    const fileInput = document.getElementById('mobileQRFileInput');
-                    if (fileInput) {
-                        fileInput.click();
-                    } else {
-                        // Create file input for mobile
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.id = 'mobileQRFileInput';
-                        input.style.display = 'none';
-                        input.onchange = (e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                uploadFileDirectly(file, 'qr');
-                            }
-                        };
-                        document.body.appendChild(input);
-                        input.click();
-                    }
-                } else {
-                    // Use Cloudinary widget for desktop
-                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
-                    document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
-                    document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
-                    
-                    cloudinaryQRWidget.open();
-                }
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+                
+                cloudinaryQRWidget.open();
             } catch (error) {
                 console.error('Error opening Cloudinary QR widget:', error);
                 showToast('Cannot open QR uploader: ' + error.message, 'error');
-            }
-        }
-
-        // Upload file directly to Cloudinary - FOR MOBILE FIX
-        async function uploadFileDirectly(file, type) {
-            try {
-                if (type === 'product') {
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                } else {
-                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
-                }
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-                formData.append('cloud_name', cloudinaryConfig.cloudName);
-                formData.append('folder', type === 'product' ? 'shop_products' : 'shop_qr_codes');
-                
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.secure_url) {
-                    const imageUrl = result.secure_url;
-                    
-                    if (type === 'product') {
-                        document.getElementById('cloudinaryImageUrl').value = imageUrl;
-                        document.getElementById('productImage').value = imageUrl;
-                        
-                        const preview = document.getElementById('cloudinaryImagePreview');
-                        preview.src = imageUrl;
-                        preview.style.display = 'block';
-                        
-                        document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                        document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                    } else {
-                        document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
-                        document.getElementById('qrCodeImageUrl').value = imageUrl;
-                        
-                        const preview = document.getElementById('cloudinaryQRImagePreview');
-                        preview.src = imageUrl;
-                        preview.style.display = 'block';
-                        
-                        document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
-                        document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
-                    }
-                    
-                    showToast('✅ Image uploaded successfully!', 'success');
-                } else {
-                    throw new Error('Upload failed');
-                }
-                
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                showToast('Error uploading image: ' + error.message, 'error');
-                if (type === 'product') {
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                } else {
-                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
-                }
             }
         }
 
@@ -3888,7 +3718,7 @@
             }
         }
 
-        // SAVE UPI SETTINGS
+        // SAVE UPI SETTINGS - COMPLETELY FIXED FOR REAL-TIME SYNC
         async function saveUPISettings() {
     if (!currentShop) return;
     
@@ -3919,13 +3749,13 @@
             }
         };
         
-        // Save to shop_config
+        // 1. Save to shop_config (shop-specific)
         await db.collection('shop_config').doc(currentShop.id).update({
             upiSettings: upiSettings,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+        // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
         const shopUpdateData = {
             upiId: upiId,
             qrCodeImage: qrCodeImage,
@@ -3938,15 +3768,17 @@
         
         await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
         
-        // UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
+        // ======== ADD THIS ========
+        // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
         await db.collection('shop_config').doc('settings').set({
             upiId: upiId,
             qrCodeImage: qrCodeImage,
             paymentMethods: shopUpdateData.paymentMethods,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+        // ======== END ADD ========
         
-        // Update local variables
+        // 4. Update local variables
         if (currentShopConfig) {
             currentShopConfig.upiSettings = upiSettings;
         }
@@ -3959,6 +3791,13 @@
         
         showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
         
+        // 5. Notify all customers (optional)
+        try {
+            await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
+        } catch (notifyError) {
+            console.log('Customer notification skipped:', notifyError);
+        }
+        
     } catch (error) {
         console.error('Error saving UPI settings:', error);
         showToast('Error saving payment settings: ' + error.message, 'error');
@@ -3967,7 +3806,37 @@
     }
 }
 
-        // Save coupon settings
+        // Notify customers about payment update
+        async function notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage) {
+            try {
+                // Get all orders for this shop
+                const ordersSnapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .limit(50)
+                    .get();
+                
+                if (!ordersSnapshot.empty) {
+                    const batch = db.batch();
+                    
+                    ordersSnapshot.forEach(doc => {
+                        const orderRef = db.collection('orders').doc(doc.id);
+                        batch.update(orderRef, {
+                            shopUPIUpdated: true,
+                            shopUPIId: upiId,
+                            shopQRCode: qrCodeImage,
+                            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    
+                    await batch.commit();
+                    console.log('Notified customers about payment update');
+                }
+            } catch (error) {
+                console.error('Error notifying customers:', error);
+            }
+        }
+
+        // Save coupon settings - FIXED TO SYNC WITH SHOP DOCUMENT
         async function saveCouponSettings() {
             if (!currentShop) return;
             
@@ -4009,13 +3878,13 @@
                     }
                 }
                 
-                // Save to shop_config
+                // 1. Save to shop_config
                 await db.collection('shop_config').doc(currentShop.id).update({
                     'couponSettings': couponSettings,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // UPDATE MAIN SHOP DOCUMENT
+                // 2. UPDATE MAIN SHOP DOCUMENT - THIS IS CRITICAL FOR CUSTOMER APP
                 await db.collection('shops').doc(currentShop.id).update({
                     couponEnabled: couponEnabled,
                     couponCode: couponEnabled ? couponCode : '',
@@ -4023,19 +3892,19 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update currentShop object
+                // 3. Also update currentShop object
                 if (currentShop) {
                     currentShop.couponEnabled = couponEnabled;
                     currentShop.couponCode = couponEnabled ? couponCode : '';
                     currentShop.couponSettings = couponSettings;
                 }
                 
-                // Update config
+                // 4. Update config
                 if (currentShopConfig) {
                     currentShopConfig.couponSettings = couponSettings;
                 }
                 
-                // Update UI
+                // 5. Update UI
                 updateCouponStatusLabel(couponEnabled);
                 
                 showSettingsSavedMessage('✅ Coupon settings saved and synced with customer app!');
@@ -4619,7 +4488,7 @@
             productsList.innerHTML = productsHtml;
         }
 
-        // Product Modal Functions
+        // Product Modal Functions - FIXED IMAGE PRESERVATION
         function showAddProductModal() {
             document.getElementById('productModalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
@@ -4674,11 +4543,13 @@
                 document.getElementById('customCategoryInput').style.display = 'block';
             }
             
-            // Preserve existing image when editing
+            // FIXED: Preserve existing image when editing
             if (product.image) {
+                // Store the original image URL in both fields
                 document.getElementById('productImage').value = product.image;
                 document.getElementById('cloudinaryImageUrl').value = product.image;
                 
+                // Show appropriate tab based on image source
                 if (product.image.includes('cloudinary.com') || product.image.includes('res.cloudinary.com')) {
                     switchImageTab('cloudinary');
                     const preview = document.getElementById('cloudinaryImagePreview');
@@ -4742,21 +4613,26 @@
                 }
             }
             
-            // Preserve existing image if no new image is provided
+            // FIXED: Preserve existing image if no new image is provided
             let imageUrl = '';
             if (productId) {
+                // For existing product, check if new image was uploaded
                 const currentProduct = products.find(p => p.id === productId);
                 const cloudinaryImageUrl = document.getElementById('cloudinaryImageUrl').value;
                 const urlImage = document.getElementById('productImage').value;
                 
                 if (cloudinaryImageUrl && cloudinaryImageUrl !== currentProduct.image) {
+                    // New Cloudinary image uploaded
                     imageUrl = cloudinaryImageUrl;
                 } else if (urlImage && urlImage !== currentProduct.image) {
+                    // New URL image entered
                     imageUrl = urlImage;
                 } else {
+                    // No new image, keep existing image
                     imageUrl = currentProduct.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
                 }
             } else {
+                // For new product
                 if (currentImageTab === 'url') {
                     imageUrl = document.getElementById('productImage').value.trim();
                     if (!imageUrl) {
@@ -4993,38 +4869,6 @@
             });
         }
 
-        // FIXED: Address extraction function - Now shows full address
-        function extractFullAddressForDisplay(addressObj) {
-            if (!addressObj) return 'N/A';
-            
-            const parts = [];
-            
-            // Check for flat/building number
-            if (addressObj.flatNumber) parts.push(`Flat ${addressObj.flatNumber}`);
-            if (addressObj.building) parts.push(addressObj.building);
-            
-            // Main address
-            if (addressObj.address) parts.push(addressObj.address);
-            if (addressObj.street) parts.push(addressObj.street);
-            if (addressObj.area) parts.push(addressObj.area);
-            if (addressObj.locality) parts.push(addressObj.locality);
-            
-            // City, State, Pincode
-            if (addressObj.city) parts.push(addressObj.city);
-            if (addressObj.state) parts.push(addressObj.state);
-            if (addressObj.pincode) parts.push(`Pincode: ${addressObj.pincode}`);
-            
-            // Landmark
-            if (addressObj.landmark) parts.push(`Landmark: ${addressObj.landmark}`);
-            
-            // If no structured address, try to format from string
-            if (parts.length === 0 && typeof addressObj === 'string') {
-                return addressObj;
-            }
-            
-            return parts.join(', ');
-        }
-
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             
@@ -5170,14 +5014,33 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // FIXED: Use new address extraction function
+                    // IMPROVED ADDRESS EXTRACTION - FIXED TO SHOW FULL ADDRESS
                     let customerAddress = 'N/A';
                     
+                    // Check for structured address first
                     if (order.shippingAddress && typeof order.shippingAddress === 'object') {
-                        customerAddress = extractFullAddressForDisplay(order.shippingAddress);
+                        const addr = order.shippingAddress;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
                     }
                     else if (order.address && typeof order.address === 'object') {
-                        customerAddress = extractFullAddressForDisplay(order.address);
+                        const addr = order.address;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
                     }
                     else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
                         customerAddress = order.shippingAddress;
@@ -5192,7 +5055,15 @@
                         if (typeof order.user.address === 'string') {
                             customerAddress = order.user.address;
                         } else if (typeof order.user.address === 'object') {
-                            customerAddress = extractFullAddressForDisplay(order.user.address);
+                            const addr = order.user.address;
+                            const parts = [];
+                            if (addr.address) parts.push(addr.address);
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
                         }
                     }
                     else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
@@ -5249,6 +5120,7 @@
                     
                     const hasRefund = order.refundStatus && order.refundStatus !== 'none';
                     
+                    // FIXED: Show refund option for rejected orders
                     if (order.status === 'pending') {
                         actionButtons = `
                             <div class="action-buttons">
@@ -5318,6 +5190,7 @@
                             actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                         
+                        // FIXED: Refund option for rejected/cancelled orders
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
                                 <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
@@ -5328,6 +5201,7 @@
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
                         
+                        // FIXED: Add refund option for rejected/cancelled orders
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
                                 <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
@@ -5384,7 +5258,7 @@
                             <td>
                                 <div><strong>${customerName}</strong></div>
                                 <small class="text-muted">${customerPhone}</small>
-                                <small class="text-muted d-block" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${customerAddress}</small>
+                                <small class="text-muted d-block">${customerAddress}</small>
                             </td>
                             <td title="${itemsDisplay}">
                                 ${itemsDisplay.length > 30 ? itemsDisplay.substring(0, 30) + '...' : itemsDisplay}
@@ -5556,7 +5430,7 @@
             }
         }
 
-        // View Order Details - FIXED: Now shows full address and action buttons
+        // View Order Details - FIXED: Full address display and action buttons
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -5587,14 +5461,33 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // FIXED: Use the new address extraction function
+                // FIXED: COMPREHENSIVE ADDRESS EXTRACTION FOR ORDER DETAILS - FULL ADDRESS
                 let customerAddress = 'N/A';
                 
+                // Check for structured address first
                 if (order.shippingAddress && typeof order.shippingAddress === 'object') {
-                    customerAddress = extractFullAddressForDisplay(order.shippingAddress);
+                    const addr = order.shippingAddress;
+                    const parts = [];
+                    if (addr.address) parts.push(addr.address);
+                    if (addr.street) parts.push(addr.street);
+                    if (addr.area) parts.push(addr.area);
+                    if (addr.city) parts.push(addr.city);
+                    if (addr.state) parts.push(addr.state);
+                    if (addr.pincode) parts.push(addr.pincode);
+                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                    if (parts.length > 0) customerAddress = parts.join(', ');
                 }
                 else if (order.address && typeof order.address === 'object') {
-                    customerAddress = extractFullAddressForDisplay(order.address);
+                    const addr = order.address;
+                    const parts = [];
+                    if (addr.address) parts.push(addr.address);
+                    if (addr.street) parts.push(addr.street);
+                    if (addr.area) parts.push(addr.area);
+                    if (addr.city) parts.push(addr.city);
+                    if (addr.state) parts.push(addr.state);
+                    if (addr.pincode) parts.push(addr.pincode);
+                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                    if (parts.length > 0) customerAddress = parts.join(', ');
                 }
                 else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
                     customerAddress = order.shippingAddress;
@@ -5609,7 +5502,15 @@
                     if (typeof order.user.address === 'string') {
                         customerAddress = order.user.address;
                     } else if (typeof order.user.address === 'object') {
-                        customerAddress = extractFullAddressForDisplay(order.user.address);
+                        const addr = order.user.address;
+                        const parts = [];
+                        if (addr.address) parts.push(addr.address);
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
                     }
                 }
                 else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
@@ -5945,7 +5846,7 @@
                     `;
                 }
                 
-                // FIXED: Generate action buttons based on order status
+                // FIXED: Include all action buttons inside order details
                 let actionButtonsHtml = '';
                 
                 if (order.status === 'pending') {
@@ -6421,7 +6322,7 @@
             refundsList.innerHTML = refundsHtml;
         }
 
-        // Show initiate refund modal
+        // Show initiate refund modal - FIXED TO SHOW ONLY UNFULFILLED ITEMS
         function showInitiateRefundModal(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -6451,9 +6352,11 @@
             } else {
                 itemsHtml = '<p>Select items to refund (only unfulfilled items shown):</p>';
                 
+                // For partial orders, automatically select rejected items
                 const rejectedItems = order.rejectedItems || [];
                 const acceptedItems = order.acceptedItems || [];
                 
+                // Filter items to show only unfulfilled items
                 const unfulfilledItems = [];
                 
                 orderItems.forEach((item, index) => {
@@ -6472,6 +6375,7 @@
                         }
                     }
                     
+                    // If it's not an accepted item, or if quantity delivered is less than ordered
                     if (!isAcceptedItem || acceptedQuantity < (item.quantity || 1)) {
                         unfulfilledItems.push({
                             ...item,
@@ -6520,14 +6424,17 @@
             
             itemsList.innerHTML = itemsHtml;
             
+            // Calculate max refund amount based on unfulfilled items
             let maxAmount = 0;
             
             if (order.isPartialOrder) {
+                // For partial orders, max amount is rejected items total
                 const rejectedItems = order.rejectedItems || [];
                 maxAmount = rejectedItems.reduce((sum, item) => {
                     return sum + ((item.price || 0) * (item.quantity || 1));
                 }, 0);
                 
+                // Also add difference for partially fulfilled items
                 const acceptedItems = order.acceptedItems || [];
                 orderItems.forEach(item => {
                     const acceptedItem = acceptedItems.find(ai => 
@@ -6544,10 +6451,13 @@
                     }
                 });
             } else {
+                // For full orders, check if all items were delivered
                 const isFullyDelivered = order.status === 'delivered' || order.status === 'picked_up';
                 if (!isFullyDelivered) {
+                    // If not delivered, refund entire amount
                     maxAmount = order.total || order.totalAmount || 0;
                 } else {
+                    // If delivered, only refund unfulfilled items
                     maxAmount = orderItems.reduce((sum, item) => {
                         const itemStatus = item.status || 'delivered';
                         if (itemStatus !== 'delivered') {
@@ -7214,7 +7124,7 @@
             // Profile form
             document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
             
-            // Settings forms
+            // Settings forms - FIXED EVENT LISTENERS
             document.getElementById('upiSettingsForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 saveUPISettings();
@@ -7324,11 +7234,107 @@
             setupAutoSaveIndicators();
             
             // Check for updates periodically
-            setInterval(checkForUpdates, 60000);
+            setInterval(checkForUpdates, 60000); // Every minute
             
             // Setup keyboard shortcuts
             setupKeyboardShortcuts();
+            
+            // FIXED: Mobile image upload fix - Add hidden file input
+            setupMobileImageUploadFix();
         });
+
+        // FIXED: Mobile image upload fix
+        function setupMobileImageUploadFix() {
+            // Create hidden file input for mobile
+            const hiddenFileInput = document.createElement('input');
+            hiddenFileInput.type = 'file';
+            hiddenFileInput.accept = 'image/*';
+            hiddenFileInput.style.display = 'none';
+            hiddenFileInput.id = 'hiddenFileInput';
+            document.body.appendChild(hiddenFileInput);
+            
+            // Override Cloudinary widget's open method for mobile
+            const originalCloudinaryOpen = cloudinary?.createUploadWidget;
+            if (originalCloudinaryOpen && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                // Mobile device detected - use native file input
+                console.log('Mobile device detected, using native file upload');
+                
+                // Add click event listeners to upload buttons
+                document.addEventListener('click', function(e) {
+                    const uploadBtn = e.target.closest('.upload-btn');
+                    const uploadTab = e.target.closest('.upload-tab');
+                    
+                    if (uploadBtn || uploadTab) {
+                        // Check if we're on mobile
+                        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                            e.preventDefault();
+                            
+                            // Trigger hidden file input
+                            hiddenFileInput.click();
+                            
+                            // Handle file selection
+                            hiddenFileInput.onchange = function(event) {
+                                const file = event.target.files[0];
+                                if (file) {
+                                    // Upload directly to Cloudinary using fetch
+                                    uploadFileToCloudinary(file);
+                                }
+                            };
+                        }
+                    }
+                });
+            }
+        }
+
+        // Upload file directly to Cloudinary
+        async function uploadFileToCloudinary(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                formData.append('cloud_name', cloudinaryConfig.cloudName);
+                formData.append('folder', 'shop_products');
+                
+                // Show upload status
+                if (document.getElementById('cloudinaryUploadStatus')) {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                }
+                
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.secure_url) {
+                    const imageUrl = result.secure_url;
+                    
+                    // Set the image URL in the form
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    // Show preview
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                    
+                    showToast('✅ Image uploaded successfully!', 'success');
+                } else {
+                    throw new Error('Upload failed');
+                }
+                
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                showToast('Error uploading image: ' + error.message, 'error');
+                if (document.getElementById('cloudinaryUploadStatus')) {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                }
+            }
+        }
 
         // Debounce function for search
         function debounce(func, wait) {
@@ -7581,23 +7587,27 @@
                 // Check for new orders
                 const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
                 const newPendingOrders = await getNewPendingOrdersCount();
+                
                 if (newPendingOrders > pendingOrdersCount) {
-                    showToast(`🆕 You have ${newPendingOrders - pendingOrdersCount} new order(s)`, 'info');
-                    await loadOrders();
-                    await loadDashboardData();
+                    showNotification('📦 New Orders', `You have ${newPendingOrders - pendingOrdersCount} new pending orders!`);
+                    playNotificationSound();
+                    loadOrders();
                 }
                 
                 // Check for new refunds
                 const pendingRefundsCount = refunds.filter(r => r.status === 'pending').length;
                 const newPendingRefunds = await getNewPendingRefundsCount();
+                
                 if (newPendingRefunds > pendingRefundsCount) {
-                    showToast(`🆕 You have ${newPendingRefunds - pendingRefundsCount} new refund request(s)`, 'info');
-                    await loadRefunds();
-                    await loadDashboardData();
+                    showNotification('🔄 New Refunds', `You have ${newPendingRefunds - pendingRefundsCount} new refund requests!`);
+                    loadRefunds();
                 }
                 
+                // Update dashboard
+                loadDashboardData();
+                
             } catch (error) {
-                console.log('Error checking for updates:', error);
+                console.log('Update check error:', error);
             }
         }
 
@@ -7631,27 +7641,38 @@
                 // Ctrl/Cmd + S to save
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                     e.preventDefault();
+                    const activePage = document.querySelector('.content-page.active').id;
                     
-                    // Check which page is active
-                    if (document.getElementById('productsPage').classList.contains('active')) {
-                        if (document.getElementById('productModal').classList.contains('active')) {
-                            saveProduct();
-                        }
-                    } else if (document.getElementById('settingsPage').classList.contains('active')) {
-                        // Check which form is visible
-                        const upiForm = document.getElementById('upiSettingsForm');
-                        const couponForm = document.getElementById('couponSettingsSection');
-                        const restrictionsForm = document.getElementById('restrictionsForm');
-                        const orderForm = document.getElementById('orderSettingsForm');
-                        
-                        if (upiForm && upiForm.offsetParent !== null) {
-                            saveUPISettings();
-                        } else if (couponForm && couponForm.style.display !== 'none') {
-                            saveCouponSettings();
-                        } else if (restrictionsForm) {
-                            saveRestrictions();
-                        } else if (orderForm) {
-                            saveOrderSettings();
+                    switch(activePage) {
+                        case 'productsPage':
+                            if (document.getElementById('productModal').classList.contains('active')) {
+                                saveProduct();
+                            }
+                            break;
+                        case 'settingsPage':
+                            // Check which settings card has focus
+                            const focusedInput = document.activeElement;
+                            if (focusedInput) {
+                                const settingsCard = focusedInput.closest('.settings-card');
+                                if (settingsCard) {
+                                    const saveBtn = settingsCard.querySelector('.btn-primary');
+                                    if (saveBtn) {
+                                        saveBtn.click();
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+                
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
+                    if (activeModals.length > 0) {
+                        const lastModal = activeModals[activeModals.length - 1];
+                        const closeBtn = lastModal.querySelector('.close-modal');
+                        if (closeBtn) {
+                            closeBtn.click();
                         }
                     }
                 }

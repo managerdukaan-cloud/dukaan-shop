@@ -2820,6 +2820,10 @@
         </button>
     </div>
 
+    <!-- Hidden File Inputs for Mobile Upload -->
+    <input type="file" id="mobileProductImageInput" accept="image/*" style="display: none;">
+    <input type="file" id="mobileQRImageInput" accept="image/*" style="display: none;">
+
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -2889,6 +2893,7 @@
         let currentShopConfig = null;
         let currentOrderItems = [];
         let shopCategories = ['groceries', 'dairy', 'bakery', 'beverages', 'snacks', 'personal_care', 'household'];
+        let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         // Initialize App
         function initApp() {
@@ -2924,23 +2929,24 @@
             }
         }
 
-        // Initialize Cloudinary Widgets
+        // Initialize Cloudinary Widgets - FIXED FOR MOBILE
         function initializeCloudinaryWidgets() {
             try {
+                if (isMobile) {
+                    console.log('Mobile device detected, using native upload');
+                    setupMobileUploadHandlers();
+                    return;
+                }
+                
                 // Product Image Upload Widget
                 cloudinaryWidget = cloudinary.createUploadWidget(
                     {
                         ...cloudinaryConfig,
                         folder: 'shop_products',
-                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
+                        sources: ['local', 'camera', 'url'],
                         showCompletedButton: true,
                         showUploadMoreButton: true,
-                        language: 'en',
-                        text: {
-                            en: {
-                                // REMOVED: dropbox, facebook, instagram text
-                            }
-                        }
+                        language: 'en'
                     },
                     (error, result) => {
                         handleCloudinaryUpload(error, result, 'product');
@@ -2955,7 +2961,7 @@
                         cropping: true,
                         croppingAspectRatio: 1,
                         croppingShowDimensions: true,
-                        sources: ['local', 'camera', 'url'], // REMOVED: dropbox, facebook, instagram
+                        sources: ['local', 'camera', 'url'],
                         showCompletedButton: true,
                         showUploadMoreButton: true
                     },
@@ -2965,20 +2971,121 @@
                 );
             } catch (error) {
                 console.error('Error initializing Cloudinary widgets:', error);
-                showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
+                showToast('Cloudinary initialization failed. Using native upload.', 'warning');
+                setupMobileUploadHandlers();
             }
         }
 
-        // Handle Cloudinary Upload
-        function handleCloudinaryUpload(error, result, type) {
-            if (error) {
-                console.error('Cloudinary Error:', error);
-                showToast('Cloudinary upload error', 'error');
+        // Setup mobile upload handlers
+        function setupMobileUploadHandlers() {
+            console.log('Setting up mobile upload handlers');
+            
+            // Product image upload handler
+            const productUploadBtn = document.querySelector('#cloudinaryTab .upload-btn');
+            if (productUploadBtn) {
+                productUploadBtn.onclick = function(e) {
+                    e.preventDefault();
+                    document.getElementById('mobileProductImageInput').click();
+                };
+            }
+            
+            // QR code upload handler
+            const qrUploadBtn = document.querySelector('#qrCloudinaryTab .upload-btn');
+            if (qrUploadBtn) {
+                qrUploadBtn.onclick = function(e) {
+                    e.preventDefault();
+                    document.getElementById('mobileQRImageInput').click();
+                };
+            }
+            
+            // Handle file selection for product image
+            document.getElementById('mobileProductImageInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFileToCloudinary(file, 'product');
+                }
+            });
+            
+            // Handle file selection for QR code
+            document.getElementById('mobileQRImageInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFileToCloudinary(file, 'qr');
+                }
+            });
+        }
+
+        // Upload file directly to Cloudinary API
+        async function uploadFileToCloudinary(file, type) {
+            try {
+                // Show upload status
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                formData.append('cloud_name', cloudinaryConfig.cloudName);
+                formData.append('folder', type === 'product' ? 'shop_products' : 'shop_qr_codes');
+                
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.secure_url) {
+                    const imageUrl = result.secure_url;
+                    
+                    if (type === 'product') {
+                        document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                        document.getElementById('productImage').value = imageUrl;
+                        
+                        const preview = document.getElementById('cloudinaryImagePreview');
+                        preview.src = imageUrl;
+                        preview.style.display = 'block';
+                        
+                        document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                        document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                    } else {
+                        document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
+                        document.getElementById('qrCodeImageUrl').value = imageUrl;
+                        
+                        const preview = document.getElementById('cloudinaryQRImagePreview');
+                        preview.src = imageUrl;
+                        preview.style.display = 'block';
+                        
+                        document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
+                        document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                    }
+                    
+                    showToast('✅ Image uploaded successfully!', 'success');
+                } else {
+                    throw new Error('Upload failed');
+                }
+                
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                showToast('Error uploading image: ' + error.message, 'error');
+                
                 if (type === 'product') {
                     document.getElementById('cloudinaryUploadStatus').style.display = 'none';
                 } else {
                     document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
                 }
+            }
+        }
+
+        // Handle Cloudinary Upload for Desktop
+        function handleCloudinaryUpload(error, result, type) {
+            if (error) {
+                console.error('Cloudinary Error:', error);
+                showToast('Cloudinary upload error. Using native upload.', 'error');
+                setupMobileUploadHandlers();
                 return;
             }
             
@@ -3029,6 +3136,12 @@
 
         // Open Cloudinary uploader for product
         function openCloudinaryUploader() {
+            if (isMobile) {
+                // Use native file input for mobile
+                document.getElementById('mobileProductImageInput').click();
+                return;
+            }
+            
             if (!cloudinaryWidget) {
                 showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
                 return;
@@ -3042,12 +3155,19 @@
                 cloudinaryWidget.open();
             } catch (error) {
                 console.error('Error opening Cloudinary widget:', error);
-                showToast('Cannot open uploader: ' + error.message, 'error');
+                showToast('Cannot open uploader. Using native upload.', 'error');
+                document.getElementById('mobileProductImageInput').click();
             }
         }
 
         // Open Cloudinary uploader for QR code
         function openCloudinaryQRUploader() {
+            if (isMobile) {
+                // Use native file input for mobile
+                document.getElementById('mobileQRImageInput').click();
+                return;
+            }
+            
             if (!cloudinaryQRWidget) {
                 showToast('QR Code uploader not initialized. Please refresh page.', 'error');
                 return;
@@ -3061,7 +3181,8 @@
                 cloudinaryQRWidget.open();
             } catch (error) {
                 console.error('Error opening Cloudinary QR widget:', error);
-                showToast('Cannot open QR uploader: ' + error.message, 'error');
+                showToast('Cannot open QR uploader. Using native upload.', 'error');
+                document.getElementById('mobileQRImageInput').click();
             }
         }
 
@@ -3720,91 +3841,91 @@
 
         // SAVE UPI SETTINGS - COMPLETELY FIXED FOR REAL-TIME SYNC
         async function saveUPISettings() {
-    if (!currentShop) return;
-    
-    try {
-        showLoading(true);
-        
-        const upiId = document.getElementById('upiId').value.trim();
-        
-        // Get QR Code Image URL
-        let qrCodeImage = '';
-        if (currentQRImageTab === 'url') {
-            qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
-        } else {
-            qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
-        }
-        
-        // If empty, use default QR code
-        if (!qrCodeImage && upiId) {
-            qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
-        }
-        
-        const upiSettings = {
-            upiId: upiId,
-            qrCodeImage: qrCodeImage,
-            acceptedMethods: {
-                cash: document.getElementById('acceptCash').checked,
-                upi: document.getElementById('acceptUPI').checked
+            if (!currentShop) return;
+            
+            try {
+                showLoading(true);
+                
+                const upiId = document.getElementById('upiId').value.trim();
+                
+                // Get QR Code Image URL
+                let qrCodeImage = '';
+                if (currentQRImageTab === 'url') {
+                    qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
+                } else {
+                    qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
+                }
+                
+                // If empty, use default QR code
+                if (!qrCodeImage && upiId) {
+                    qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
+                }
+                
+                const upiSettings = {
+                    upiId: upiId,
+                    qrCodeImage: qrCodeImage,
+                    acceptedMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked
+                    }
+                };
+                
+                // 1. Save to shop_config (shop-specific)
+                await db.collection('shop_config').doc(currentShop.id).update({
+                    upiSettings: upiSettings,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+                const shopUpdateData = {
+                    upiId: upiId,
+                    qrCodeImage: qrCodeImage,
+                    paymentMethods: {
+                        cash: document.getElementById('acceptCash').checked,
+                        upi: document.getElementById('acceptUPI').checked
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
+                
+                // ======== ADD THIS ========
+                // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
+                await db.collection('shop_config').doc('settings').set({
+                    upiId: upiId,
+                    qrCodeImage: qrCodeImage,
+                    paymentMethods: shopUpdateData.paymentMethods,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                // ======== END ADD ========
+                
+                // 4. Update local variables
+                if (currentShopConfig) {
+                    currentShopConfig.upiSettings = upiSettings;
+                }
+                
+                if (currentShop) {
+                    currentShop.upiId = upiId;
+                    currentShop.qrCodeImage = qrCodeImage;
+                    currentShop.paymentMethods = upiSettings.acceptedMethods;
+                }
+                
+                showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
+                
+                // 5. Notify all customers (optional)
+                try {
+                    await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
+                } catch (notifyError) {
+                    console.log('Customer notification skipped:', notifyError);
+                }
+                
+            } catch (error) {
+                console.error('Error saving UPI settings:', error);
+                showToast('Error saving payment settings: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
             }
-        };
-        
-        // 1. Save to shop_config (shop-specific)
-        await db.collection('shop_config').doc(currentShop.id).update({
-            upiSettings: upiSettings,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
-        const shopUpdateData = {
-            upiId: upiId,
-            qrCodeImage: qrCodeImage,
-            paymentMethods: {
-                cash: document.getElementById('acceptCash').checked,
-                upi: document.getElementById('acceptUPI').checked
-            },
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
-        
-        // ======== ADD THIS ========
-        // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
-        await db.collection('shop_config').doc('settings').set({
-            upiId: upiId,
-            qrCodeImage: qrCodeImage,
-            paymentMethods: shopUpdateData.paymentMethods,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-        // ======== END ADD ========
-        
-        // 4. Update local variables
-        if (currentShopConfig) {
-            currentShopConfig.upiSettings = upiSettings;
         }
-        
-        if (currentShop) {
-            currentShop.upiId = upiId;
-            currentShop.qrCodeImage = qrCodeImage;
-            currentShop.paymentMethods = upiSettings.acceptedMethods;
-        }
-        
-        showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
-        
-        // 5. Notify all customers (optional)
-        try {
-            await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
-        } catch (notifyError) {
-            console.log('Customer notification skipped:', notifyError);
-        }
-        
-    } catch (error) {
-        console.error('Error saving UPI settings:', error);
-        showToast('Error saving payment settings: ' + error.message, 'error');
-    } finally {
-        showLoading(false);
-    }
-}
 
         // Notify customers about payment update
         async function notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage) {
@@ -7238,103 +7359,7 @@
             
             // Setup keyboard shortcuts
             setupKeyboardShortcuts();
-            
-            // FIXED: Mobile image upload fix - Add hidden file input
-            setupMobileImageUploadFix();
         });
-
-        // FIXED: Mobile image upload fix
-        function setupMobileImageUploadFix() {
-            // Create hidden file input for mobile
-            const hiddenFileInput = document.createElement('input');
-            hiddenFileInput.type = 'file';
-            hiddenFileInput.accept = 'image/*';
-            hiddenFileInput.style.display = 'none';
-            hiddenFileInput.id = 'hiddenFileInput';
-            document.body.appendChild(hiddenFileInput);
-            
-            // Override Cloudinary widget's open method for mobile
-            const originalCloudinaryOpen = cloudinary?.createUploadWidget;
-            if (originalCloudinaryOpen && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                // Mobile device detected - use native file input
-                console.log('Mobile device detected, using native file upload');
-                
-                // Add click event listeners to upload buttons
-                document.addEventListener('click', function(e) {
-                    const uploadBtn = e.target.closest('.upload-btn');
-                    const uploadTab = e.target.closest('.upload-tab');
-                    
-                    if (uploadBtn || uploadTab) {
-                        // Check if we're on mobile
-                        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                            e.preventDefault();
-                            
-                            // Trigger hidden file input
-                            hiddenFileInput.click();
-                            
-                            // Handle file selection
-                            hiddenFileInput.onchange = function(event) {
-                                const file = event.target.files[0];
-                                if (file) {
-                                    // Upload directly to Cloudinary using fetch
-                                    uploadFileToCloudinary(file);
-                                }
-                            };
-                        }
-                    }
-                });
-            }
-        }
-
-        // Upload file directly to Cloudinary
-        async function uploadFileToCloudinary(file) {
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-                formData.append('cloud_name', cloudinaryConfig.cloudName);
-                formData.append('folder', 'shop_products');
-                
-                // Show upload status
-                if (document.getElementById('cloudinaryUploadStatus')) {
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                }
-                
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.secure_url) {
-                    const imageUrl = result.secure_url;
-                    
-                    // Set the image URL in the form
-                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
-                    document.getElementById('productImage').value = imageUrl;
-                    
-                    // Show preview
-                    const preview = document.getElementById('cloudinaryImagePreview');
-                    preview.src = imageUrl;
-                    preview.style.display = 'block';
-                    
-                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                    
-                    showToast('✅ Image uploaded successfully!', 'success');
-                } else {
-                    throw new Error('Upload failed');
-                }
-                
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                showToast('Error uploading image: ' + error.message, 'error');
-                if (document.getElementById('cloudinaryUploadStatus')) {
-                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                }
-            }
-        }
 
         // Debounce function for search
         function debounce(func, wait) {
@@ -7589,28 +7614,54 @@
                 const newPendingOrders = await getNewPendingOrdersCount();
                 
                 if (newPendingOrders > pendingOrdersCount) {
-                    showNotification('📦 New Orders', `You have ${newPendingOrders - pendingOrdersCount} new pending orders!`);
-                    playNotificationSound();
-                    loadOrders();
+                    await loadOrders();
+                    await loadDashboardData();
+                    showToast('New orders available!', 'info');
                 }
-                
-                // Check for new refunds
-                const pendingRefundsCount = refunds.filter(r => r.status === 'pending').length;
-                const newPendingRefunds = await getNewPendingRefundsCount();
-                
-                if (newPendingRefunds > pendingRefundsCount) {
-                    showNotification('🔄 New Refunds', `You have ${newPendingRefunds - pendingRefundsCount} new refund requests!`);
-                    loadRefunds();
-                }
-                
-                // Update dashboard
-                loadDashboardData();
-                
             } catch (error) {
-                console.log('Update check error:', error);
+                console.error('Error checking for updates:', error);
             }
         }
 
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl + S to save current form
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    
+                    // Check which page is active
+                    const activePage = document.querySelector('.content-page.active');
+                    if (activePage) {
+                        const pageId = activePage.id;
+                        if (pageId === 'productsPage' && document.getElementById('productModal').classList.contains('active')) {
+                            saveProduct();
+                        } else if (pageId === 'settingsPage') {
+                            // Check which settings form is visible
+                            const upiForm = document.getElementById('upiSettingsForm');
+                            if (upiForm && upiForm.offsetParent !== null) {
+                                saveUPISettings();
+                            }
+                        }
+                    }
+                }
+                
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    const modals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
+                    modals.forEach(modal => {
+                        if (modal.id === 'productModal') closeProductModal();
+                        else if (modal.id === 'partialOrderModal') closePartialOrderModal();
+                        else if (modal.id === 'orderDetailsModal') closeOrderDetailsModal();
+                        else if (modal.id === 'orderItemsModal') closeOrderItemsModal();
+                        else if (modal.id === 'initiateRefundModal') closeInitiateRefundModal();
+                        else if (modal.id === 'refundDetailsModal') closeRefundDetailsModal();
+                    });
+                }
+            });
+        }
+
+        // Helper function to get new pending orders count
         async function getNewPendingOrdersCount() {
             try {
                 const snapshot = await db.collection('orders')
@@ -7619,64 +7670,9 @@
                     .get();
                 return snapshot.size;
             } catch (error) {
-                return orders.filter(o => o.status === 'pending').length;
+                console.error('Error getting pending orders count:', error);
+                return 0;
             }
-        }
-
-        async function getNewPendingRefundsCount() {
-            try {
-                const snapshot = await db.collection('refunds')
-                    .where('shopId', '==', currentShop.id)
-                    .where('status', '==', 'pending')
-                    .get();
-                return snapshot.size;
-            } catch (error) {
-                return refunds.filter(r => r.status === 'pending').length;
-            }
-        }
-
-        // Setup keyboard shortcuts
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + S to save
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                    e.preventDefault();
-                    const activePage = document.querySelector('.content-page.active').id;
-                    
-                    switch(activePage) {
-                        case 'productsPage':
-                            if (document.getElementById('productModal').classList.contains('active')) {
-                                saveProduct();
-                            }
-                            break;
-                        case 'settingsPage':
-                            // Check which settings card has focus
-                            const focusedInput = document.activeElement;
-                            if (focusedInput) {
-                                const settingsCard = focusedInput.closest('.settings-card');
-                                if (settingsCard) {
-                                    const saveBtn = settingsCard.querySelector('.btn-primary');
-                                    if (saveBtn) {
-                                        saveBtn.click();
-                                    }
-                                }
-                            }
-                            break;
-                    }
-                }
-                
-                // Escape to close modals
-                if (e.key === 'Escape') {
-                    const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
-                    if (activeModals.length > 0) {
-                        const lastModal = activeModals[activeModals.length - 1];
-                        const closeBtn = lastModal.querySelector('.close-modal');
-                        if (closeBtn) {
-                            closeBtn.click();
-                        }
-                    }
-                }
-            });
         }
     </script>
 </body>

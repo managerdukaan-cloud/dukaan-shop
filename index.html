@@ -1559,7 +1559,7 @@
             }
             
             .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(2, 1fr); /* CHANGED from 1fr to 2 columns */
                 gap: 1rem;
             }
             
@@ -4430,7 +4430,7 @@
             productsList.innerHTML = productsHtml;
         }
 
-        // Product Modal Functions
+        // Product Modal Functions - FIXED IMAGE PRESERVATION
         function showAddProductModal() {
             document.getElementById('productModalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
@@ -4485,17 +4485,22 @@
                 document.getElementById('customCategoryInput').style.display = 'block';
             }
             
+            // FIXED: Preserve existing image when editing
             if (product.image) {
+                // Store the original image URL in both fields
+                document.getElementById('productImage').value = product.image;
+                document.getElementById('cloudinaryImageUrl').value = product.image;
+                
+                // Show appropriate tab based on image source
                 if (product.image.includes('cloudinary.com') || product.image.includes('res.cloudinary.com')) {
-                    document.getElementById('cloudinaryImageUrl').value = product.image;
                     switchImageTab('cloudinary');
                     const preview = document.getElementById('cloudinaryImagePreview');
                     preview.src = product.image;
                     preview.style.display = 'block';
                     document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryImageInfo').innerHTML = '<i class="fas fa-check-circle text-success"></i><span>Current product image</span>';
                 } else {
                     switchImageTab('url');
-                    document.getElementById('productImage').value = product.image;
                     const preview = document.getElementById('urlImagePreview');
                     preview.src = product.image;
                     preview.style.display = 'block';
@@ -4550,18 +4555,38 @@
                 }
             }
             
+            // FIXED: Preserve existing image if no new image is provided
             let imageUrl = '';
-            if (currentImageTab === 'url') {
-                imageUrl = document.getElementById('productImage').value.trim();
-                if (!imageUrl) {
-                    imageUrl = document.getElementById('cloudinaryImageUrl').value;
+            if (productId) {
+                // For existing product, check if new image was uploaded
+                const currentProduct = products.find(p => p.id === productId);
+                const cloudinaryImageUrl = document.getElementById('cloudinaryImageUrl').value;
+                const urlImage = document.getElementById('productImage').value;
+                
+                if (cloudinaryImageUrl && cloudinaryImageUrl !== currentProduct.image) {
+                    // New Cloudinary image uploaded
+                    imageUrl = cloudinaryImageUrl;
+                } else if (urlImage && urlImage !== currentProduct.image) {
+                    // New URL image entered
+                    imageUrl = urlImage;
+                } else {
+                    // No new image, keep existing image
+                    imageUrl = currentProduct.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
                 }
             } else {
-                imageUrl = document.getElementById('cloudinaryImageUrl').value;
-            }
-            
-            if (!imageUrl) {
-                imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+                // For new product
+                if (currentImageTab === 'url') {
+                    imageUrl = document.getElementById('productImage').value.trim();
+                    if (!imageUrl) {
+                        imageUrl = document.getElementById('cloudinaryImageUrl').value;
+                    }
+                } else {
+                    imageUrl = document.getElementById('cloudinaryImageUrl').value;
+                }
+                
+                if (!imageUrl) {
+                    imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+                }
             }
             
             const refundAvailable = document.getElementById('productRefundAvailable').checked;
@@ -5044,6 +5069,7 @@
                     
                     const hasRefund = order.refundStatus && order.refundStatus !== 'none';
                     
+                    // FIXED: Show refund option for rejected orders
                     if (order.status === 'pending') {
                         actionButtons = `
                             <div class="action-buttons">
@@ -5122,6 +5148,15 @@
                         }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                        
+                        // FIXED: Add refund option for rejected/cancelled orders
+                        if (!hasRefund || order.refundStatus === 'none') {
+                            actionButtons += `
+                                <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
+                                    <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                </button>
+                            `;
+                        }
                     }
                     
                     if (order.status === 'preparing' || order.status === 'packed') {
@@ -5343,7 +5378,7 @@
             }
         }
 
-        // View Order Details - FULL SCREEN
+        // View Order Details - FULL SCREEN with FIXED address and action buttons
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -5374,36 +5409,35 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
+                // FIXED: IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
                 let customerAddress = 'N/A';
+                let addressParts = [];
                 
                 if (order.shippingAddress) {
                     if (typeof order.shippingAddress === 'string') {
                         customerAddress = order.shippingAddress;
                     } else if (typeof order.shippingAddress === 'object') {
                         const addr = order.shippingAddress;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        if (addr.street) addressParts.push(addr.street);
+                        if (addr.area) addressParts.push(addr.area);
+                        if (addr.city) addressParts.push(addr.city);
+                        if (addr.state) addressParts.push(addr.state);
+                        if (addr.pincode) addressParts.push(addr.pincode);
+                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
                     }
                 } else if (order.address) {
                     if (typeof order.address === 'string') {
                         customerAddress = order.address;
                     } else if (typeof order.address === 'object') {
                         const addr = order.address;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        if (addr.street) addressParts.push(addr.street);
+                        if (addr.area) addressParts.push(addr.area);
+                        if (addr.city) addressParts.push(addr.city);
+                        if (addr.state) addressParts.push(addr.state);
+                        if (addr.pincode) addressParts.push(addr.pincode);
+                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
                     }
                 } else if (order.customerAddress && typeof order.customerAddress === 'string') {
                     customerAddress = order.customerAddress;
@@ -5412,28 +5446,26 @@
                         customerAddress = order.user.address;
                     } else if (typeof order.user.address === 'object') {
                         const addr = order.user.address;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        if (addr.street) addressParts.push(addr.street);
+                        if (addr.area) addressParts.push(addr.area);
+                        if (addr.city) addressParts.push(addr.city);
+                        if (addr.state) addressParts.push(addr.state);
+                        if (addr.pincode) addressParts.push(addr.pincode);
+                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
                     }
                 } else if (order.customer && order.customer.address) {
                     if (typeof order.customer.address === 'string') {
                         customerAddress = order.customer.address;
                     } else if (typeof order.customer.address === 'object') {
                         const addr = order.customer.address;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
+                        if (addr.street) addressParts.push(addr.street);
+                        if (addr.area) addressParts.push(addr.area);
+                        if (addr.city) addressParts.push(addr.city);
+                        if (addr.state) addressParts.push(addr.state);
+                        if (addr.pincode) addressParts.push(addr.pincode);
+                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
                     }
                 } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                     customerAddress = order.deliveryAddress;
@@ -5768,6 +5800,93 @@
                     `;
                 }
                 
+                // FIXED: Include all action buttons inside order details
+                let actionButtonsHtml = '';
+                
+                if (order.status === 'pending') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'confirmed')">
+                            <i class="fas fa-check"></i> Accept All
+                        </button>
+                        <button class="action-btn btn-warning" onclick="showPartialOrderModal('${order.firestoreId}')">
+                            <i class="fas fa-check-double"></i> Accept Partial
+                        </button>
+                        <button class="action-btn btn-danger" onclick="updateOrderStatus('${order.firestoreId}', 'rejected')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    `;
+                } else if (order.status === 'confirmed') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-info" onclick="updateOrderStatus('${order.firestoreId}', 'preparing')">
+                            <i class="fas fa-utensils"></i> Start Preparing
+                        </button>
+                    `;
+                } else if (order.status === 'preparing' && currentShop.deliveryType === 'pickup_only') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'packed')">
+                            <i class="fas fa-box"></i> Mark as Packed
+                        </button>
+                    `;
+                } else if (order.status === 'preparing' && currentShop.deliveryType !== 'pickup_only') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'dispatched')">
+                            <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                        </button>
+                    `;
+                } else if (order.status === 'packed') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'ready_for_pickup')">
+                            <i class="fas fa-check-circle"></i> Ready for Pickup
+                        </button>
+                    `;
+                } else if (order.status === 'ready_for_pickup') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'picked_up')">
+                            <i class="fas fa-check-circle"></i> Mark as Picked Up
+                        </button>
+                    `;
+                } else if (order.status === 'dispatched') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'out_for_delivery')">
+                            <i class="fas fa-truck"></i> Out for Delivery
+                        </button>
+                    `;
+                } else if (order.status === 'out_for_delivery') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
+                            <i class="fas fa-check-circle"></i> Mark as Delivered
+                        </button>
+                    `;
+                } else if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
+                    actionButtonsHtml = `
+                        <button class="action-btn btn-success" onclick="markAsPaid('${order.firestoreId}', ${orderAmount})">
+                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                        </button>
+                    `;
+                } else if (order.status === 'cancelled' || order.status === 'rejected') {
+                    actionButtonsHtml = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
+                }
+                
+                // Add refund option for appropriate statuses
+                if ((order.status === 'delivered' || order.status === 'picked_up' || 
+                     order.status === 'cancelled' || order.status === 'rejected') && 
+                    (!order.refundStatus || order.refundStatus === 'none')) {
+                    actionButtonsHtml += `
+                        <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
+                            <i class="fas fa-exchange-alt"></i> Initiate Refund
+                        </button>
+                    `;
+                }
+                
+                // Add item management option for preparing/packed orders
+                if (order.status === 'preparing' || order.status === 'packed') {
+                    actionButtonsHtml += `
+                        <button class="action-btn btn-info" onclick="showOrderItemsModal('${order.firestoreId}')">
+                            <i class="fas fa-clipboard-list"></i> Manage Items Status
+                        </button>
+                    `;
+                }
+                
                 const detailsHtml = `
                     <div class="order-details">
                         <!-- Order Information -->
@@ -5809,7 +5928,7 @@
                         
                         ${timestampsHtml}
                         
-                        <!-- Customer Information - WITH IMPROVED ADDRESS -->
+                        <!-- Customer Information - WITH FIXED ADDRESS -->
                         <div class="order-section">
                             <h4><i class="fas fa-user"></i> Customer Information</h4>
                             <div class="order-grid">
@@ -5827,7 +5946,7 @@
                                 </div>
                                 <div class="order-info-item">
                                     <div class="order-info-label">Address:</div>
-                                    <div class="order-info-value" style="white-space: pre-wrap;">${customerAddress}</div>
+                                    <div class="order-info-value" style="white-space: pre-wrap; line-height: 1.6;">${customerAddress}</div>
                                 </div>
                             </div>
                         </div>
@@ -5882,81 +6001,11 @@
                             </div>
                         ` : ''}
                         
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons - WITH ALL OPTIONS -->
                         <div class="order-section">
                             <h4><i class="fas fa-cogs"></i> Actions</h4>
                             <div class="action-buttons">
-                                ${order.status === 'pending' ? `
-                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'confirmed')">
-                                        <i class="fas fa-check"></i> Accept All
-                                    </button>
-                                    <button class="action-btn btn-warning" onclick="showPartialOrderModal('${order.firestoreId}')">
-                                        <i class="fas fa-check-double"></i> Accept Partial
-                                    </button>
-                                    <button class="action-btn btn-danger" onclick="updateOrderStatus('${order.firestoreId}', 'rejected')">
-                                        <i class="fas fa-times"></i> Reject
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'confirmed' ? `
-                                    <button class="action-btn btn-info" onclick="updateOrderStatus('${order.firestoreId}', 'preparing')">
-                                        <i class="fas fa-utensils"></i> Start Preparing
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'preparing' && currentShop.deliveryType === 'pickup_only' ? `
-                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'packed')">
-                                        <i class="fas fa-box"></i> Mark as Packed
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'preparing' && currentShop.deliveryType !== 'pickup_only' ? `
-                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'dispatched')">
-                                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'packed' ? `
-                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'ready_for_pickup')">
-                                        <i class="fas fa-check-circle"></i> Ready for Pickup
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'ready_for_pickup' ? `
-                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'picked_up')">
-                                        <i class="fas fa-check-circle"></i> Mark as Picked Up
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'dispatched' ? `
-                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'out_for_delivery')">
-                                        <i class="fas fa-truck"></i> Out for Delivery
-                                    </button>
-                                ` : ''}
-                                
-                                ${order.status === 'out_for_delivery' ? `
-                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
-                                        <i class="fas fa-check-circle"></i> Mark as Delivered
-                                    </button>
-                                ` : ''}
-                                
-                                ${(order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending' ? `
-                                    <button class="action-btn btn-success" onclick="markAsPaid('${order.firestoreId}', ${orderAmount})">
-                                        <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                                    </button>
-                                ` : ''}
-                                
-                                ${(order.status === 'delivered' || order.status === 'picked_up') && (!order.refundStatus || order.refundStatus === 'none') ? `
-                                    <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
-                                        <i class="fas fa-exchange-alt"></i> Initiate Refund
-                                    </button>
-                                ` : ''}
-                                
-                                ${(order.status === 'preparing' || order.status === 'packed') ? `
-                                    <button class="action-btn btn-info" onclick="showOrderItemsModal('${order.firestoreId}')">
-                                        <i class="fas fa-clipboard-list"></i> Manage Items Status
-                                    </button>
-                                ` : ''}
+                                ${actionButtonsHtml}
                             </div>
                         </div>
                     </div>
@@ -7622,171 +7671,26 @@
 
         // Enhanced showToast function with persistence
         const originalShowToast = showToast;
-        showToast = function(message, type = 'success', duration = 5000) {
+        showToast = function(message, type = 'success') {
             originalShowToast(message, type);
             
-            // Store toast in localStorage for persistence
-            const toasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
-            toasts.push({ message, type, timestamp: Date.now() });
-            localStorage.setItem('pendingToasts', JSON.stringify(toasts.slice(-10))); // Keep last 10 toasts
-        };
-
-        // Show pending toasts on load
-        window.addEventListener('load', function() {
-            const pendingToasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
-            const currentTime = Date.now();
-            
-            pendingToasts.forEach(toast => {
-                // Show toasts from last 5 minutes
-                if (currentTime - toast.timestamp < 300000) {
-                    setTimeout(() => {
-                        originalShowToast(toast.message, toast.type);
-                    }, 100);
-                }
-            });
-            
-            localStorage.removeItem('pendingToasts');
-        });
-
-        // Export shop data with more options
-        async function exportShopDataWithOptions() {
-            if (!currentShop) return;
-            
-            const exportType = prompt('Select export type:\n1. Full Data (All)\n2. Products Only\n3. Orders Only\n4. Refunds Only', '1');
-            
-            if (!exportType) return;
-            
-            try {
-                showLoading(true);
+            // Store in localStorage for persistence
+            if (type === 'error' || type === 'warning') {
+                const notifications = JSON.parse(localStorage.getItem('shopNotifications') || '[]');
+                notifications.push({
+                    message: message,
+                    type: type,
+                    timestamp: new Date().toISOString()
+                });
                 
-                let exportData = {};
-                
-                switch(exportType) {
-                    case '1':
-                    case 'All':
-                        exportData = {
-                            shop: currentShop,
-                            config: currentShopConfig,
-                            products: products,
-                            orders: orders,
-                            refunds: refunds,
-                            exportType: 'full',
-                            exportDate: new Date().toISOString()
-                        };
-                        break;
-                    case '2':
-                    case 'Products':
-                        exportData = {
-                            shop: { id: currentShop.id, name: currentShop.name },
-                            products: products,
-                            exportType: 'products',
-                            exportDate: new Date().toISOString()
-                        };
-                        break;
-                    case '3':
-                    case 'Orders':
-                        exportData = {
-                            shop: { id: currentShop.id, name: currentShop.name },
-                            orders: orders,
-                            exportType: 'orders',
-                            exportDate: new Date().toISOString()
-                        };
-                        break;
-                    case '4':
-                    case 'Refunds':
-                        exportData = {
-                            shop: { id: currentShop.id, name: currentShop.name },
-                            refunds: refunds,
-                            exportType: 'refunds',
-                            exportDate: new Date().toISOString()
-                        };
-                        break;
-                    default:
-                        showToast('Invalid export type selected', 'error');
-                        return;
+                // Keep only last 10 notifications
+                if (notifications.length > 10) {
+                    notifications.shift();
                 }
                 
-                const jsonData = JSON.stringify(exportData, null, 2);
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `shop_export_${exportData.exportType}_${currentShop.id}_${Date.now()}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showSettingsSavedMessage(`✅ ${exportData.exportType} data exported successfully!`);
-                
-            } catch (error) {
-                console.error('Error exporting data:', error);
-                showToast('Error exporting data: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Replace original export function with enhanced version
-        window.exportShopData = exportShopDataWithOptions;
-
-        // Add confirmation before resetting settings
-        const originalResetSettings = resetSettings;
-        resetSettings = async function() {
-            const confirmation = confirm('⚠️ WARNING: This will reset ALL settings to defaults.\n\nThis includes:\n• Payment Settings\n• Coupon Settings\n• Shop Restrictions\n• Order Management Settings\n\nAre you absolutely sure? This cannot be undone.');
-            
-            if (!confirmation) return;
-            
-            const secondConfirmation = confirm('FINAL WARNING: This action will delete all your custom settings.\n\nType "RESET" to confirm:');
-            
-            if (!secondConfirmation) return;
-            
-            const userInput = prompt('Please type "RESET" (all caps) to confirm:');
-            if (userInput !== 'RESET') {
-                showToast('Reset cancelled', 'info');
-                return;
-            }
-            
-            await originalResetSettings();
-        };
-
-        // Enhanced logout with confirmation
-        const originalLogout = logout;
-        logout = function() {
-            if (confirm('Are you sure you want to logout?\n\nYou will need to login again to access your shop.')) {
-                // Save current page for return
-                const activePage = document.querySelector('.content-page.active');
-                if (activePage) {
-                    const pageId = activePage.id.replace('Page', '');
-                    localStorage.setItem('lastPage', pageId);
-                }
-                
-                originalLogout();
+                localStorage.setItem('shopNotifications', JSON.stringify(notifications));
             }
         };
-
-        // Auto-logout after 30 minutes of inactivity
-        let logoutTimer;
-        function resetLogoutTimer() {
-            clearTimeout(logoutTimer);
-            logoutTimer = setTimeout(() => {
-                if (auth.currentUser) {
-                    if (confirm('You have been inactive for 30 minutes. Would you like to stay logged in?')) {
-                        resetLogoutTimer();
-                    } else {
-                        logout();
-                    }
-                }
-            }, 30 * 60 * 1000); // 30 minutes
-        }
-
-        // Reset timer on user activity
-        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
-            document.addEventListener(event, resetLogoutTimer);
-        });
-
-        // Initialize logout timer
-        resetLogoutTimer();
     </script>
 </body>
 </html>

@@ -1545,10 +1545,10 @@
             margin-top: 1rem;
         }
 
-        /* Mobile Responsive */
+        /* =========== MOBILE RESPONSIVE FIXES =========== */
         @media (max-width: 768px) {
             .header-content {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 10px;
             }
             
@@ -1558,9 +1558,37 @@
                 justify-content: center;
             }
             
+            /* FIX: Mobile responsive products grid */
             .products-grid {
-                grid-template-columns: repeat(2, 1fr); /* CHANGED from 1fr to 2 columns */
-                gap: 1rem;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .product-card {
+                margin-bottom: 0;
+            }
+            
+            .product-details {
+                padding: 1rem;
+            }
+            
+            .product-title {
+                font-size: 1rem;
+                height: 40px;
+            }
+            
+            .product-price {
+                font-size: 1.1rem;
+            }
+            
+            .product-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn-add-product, .btn-edit-product {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
             }
             
             .summary-stats {
@@ -1631,6 +1659,7 @@
                 padding: 1.5rem;
             }
             
+            /* FIX: Single column on very small screens */
             .products-grid {
                 grid-template-columns: 1fr;
             }
@@ -1641,6 +1670,23 @@
             
             .modal-content {
                 padding: 1.5rem;
+            }
+            
+            /* Mobile header fixes */
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+            
+            .nav-links a {
+                font-size: 0.9rem;
             }
         }
 
@@ -2885,7 +2931,18 @@
                 cloudinaryWidget = cloudinary.createUploadWidget(
                     {
                         ...cloudinaryConfig,
-                        folder: 'shop_products'
+                        folder: 'shop_products',
+                        sources: ['local', 'camera', 'url', 'dropbox', 'facebook', 'instagram'], // Added more sources
+                        showCompletedButton: true,
+                        showUploadMoreButton: true,
+                        language: 'en',
+                        text: {
+                            en: {
+                                dropbox: "Dropbox",
+                                facebook: "Facebook",
+                                instagram: "Instagram"
+                            }
+                        }
                     },
                     (error, result) => {
                         handleCloudinaryUpload(error, result, 'product');
@@ -2899,7 +2956,10 @@
                         folder: 'shop_qr_codes',
                         cropping: true,
                         croppingAspectRatio: 1,
-                        croppingShowDimensions: true
+                        croppingShowDimensions: true,
+                        sources: ['local', 'camera', 'url', 'dropbox', 'facebook', 'instagram'], // Added more sources
+                        showCompletedButton: true,
+                        showUploadMoreButton: true
                     },
                     (error, result) => {
                         handleCloudinaryUpload(error, result, 'qr');
@@ -5139,6 +5199,7 @@
                             actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                         
+                        // FIXED: Refund option for rejected/cancelled orders
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
                                 <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
@@ -5409,66 +5470,83 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // FIXED: IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
+                // FIXED: COMPREHENSIVE ADDRESS EXTRACTION FOR ORDER DETAILS
                 let customerAddress = 'N/A';
                 let addressParts = [];
                 
-                if (order.shippingAddress) {
-                    if (typeof order.shippingAddress === 'string') {
-                        customerAddress = order.shippingAddress;
-                    } else if (typeof order.shippingAddress === 'object') {
-                        const addr = order.shippingAddress;
-                        if (addr.street) addressParts.push(addr.street);
-                        if (addr.area) addressParts.push(addr.area);
-                        if (addr.city) addressParts.push(addr.city);
-                        if (addr.state) addressParts.push(addr.state);
-                        if (addr.pincode) addressParts.push(addr.pincode);
-                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
+                // Try all possible address fields and structures
+                const possibleAddressFields = [
+                    'shippingAddress', 'address', 'customerAddress', 'user.address', 
+                    'customer.address', 'deliveryAddress', 'billingAddress', 'fullAddress'
+                ];
+                
+                let foundAddress = false;
+                
+                for (const field of possibleAddressFields) {
+                    if (foundAddress) break;
+                    
+                    if (field.includes('.')) {
+                        const [parent, child] = field.split('.');
+                        if (order[parent] && order[parent][child]) {
+                            const addr = order[parent][child];
+                            if (typeof addr === 'string') {
+                                customerAddress = addr;
+                                foundAddress = true;
+                                break;
+                            } else if (typeof addr === 'object') {
+                                if (addr.street) addressParts.push(addr.street);
+                                if (addr.area) addressParts.push(addr.area);
+                                if (addr.city) addressParts.push(addr.city);
+                                if (addr.state) addressParts.push(addr.state);
+                                if (addr.pincode) addressParts.push(addr.pincode);
+                                if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                                if (addressParts.length > 0) {
+                                    customerAddress = addressParts.join(', ');
+                                    foundAddress = true;
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (order[field]) {
+                        if (typeof order[field] === 'string') {
+                            customerAddress = order[field];
+                            foundAddress = true;
+                            break;
+                        } else if (typeof order[field] === 'object') {
+                            const addr = order[field];
+                            if (addr.street) addressParts.push(addr.street);
+                            if (addr.area) addressParts.push(addr.area);
+                            if (addr.city) addressParts.push(addr.city);
+                            if (addr.state) addressParts.push(addr.state);
+                            if (addr.pincode) addressParts.push(addr.pincode);
+                            if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
+                            if (addressParts.length > 0) {
+                                customerAddress = addressParts.join(', ');
+                                foundAddress = true;
+                                break;
+                            }
+                        }
                     }
-                } else if (order.address) {
-                    if (typeof order.address === 'string') {
-                        customerAddress = order.address;
-                    } else if (typeof order.address === 'object') {
-                        const addr = order.address;
-                        if (addr.street) addressParts.push(addr.street);
-                        if (addr.area) addressParts.push(addr.area);
-                        if (addr.city) addressParts.push(addr.city);
-                        if (addr.state) addressParts.push(addr.state);
-                        if (addr.pincode) addressParts.push(addr.pincode);
-                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
+                }
+                
+                // If no structured address found, try to extract from any string field that might contain address
+                if (!foundAddress) {
+                    // Search through all string fields for address-like content
+                    const searchFields = ['shippingAddress', 'address', 'customerAddress', 'deliveryAddress'];
+                    for (const field of searchFields) {
+                        if (order[field] && typeof order[field] === 'string' && order[field].length > 10) {
+                            customerAddress = order[field];
+                            foundAddress = true;
+                            break;
+                        }
                     }
-                } else if (order.customerAddress && typeof order.customerAddress === 'string') {
+                }
+                
+                // Final fallback
+                if (!foundAddress && order.customerAddress) {
                     customerAddress = order.customerAddress;
-                } else if (order.user && order.user.address) {
-                    if (typeof order.user.address === 'string') {
-                        customerAddress = order.user.address;
-                    } else if (typeof order.user.address === 'object') {
-                        const addr = order.user.address;
-                        if (addr.street) addressParts.push(addr.street);
-                        if (addr.area) addressParts.push(addr.area);
-                        if (addr.city) addressParts.push(addr.city);
-                        if (addr.state) addressParts.push(addr.state);
-                        if (addr.pincode) addressParts.push(addr.pincode);
-                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
-                    }
-                } else if (order.customer && order.customer.address) {
-                    if (typeof order.customer.address === 'string') {
-                        customerAddress = order.customer.address;
-                    } else if (typeof order.customer.address === 'object') {
-                        const addr = order.customer.address;
-                        if (addr.street) addressParts.push(addr.street);
-                        if (addr.area) addressParts.push(addr.area);
-                        if (addr.city) addressParts.push(addr.city);
-                        if (addr.state) addressParts.push(addr.state);
-                        if (addr.pincode) addressParts.push(addr.pincode);
-                        if (addr.landmark) addressParts.push(`Landmark: ${addr.landmark}`);
-                        if (addressParts.length > 0) customerAddress = addressParts.join(', ');
-                    }
-                } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
-                    customerAddress = order.deliveryAddress;
+                } else if (!foundAddress && order.address) {
+                    customerAddress = order.address;
                 }
                 
                 const customerEmail = order.customerEmail || order.email || 
@@ -5946,7 +6024,9 @@
                                 </div>
                                 <div class="order-info-item">
                                     <div class="order-info-label">Address:</div>
-                                    <div class="order-info-value" style="white-space: pre-wrap; line-height: 1.6;">${customerAddress}</div>
+                                    <div class="order-info-value" style="white-space: pre-wrap; line-height: 1.6; max-width: 100%; overflow-wrap: break-word;">
+                                        ${customerAddress || 'Address not available'}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -7190,7 +7270,37 @@
             
             // Setup keyboard shortcuts
             setupKeyboardShortcuts();
+            
+            // FIXED: Mobile image upload issue - Add click handler to force gallery open
+            setupMobileImageUploadFix();
         });
+
+        // Fix for mobile image upload not opening gallery
+        function setupMobileImageUploadFix() {
+            // Override Cloudinary widget's open method for mobile
+            const originalCloudinaryOpen = cloudinary?.createUploadWidget;
+            if (originalCloudinaryOpen && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                // Mobile device detected
+                console.log('Mobile device detected, applying image upload fix');
+                
+                // Add touch event listeners to upload buttons
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.upload-btn') || e.target.closest('.upload-tab')) {
+                        // Check if we're on mobile
+                        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                            // Small delay to ensure Cloudinary widget is ready
+                            setTimeout(() => {
+                                // Force focus on file input if Cloudinary fails
+                                const fileInputs = document.querySelectorAll('input[type="file"]');
+                                if (fileInputs.length > 0) {
+                                    fileInputs[0].click();
+                                }
+                            }, 100);
+                        }
+                    }
+                });
+            }
+        }
 
         // Debounce function for search
         function debounce(func, wait) {
@@ -7577,120 +7687,73 @@
 
         // Modified save functions to trigger event
         const originalSaveUPISettings = saveUPISettings;
-        saveUPISettings = async function() {
+        window.saveUPISettings = async function() {
             await originalSaveUPISettings();
             triggerSettingsSaved();
         };
-
+        
         const originalSaveCouponSettings = saveCouponSettings;
-        saveCouponSettings = async function() {
+        window.saveCouponSettings = async function() {
             await originalSaveCouponSettings();
             triggerSettingsSaved();
         };
-
+        
         const originalSaveRestrictions = saveRestrictions;
-        saveRestrictions = async function() {
+        window.saveRestrictions = async function() {
             await originalSaveRestrictions();
             triggerSettingsSaved();
         };
-
+        
         const originalSaveOrderSettings = saveOrderSettings;
-        saveOrderSettings = async function() {
+        window.saveOrderSettings = async function() {
             await originalSaveOrderSettings();
             triggerSettingsSaved();
         };
 
-        // Initialize the app when page loads
-        window.addEventListener('load', function() {
-            // Check if user is returning to the page
-            const returnToPage = localStorage.getItem('returnToPage');
-            if (returnToPage && auth.currentUser) {
-                navigateToPage(returnToPage);
-                localStorage.removeItem('returnToPage');
-            }
-            
-            // Save current page when navigating
-            document.querySelectorAll('.nav-links a, .quick-action-btn').forEach(link => {
-                link.addEventListener('click', function() {
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        localStorage.setItem('returnToPage', page);
-                    }
-                });
-            });
-            
-            // Initialize the main app
-            initApp();
-        });
-
-        // Service Worker Registration for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-
-        // Add offline capabilities
-        function setupOfflineCapabilities() {
-            // Cache important resources
-            const cacheName = 'shopkeeper-panel-v1';
-            const urlsToCache = [
-                '/',
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-                'https://cdn-icons-png.flaticon.com/512/3082/3082383.png'
-            ];
-
-            self.addEventListener('install', function(event) {
-                event.waitUntil(
-                    caches.open(cacheName)
-                        .then(function(cache) {
-                            return cache.addAll(urlsToCache);
-                        })
-                );
-            });
-
-            self.addEventListener('fetch', function(event) {
-                event.respondWith(
-                    caches.match(event.request)
-                        .then(function(response) {
-                            if (response) {
-                                return response;
-                            }
-                            return fetch(event.request);
-                        })
-                );
-            });
-        }
-
-        // Enhanced showToast function with persistence
-        const originalShowToast = showToast;
-        showToast = function(message, type = 'success') {
-            originalShowToast(message, type);
-            
-            // Store in localStorage for persistence
-            if (type === 'error' || type === 'warning') {
-                const notifications = JSON.parse(localStorage.getItem('shopNotifications') || '[]');
-                notifications.push({
-                    message: message,
-                    type: type,
-                    timestamp: new Date().toISOString()
-                });
-                
-                // Keep only last 10 notifications
-                if (notifications.length > 10) {
-                    notifications.shift();
-                }
-                
-                localStorage.setItem('shopNotifications', JSON.stringify(notifications));
-            }
-        };
+        // Expose functions to global scope
+        window.navigateToPage = navigateToPage;
+        window.showAddProductModal = showAddProductModal;
+        window.closeProductModal = closeProductModal;
+        window.editProduct = editProduct;
+        window.saveProduct = saveProduct;
+        window.deleteProduct = deleteProduct;
+        window.updateOrderStatus = updateOrderStatus;
+        window.markAsPaid = markAsPaid;
+        window.viewOrderDetails = viewOrderDetails;
+        window.closeOrderDetailsModal = closeOrderDetailsModal;
+        window.showPartialOrderModal = showPartialOrderModal;
+        window.closePartialOrderModal = closePartialOrderModal;
+        window.confirmPartialOrder = confirmPartialOrder;
+        window.showOrderItemsModal = showOrderItemsModal;
+        window.closeOrderItemsModal = closeOrderItemsModal;
+        window.saveOrderItemsStatus = saveOrderItemsStatus;
+        window.showInitiateRefundModal = showInitiateRefundModal;
+        window.closeInitiateRefundModal = closeInitiateRefundModal;
+        window.submitRefund = submitRefund;
+        window.updateRefundStatus = updateRefundStatus;
+        window.viewRefundDetails = viewRefundDetails;
+        window.closeRefundDetailsModal = closeRefundDetailsModal;
+        window.filterOrders = filterOrders;
+        window.filterRefunds = filterRefunds;
+        window.saveUPISettings = saveUPISettings;
+        window.saveCouponSettings = saveCouponSettings;
+        window.clearCouponForm = clearCouponForm;
+        window.toggleCouponSystem = toggleCouponSystem;
+        window.saveRestrictions = saveRestrictions;
+        window.saveOrderSettings = saveOrderSettings;
+        window.syncShopConfig = syncShopConfig;
+        window.exportShopData = exportShopData;
+        window.resetSettings = resetSettings;
+        window.showForgotPassword = showForgotPassword;
+        window.logout = logout;
+        window.switchImageTab = switchImageTab;
+        window.previewImageFromUrl = previewImageFromUrl;
+        window.openCloudinaryUploader = openCloudinaryUploader;
+        window.switchQRImageTab = switchQRImageTab;
+        window.previewQRImageFromUrl = previewQRImageFromUrl;
+        window.openCloudinaryQRUploader = openCloudinaryQRUploader;
+        window.calculateRefundAmount = calculateRefundAmount;
+        window.changePartialQuantity = changePartialQuantity;
     </script>
 </body>
 </html>

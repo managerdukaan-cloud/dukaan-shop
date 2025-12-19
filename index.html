@@ -2789,19 +2789,12 @@
         const cloudinaryConfig = {
     cloudName: 'db1rbtgpe',
     uploadPreset: 'dukaan-platform',
-    apiKey: '156538295145313',
     sources: ['local', 'camera', 'url'],
     folder: 'shopkeeper_qr_codes',
     multiple: false,
     resourceType: 'image',
     clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
-    maxFileSize: 5000000,
-    theme: 'white',
-    cropping: false,
-    showAdvancedOptions: false,
-    showPoweredBy: false,
-    inlineContainer: true,
-    language: 'en'
+    maxFileSize: 5000000
 };
 
         // Mobile fallback function for Cloudinary upload
@@ -2949,60 +2942,54 @@ function openMobileFileUploader(type) {
         // Initialize Cloudinary Widgets
 function initializeCloudinaryWidgets() {
     try {
-                        // Mobile app detection - SIMPLIFIED
+        // Mobile app detection - SIMPLIFIED
         const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // Common configuration for both widgets
-        const commonConfig = {
-            ...cloudinaryConfig,
-            showPoweredBy: false,
-            inlineContainer: true,
-            language: 'en'
-        };
+        console.log('Mobile app detected:', isMobileApp);
 
-                        // Additional mobile compatibility
-        if (isMobileApp) {
-            console.log('Mobile app detected, optimizing Cloudinary settings...');
-            // Force specific settings for mobile
-            commonConfig.showAdvancedOptions = false;
-            // Use simplified sources for mobile
-            commonConfig.sources = ['local', 'camera', 'url'];
-        }
-
-        // Product Image Upload Widget
+        // Product Image Upload Widget - SIMPLIFIED CONFIG
         cloudinaryWidget = cloudinary.createUploadWidget(
             {
-                ...commonConfig,
+                cloudName: 'db1rbtgpe',
+                uploadPreset: 'dukaan-platform',
+                sources: ['local', 'camera', 'url'],
                 folder: 'shop_products',
-                // FIX: Mobile app के लिए specific sources
-                sources: isMobileApp ? 
-                    ['local', 'camera', 'camera_roll', 'url'] : 
-                    ['local', 'camera', 'url', 'camera_roll', 'dropbox']
+                multiple: false,
+                resourceType: 'image',
+                clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
+                maxFileSize: 5000000,
+                showPoweredBy: false,
+                inlineContainer: true,
+                language: 'en'
             },
             (error, result) => {
                 handleCloudinaryUpload(error, result, 'product');
             }
         );
 
-        // QR Code Upload Widget
+        // QR Code Upload Widget - SIMPLIFIED CONFIG
         cloudinaryQRWidget = cloudinary.createUploadWidget(
             {
-                ...commonConfig,
+                cloudName: 'db1rbtgpe',
+                uploadPreset: 'dukaan-platform',
+                sources: ['local', 'camera', 'url'],
                 folder: 'shop_qr_codes',
+                multiple: false,
+                resourceType: 'image',
+                clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
+                maxFileSize: 5000000,
+                showPoweredBy: false,
+                inlineContainer: true,
+                language: 'en',
                 cropping: true,
-                croppingAspectRatio: 1,
-                croppingShowDimensions: true,
-                // FIX: Mobile app के लिए specific sources
-                sources: isMobileApp ? 
-                    ['local', 'camera', 'camera_roll', 'url'] : 
-                    ['local', 'camera', 'url', 'camera_roll', 'dropbox']
+                croppingAspectRatio: 1
             },
             (error, result) => {
                 handleCloudinaryUpload(error, result, 'qr');
             }
         );
         
-        console.log('Cloudinary widgets initialized successfully for mobile app:', isMobileApp);
+        console.log('Cloudinary widgets initialized successfully');
         
     } catch (error) {
         console.error('Error initializing Cloudinary widgets:', error);

@@ -2828,13 +2828,6 @@
             inProgress: "#0078FF",
             complete: "#20B832",
             sourceBg: "#E4EBF1"
-        },
-        fonts: {
-            default: null,
-            "'Poppins', sans-serif": {
-                url: "https://fonts.googleapis.com/css?family=Poppins",
-                active: true
-            }
         }
     }
 };
@@ -2984,8 +2977,11 @@ function openMobileFileUploader(type) {
         // Initialize Cloudinary Widgets
 function initializeCloudinaryWidgets() {
     try {
-        // Mobile app detection
-        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                // Mobile app detection - FIXED
+        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+            && (window.matchMedia('(display-mode: standalone)').matches || 
+                navigator.standalone ||
+                document.referrer.includes('android-app://'));
         
         // Common configuration for both widgets
         const commonConfig = {

@@ -2942,47 +2942,33 @@ function openMobileFileUploader(type) {
         // Initialize Cloudinary Widgets
 function initializeCloudinaryWidgets() {
     try {
-        // Mobile app detection - SIMPLIFIED
-        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        console.log('Mobile app detected:', isMobileApp);
+        console.log('Initializing Cloudinary widgets...');
 
-        // Product Image Upload Widget - SIMPLIFIED CONFIG
+        // Product Image Upload Widget - MINIMAL CONFIG
         cloudinaryWidget = cloudinary.createUploadWidget(
             {
                 cloudName: 'db1rbtgpe',
                 uploadPreset: 'dukaan-platform',
-                sources: ['local', 'camera', 'url'],
+                sources: ['local', 'url'],
                 folder: 'shop_products',
-                multiple: false,
                 resourceType: 'image',
-                clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
-                maxFileSize: 5000000,
-                showPoweredBy: false,
-                inlineContainer: true,
-                language: 'en'
+                maxFileSize: 5000000
             },
             (error, result) => {
                 handleCloudinaryUpload(error, result, 'product');
             }
         );
 
-        // QR Code Upload Widget - SIMPLIFIED CONFIG
+        // QR Code Upload Widget - MINIMAL CONFIG
         cloudinaryQRWidget = cloudinary.createUploadWidget(
             {
                 cloudName: 'db1rbtgpe',
                 uploadPreset: 'dukaan-platform',
-                sources: ['local', 'camera', 'url'],
+                sources: ['local', 'url'],
                 folder: 'shop_qr_codes',
-                multiple: false,
                 resourceType: 'image',
-                clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
                 maxFileSize: 5000000,
-                showPoweredBy: false,
-                inlineContainer: true,
-                language: 'en',
-                cropping: true,
-                croppingAspectRatio: 1
+                cropping: true
             },
             (error, result) => {
                 handleCloudinaryUpload(error, result, 'qr');
@@ -2993,7 +2979,7 @@ function initializeCloudinaryWidgets() {
         
     } catch (error) {
         console.error('Error initializing Cloudinary widgets:', error);
-        showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
+        showToast('Cloudinary initialization failed. You can still use URL upload.', 'warning');
     }
 }
 

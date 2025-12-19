@@ -2858,6 +2858,14 @@ function openMobileFileUploader(type) {
         formData.append('file', file);
         formData.append('upload_preset', cloudinaryConfig.uploadPreset);
         formData.append('cloud_name', cloudinaryConfig.cloudName);
+        formData.append('folder', type === 'product' ? 'shop_products' : 'shop_qr_codes');
+        
+        // Show upload progress
+        if (type === 'product') {
+            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+        } else {
+            document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+        }
         
         // Upload directly to Cloudinary
         fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {

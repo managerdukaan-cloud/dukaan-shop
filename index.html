@@ -2977,11 +2977,8 @@ function openMobileFileUploader(type) {
         // Initialize Cloudinary Widgets
 function initializeCloudinaryWidgets() {
     try {
-                // Mobile app detection - FIXED
-        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-            && (window.matchMedia('(display-mode: standalone)').matches || 
-                navigator.standalone ||
-                document.referrer.includes('android-app://'));
+                        // Mobile app detection - SIMPLIFIED
+        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         // Common configuration for both widgets
         const commonConfig = {
@@ -2991,12 +2988,13 @@ function initializeCloudinaryWidgets() {
             language: 'en'
         };
 
-                // Additional mobile compatibility
+                        // Additional mobile compatibility
         if (isMobileApp) {
+            console.log('Mobile app detected, optimizing Cloudinary settings...');
             // Force specific settings for mobile
-            commonConfig.inlineContainer = true;
             commonConfig.showAdvancedOptions = false;
-            commonConfig.sources = ['local', 'camera', 'camera_roll'];
+            // Use simplified sources for mobile
+            commonConfig.sources = ['local', 'camera', 'url'];
         }
 
         // Product Image Upload Widget

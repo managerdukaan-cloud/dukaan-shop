@@ -2995,6 +2995,14 @@ function initializeCloudinaryWidgets() {
             language: 'en'
         };
 
+                // Additional mobile compatibility
+        if (isMobileApp) {
+            // Force specific settings for mobile
+            commonConfig.inlineContainer = true;
+            commonConfig.showAdvancedOptions = false;
+            commonConfig.sources = ['local', 'camera', 'camera_roll'];
+        }
+
         // Product Image Upload Widget
         cloudinaryWidget = cloudinary.createUploadWidget(
             {

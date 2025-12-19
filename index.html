@@ -3117,6 +3117,7 @@ function initializeCloudinaryWidgets() {
                 try {
                     cloudinaryWidget.open();
                 } catch (mobileError) {
+                                    } catch (mobileError) {
                     console.error('Mobile Cloudinary open error:', mobileError);
                     // Fallback to native file input for mobile
                     openMobileFileUploader('product');
@@ -3159,7 +3160,7 @@ function initializeCloudinaryWidgets() {
                         setTimeout(() => {
                 try {
                     cloudinaryQRWidget.open();
-                } catch (mobileError) {
+                                } catch (mobileError) {
                     console.error('Mobile Cloudinary QR open error:', mobileError);
                     // Fallback to native file input for mobile
                     openMobileFileUploader('qr');

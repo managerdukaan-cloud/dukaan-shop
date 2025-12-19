@@ -2839,6 +2839,81 @@
     }
 };
 
+        // Mobile fallback function for Cloudinary upload
+function openMobileFileUploader(type) {
+    // Create a hidden file input
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        showToast('Uploading image...', 'info');
+        
+        // Create FormData for upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+        formData.append('cloud_name', cloudinaryConfig.cloudName);
+        
+        // Upload directly to Cloudinary
+        fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.secure_url) {
+                const imageUrl = result.secure_url;
+                
+                if (type === 'product') {
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
+                    document.getElementById('qrCodeImageUrl').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryQRImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
+                
+                showToast('✅ Image uploaded successfully via mobile fallback!', 'success');
+            } else {
+                throw new Error('Upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Mobile upload error:', error);
+            showToast('Upload failed. Please try again.', 'error');
+            
+            if (type === 'product') {
+                document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+            } else {
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+            }
+        });
+    };
+    
+    // Trigger file selection
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    document.body.removeChild(fileInput);
+}
+
         // Initialize Firebase
         let auth = null;
         let db = null;

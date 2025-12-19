@@ -1545,10 +1545,10 @@
             margin-top: 1rem;
         }
 
-        /* =========== MOBILE RESPONSIVE FIXES =========== */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .header-content {
-                flex-direction: row;
+                flex-direction: column;
                 gap: 10px;
             }
             
@@ -1558,37 +1558,9 @@
                 justify-content: center;
             }
             
-            /* FIX: Mobile responsive products grid */
             .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
-            }
-            
-            .product-card {
-                margin-bottom: 0;
-            }
-            
-            .product-details {
-                padding: 1rem;
-            }
-            
-            .product-title {
-                font-size: 1rem;
-                height: 40px;
-            }
-            
-            .product-price {
-                font-size: 1.1rem;
-            }
-            
-            .product-actions {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .btn-add-product, .btn-edit-product {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.8rem;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
             }
             
             .summary-stats {
@@ -1659,7 +1631,6 @@
                 padding: 1.5rem;
             }
             
-            /* FIX: Single column on very small screens */
             .products-grid {
                 grid-template-columns: 1fr;
             }
@@ -1670,23 +1641,6 @@
             
             .modal-content {
                 padding: 1.5rem;
-            }
-            
-            /* Mobile header fixes */
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            
-            .nav-links {
-                width: 100%;
-                justify-content: space-between;
-                gap: 0.5rem;
-            }
-            
-            .nav-links a {
-                font-size: 0.9rem;
             }
         }
 
@@ -1875,135 +1829,6 @@
         .timeline-content h6 {
             margin-bottom: 0.25rem;
             color: #495057;
-        }
-        
-        /* =========== MOBILE APK UPLOAD FIXES =========== */
-        
-        /* Custom Upload Options Modal */
-        .custom-upload-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 4000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .custom-upload-modal.active {
-            display: flex;
-        }
-
-        .custom-upload-options {
-            background: white;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease;
-        }
-
-        @keyframes modalSlideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .upload-option-btn {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .upload-option-btn:hover {
-            background: #f8f9fa;
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .upload-option-btn i {
-            font-size: 1.5rem;
-            width: 40px;
-            text-align: center;
-        }
-
-        .upload-option-btn.gallery i { color: #3498db; }
-        .upload-option-btn.camera i { color: #2ecc71; }
-        .upload-option-btn.url i { color: #9b59b6; }
-
-        .custom-upload-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--primary);
-            font-size: 1.3rem;
-        }
-
-        .custom-upload-note {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* Image Compression Progress */
-        .compression-progress {
-            margin-top: 10px;
-            display: none;
-        }
-
-        .compression-progress.active {
-            display: block;
-        }
-
-        .compression-status {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        /* WebView Specific Fixes */
-        .webview-fix {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: manipulation;
-        }
-
-        .webview-fix input,
-        .webview-fix button {
-            font-size: 16px !important; /* Prevents iOS zoom */
-        }
-
-        /* Upload Retry Button */
-        .retry-upload-btn {
-            margin-top: 10px;
-            background: #f39c12;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .retry-upload-btn:hover {
-            background: #e67e22;
         }
     </style>
 </head>
@@ -2280,7 +2105,7 @@
                     </div>
                     <div class="upload-tab" data-type="cloudinary" onclick="switchQRImageTab('cloudinary')">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Upload Image</span>
+                        <span>Upload with Cloudinary</span>
                     </div>
                 </div>
                 
@@ -2293,21 +2118,21 @@
                     <img id="qrUrlImagePreview" class="image-preview" style="display: none;">
                 </div>
                 
-                <!-- Upload Option -->
+                <!-- Cloudinary Upload -->
                 <div class="image-preview-container" id="qrCloudinaryTab">
-                    <button type="button" class="upload-btn" onclick="showCustomUploadModal('qr')">
+                    <button type="button" class="upload-btn" onclick="openCloudinaryQRUploader()">
                         <i class="fas fa-cloud-upload-alt"></i> Upload QR Code Image
                     </button>
                     <div id="cloudinaryQRUploadStatus" style="display: none; margin-top: 10px;">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <span>Uploading QR Code...</span>
+                            <span>Uploading QR Code to Cloudinary...</span>
                         </div>
                     </div>
                     <img id="cloudinaryQRImagePreview" class="image-preview" style="display: none;">
                     <div id="cloudinaryQRImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
                         <i class="fas fa-check-circle text-success"></i>
-                        <span>QR Code uploaded successfully</span>
+                        <span>QR Code uploaded to Cloudinary successfully</span>
                     </div>
                 </div>
             </div>
@@ -2759,7 +2584,7 @@
                             </div>
                             <div class="upload-tab" data-type="cloudinary" onclick="switchImageTab('cloudinary')">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <span>Upload Image</span>
+                                <span>Upload with Cloudinary</span>
                             </div>
                         </div>
                         
@@ -2772,9 +2597,9 @@
                             <img id="urlImagePreview" class="image-preview" style="display: none;">
                         </div>
                         
-                        <!-- Upload Option -->
+                        <!-- Cloudinary Upload -->
                         <div class="image-preview-container" id="cloudinaryTab">
-                            <button type="button" class="upload-btn" onclick="showCustomUploadModal('product')">
+                            <button type="button" class="upload-btn" onclick="openCloudinaryUploader()">
                                 <i class="fas fa-cloud-upload-alt"></i> Upload Product Image
                             </button>
                             <div id="cloudinaryUploadStatus" style="display: none; margin-top: 10px;">
@@ -2786,7 +2611,7 @@
                             <img id="cloudinaryImagePreview" class="image-preview" style="display: none;">
                             <div id="cloudinaryImageInfo" style="display: none; margin-top: 10px; font-size: 0.9rem; color: #666;">
                                 <i class="fas fa-check-circle text-success"></i>
-                                <span>Image uploaded successfully</span>
+                                <span>Image uploaded to Cloudinary successfully</span>
                             </div>
                         </div>
                     </div>
@@ -2796,36 +2621,6 @@
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Upload Modal for Mobile APK -->
-    <div class="custom-upload-modal" id="customUploadModal">
-        <div class="custom-upload-options">
-            <h3 class="custom-upload-title">Choose Upload Method</h3>
-            
-            <button class="upload-option-btn gallery" onclick="chooseFromGallery()">
-                <i class="fas fa-images"></i>
-                <span>Choose from Gallery</span>
-            </button>
-            
-            <button class="upload-option-btn camera" onclick="takePhoto()">
-                <i class="fas fa-camera"></i>
-                <span>Take Photo</span>
-            </button>
-            
-            <button class="upload-option-btn url" onclick="enterImageUrl()">
-                <i class="fas fa-link"></i>
-                <span>Enter Image URL</span>
-            </button>
-            
-            <div class="custom-upload-note">
-                <small>Recommended: Choose from Gallery for existing photos</small>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn btn-outline" onclick="closeCustomUploadModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -2979,10 +2774,6 @@
         </button>
     </div>
 
-    <!-- Hidden File Inputs for Mobile Upload -->
-    <input type="file" id="mobileProductImageInput" accept="image/*" style="display: none;">
-    <input type="file" id="mobileQRImageInput" accept="image/*" style="display: none;">
-
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -3000,10 +2791,32 @@
             cloudName: 'db1rbtgpe',
             uploadPreset: 'dukaan-platform',
             apiKey: '156538295145313',
+            sources: ['local', 'camera', 'url'],
             folder: 'shopkeeper_qr_codes',
+            multiple: false,
             resourceType: 'image',
             clientAllowedFormats: ['jpg', 'png', 'gif', 'webp', 'jpeg'],
-            maxFileSize: 5000000
+            maxFileSize: 5000000,
+            theme: 'white',
+            cropping: false,
+            showAdvancedOptions: false,
+            styles: {
+                palette: {
+                    window: "#FFFFFF",
+                    windowBorder: "#0F2C59",
+                    tabIcon: "#0F2C59",
+                    menuIcons: "#0F2C59",
+                    textDark: "#000000",
+                    textLight: "#FFFFFF",
+                    link: "#0F2C59",
+                    action: "#0F2C59",
+                    inactiveTabIcon: "#555555",
+                    error: "#F44235",
+                    inProgress: "#0078FF",
+                    complete: "#20B832",
+                    sourceBg: "#E4EBF1"
+                }
+            }
         };
 
         // Initialize Firebase
@@ -3030,11 +2843,6 @@
         let currentShopConfig = null;
         let currentOrderItems = [];
         let shopCategories = ['groceries', 'dairy', 'bakery', 'beverages', 'snacks', 'personal_care', 'household'];
-        let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        let isMobileApp = /WebView|Android.*AppleWebKit|iPhone.*AppleWebKit/i.test(navigator.userAgent);
-        let currentUploadType = 'product'; // 'product' or 'qr'
-        let uploadRetryCount = 0;
-        const MAX_UPLOAD_RETRIES = 3;
 
         // Initialize App
         function initApp() {
@@ -3063,8 +2871,6 @@
 
                 setupNetworkDetection();
                 initializeCloudinaryWidgets();
-                setupEnhancedMobileUpload();
-                setupWebViewFixes();
                 
             } catch (error) {
                 console.error("Firebase initialization error:", error);
@@ -3072,499 +2878,132 @@
             }
         }
 
-        // ============ CLOUDINARY UPLOAD FIXES FOR MOBILE APK ============
-
-        // Initialize Cloudinary Widgets with mobile detection
+        // Initialize Cloudinary Widgets
         function initializeCloudinaryWidgets() {
             try {
-                // If mobile app (APK/WebView), use enhanced upload instead of Cloudinary widget
-                if (isMobileApp) {
-                    console.log('Mobile app detected, using enhanced upload system');
-                    setupEnhancedMobileUpload();
-                    return;
-                }
-                
-                // If desktop or mobile browser, try to initialize Cloudinary widget
-                if (isMobile && !isMobileApp) {
-                    console.log('Mobile browser detected, using Cloudinary with fallback');
-                    setupEnhancedMobileUpload(); // Setup fallback
-                }
-                
-                // Try to initialize Cloudinary widget for desktop
-                if (typeof cloudinary !== 'undefined' && !isMobileApp) {
-                    cloudinaryWidget = cloudinary.createUploadWidget(
-                        {
-                            ...cloudinaryConfig,
-                            folder: 'shop_products',
-                            sources: ['local', 'url'],
-                            showCompletedButton: true
-                        },
-                        (error, result) => {
-                            handleCloudinaryUpload(error, result, 'product');
-                        }
-                    );
+                // Product Image Upload Widget
+                cloudinaryWidget = cloudinary.createUploadWidget(
+                    {
+                        ...cloudinaryConfig,
+                        folder: 'shop_products'
+                    },
+                    (error, result) => {
+                        handleCloudinaryUpload(error, result, 'product');
+                    }
+                );
 
-                    cloudinaryQRWidget = cloudinary.createUploadWidget(
-                        {
-                            ...cloudinaryConfig,
-                            folder: 'shop_qr_codes',
-                            sources: ['local', 'url'],
-                            showCompletedButton: true
-                        },
-                        (error, result) => {
-                            handleCloudinaryUpload(error, result, 'qr');
-                        }
-                    );
-                } else {
-                    console.log('Cloudinary not available, using enhanced upload');
-                    setupEnhancedMobileUpload();
-                }
+                // QR Code Upload Widget
+                cloudinaryQRWidget = cloudinary.createUploadWidget(
+                    {
+                        ...cloudinaryConfig,
+                        folder: 'shop_qr_codes',
+                        cropping: true,
+                        croppingAspectRatio: 1,
+                        croppingShowDimensions: true
+                    },
+                    (error, result) => {
+                        handleCloudinaryUpload(error, result, 'qr');
+                    }
+                );
             } catch (error) {
                 console.error('Error initializing Cloudinary widgets:', error);
-                setupEnhancedMobileUpload();
+                showToast('Cloudinary initialization failed. Please refresh page.', 'warning');
             }
         }
 
-        // Setup enhanced mobile upload for APK
-        function setupEnhancedMobileUpload() {
-            console.log('Setting up enhanced mobile upload system');
-            
-            // Replace Cloudinary buttons with custom upload buttons
-            replaceCloudinaryButtons();
-            
-            // Setup file input handlers
-            setupFileInputHandlers();
-        }
-
-        // Replace Cloudinary buttons with custom upload buttons
-        function replaceCloudinaryButtons() {
-            // Product image upload button
-            const productCloudinaryTab = document.getElementById('cloudinaryTab');
-            if (productCloudinaryTab) {
-                const oldBtn = productCloudinaryTab.querySelector('.upload-btn');
-                if (oldBtn) {
-                    oldBtn.onclick = function(e) {
-                        e.preventDefault();
-                        currentUploadType = 'product';
-                        showCustomUploadModal('product');
-                    };
-                }
-            }
-            
-            // QR code upload button
-            const qrCloudinaryTab = document.getElementById('qrCloudinaryTab');
-            if (qrCloudinaryTab) {
-                const oldBtn = qrCloudinaryTab.querySelector('.upload-btn');
-                if (oldBtn) {
-                    oldBtn.onclick = function(e) {
-                        e.preventDefault();
-                        currentUploadType = 'qr';
-                        showCustomUploadModal('qr');
-                    };
-                }
-            }
-        }
-
-        // Setup file input handlers
-        function setupFileInputHandlers() {
-            // Product image input
-            const productImageInput = document.getElementById('mobileProductImageInput');
-            if (productImageInput) {
-                productImageInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        processImageUpload(file, 'product');
-                    }
-                });
-            }
-            
-            // QR code input
-            const qrImageInput = document.getElementById('mobileQRImageInput');
-            if (qrImageInput) {
-                qrImageInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        processImageUpload(file, 'qr');
-                    }
-                });
-            }
-        }
-
-        // Show custom upload modal
-        function showCustomUploadModal(type) {
-            currentUploadType = type;
-            document.getElementById('customUploadModal').classList.add('active');
-        }
-
-        // Close custom upload modal
-        function closeCustomUploadModal() {
-            document.getElementById('customUploadModal').classList.remove('active');
-        }
-
-        // Choose from gallery
-        function chooseFromGallery() {
-            const fileInput = currentUploadType === 'product' ? 
-                document.getElementById('mobileProductImageInput') : 
-                document.getElementById('mobileQRImageInput');
-            
-            if (fileInput) {
-                fileInput.click();
-                closeCustomUploadModal();
-            }
-        }
-
-        // Take photo (camera)
-        function takePhoto() {
-            const fileInput = currentUploadType === 'product' ? 
-                document.getElementById('mobileProductImageInput') : 
-                document.getElementById('mobileQRImageInput');
-            
-            if (fileInput) {
-                // In mobile APK, we need to use specific camera attributes
-                fileInput.setAttribute('capture', 'camera');
-                fileInput.setAttribute('accept', 'image/*');
-                fileInput.click();
-                
-                // Reset attributes after click
-                setTimeout(() => {
-                    fileInput.removeAttribute('capture');
-                }, 100);
-                
-                closeCustomUploadModal();
-            }
-        }
-
-        // Enter image URL
-        function enterImageUrl() {
-            closeCustomUploadModal();
-            
-            if (currentUploadType === 'product') {
-                switchImageTab('url');
-                document.getElementById('productImage').focus();
-            } else {
-                switchQRImageTab('url');
-                document.getElementById('qrCodeImageUrl').focus();
-            }
-        }
-
-        // Process image upload with compression and retry logic
-        async function processImageUpload(file, type) {
-            try {
-                showUploadStatus(type, 'compressing', 'Compressing image...');
-                
-                // Compress image if needed
-                const processedFile = await compressImageIfNeeded(file);
-                
-                // Upload to Cloudinary API
-                await uploadToCloudinaryAPI(processedFile, type);
-                
-            } catch (error) {
-                console.error('Error processing image upload:', error);
-                handleUploadError(error, file, type);
-            }
-        }
-
-        // Compress image if file is too large
-        async function compressImageIfNeeded(file) {
-            const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-            const MAX_DIMENSION = 1200; // Maximum width/height
-            
-            if (file.size <= MAX_FILE_SIZE) {
-                return file; // No compression needed
-            }
-            
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        // Calculate new dimensions
-                        if (width > height && width > MAX_DIMENSION) {
-                            height = Math.round((height * MAX_DIMENSION) / width);
-                            width = MAX_DIMENSION;
-                        } else if (height > MAX_DIMENSION) {
-                            width = Math.round((width * MAX_DIMENSION) / height);
-                            height = MAX_DIMENSION;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        canvas.toBlob(function(blob) {
-                            const compressedFile = new File([blob], file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            });
-                            resolve(compressedFile);
-                        }, 'image/jpeg', 0.7); // 70% quality
-                    };
-                    img.onerror = reject;
-                    img.src = e.target.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Upload to Cloudinary API with retry logic
-        async function uploadToCloudinaryAPI(file, type, retryCount = 0) {
-            try {
-                showUploadStatus(type, 'uploading', `Uploading${retryCount > 0 ? ' (Retry ' + retryCount + ')' : ''}...`);
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-                formData.append('cloud_name', cloudinaryConfig.cloudName);
-                formData.append('folder', type === 'product' ? 'shop_products' : 'shop_qr_codes');
-                
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.secure_url) {
-                    uploadRetryCount = 0; // Reset retry count on success
-                    handleUploadSuccess(result.secure_url, type);
-                } else {
-                    throw new Error('No secure URL returned from Cloudinary');
-                }
-                
-            } catch (error) {
-                if (retryCount < MAX_UPLOAD_RETRIES) {
-                    console.log(`Retrying upload (${retryCount + 1}/${MAX_UPLOAD_RETRIES})`);
-                    await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1))); // Exponential backoff
-                    return uploadToCloudinaryAPI(file, type, retryCount + 1);
-                } else {
-                    throw error; // Re-throw after max retries
-                }
-            }
-        }
-
-        // Handle upload success
-        function handleUploadSuccess(imageUrl, type) {
-            if (type === 'product') {
-                document.getElementById('cloudinaryImageUrl').value = imageUrl;
-                document.getElementById('productImage').value = imageUrl;
-                
-                const preview = document.getElementById('cloudinaryImagePreview');
-                preview.src = imageUrl;
-                preview.style.display = 'block';
-                
-                document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                document.getElementById('cloudinaryUploadStatus').style.display = 'none';
-                
-                // Switch to cloudinary tab
-                switchImageTab('cloudinary');
-            } else {
-                document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
-                document.getElementById('qrCodeImageUrl').value = imageUrl;
-                
-                const preview = document.getElementById('cloudinaryQRImagePreview');
-                preview.src = imageUrl;
-                preview.style.display = 'block';
-                
-                document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
-                document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
-                
-                // Switch to cloudinary tab
-                switchQRImageTab('cloudinary');
-            }
-            
-            showToast('✅ Image uploaded successfully!', 'success');
-            hideUploadStatus(type);
-        }
-
-        // Handle upload error
-        function handleUploadError(error, file, type) {
-            console.error('Upload error:', error);
-            
-            hideUploadStatus(type);
-            
-            // Show error with retry option
-            const errorMsg = `Upload failed: ${error.message}.`;
-            const retryBtn = `<button class="retry-upload-btn" onclick="retryUpload('${type}')">
-                <i class="fas fa-redo"></i> Retry Upload
-            </button>`;
-            
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'alert alert-danger';
-            errorDiv.innerHTML = `
-                <i class="fas fa-exclamation-triangle"></i>
-                ${errorMsg}
-                <div style="margin-top: 10px;">
-                    ${retryBtn}
-                    <button class="btn btn-outline btn-sm" onclick="enterImageUrl()" style="margin-left: 10px;">
-                        <i class="fas fa-link"></i> Enter URL Instead
-                    </button>
-                </div>
-            `;
-            
-            if (type === 'product') {
-                document.getElementById('cloudinaryTab').appendChild(errorDiv);
-            } else {
-                document.getElementById('qrCloudinaryTab').appendChild(errorDiv);
-            }
-            
-            // Store file for retry
-            if (type === 'product') {
-                window.lastProductFile = file;
-            } else {
-                window.lastQRFile = file;
-            }
-        }
-
-        // Retry upload
-        function retryUpload(type) {
-            const file = type === 'product' ? window.lastProductFile : window.lastQRFile;
-            if (file) {
-                processImageUpload(file, type);
-                
-                // Remove error message
-                const errorDiv = document.querySelector(`#${type === 'product' ? 'cloudinaryTab' : 'qrCloudinaryTab'} .alert-danger`);
-                if (errorDiv) {
-                    errorDiv.remove();
-                }
-            }
-        }
-
-        // Show upload status
-        function showUploadStatus(type, status, message) {
-            const statusId = type === 'product' ? 'cloudinaryUploadStatus' : 'cloudinaryQRUploadStatus';
-            const statusDiv = document.getElementById(statusId);
-            
-            if (statusDiv) {
-                statusDiv.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <span>${message}</span>
-                        ${status === 'uploading' ? '<div class="spinner spinner-sm" style="margin-left: 10px;"></div>' : ''}
-                    </div>
-                `;
-                statusDiv.style.display = 'block';
-            }
-        }
-
-        // Hide upload status
-        function hideUploadStatus(type) {
-            const statusId = type === 'product' ? 'cloudinaryUploadStatus' : 'cloudinaryQRUploadStatus';
-            const statusDiv = document.getElementById(statusId);
-            if (statusDiv) {
-                statusDiv.style.display = 'none';
-            }
-        }
-
-        // Handle Cloudinary Upload for Desktop
+        // Handle Cloudinary Upload
         function handleCloudinaryUpload(error, result, type) {
             if (error) {
                 console.error('Cloudinary Error:', error);
-                showToast('Cloudinary upload error. Using native upload.', 'error');
+                showToast('Cloudinary upload error', 'error');
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
                 return;
             }
             
             if (result && result.event === "queues-start") {
-                showUploadStatus(type, 'uploading', 'Uploading...');
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                }
             }
             
             if (result && result.event === "success") {
                 const imageUrl = result.info.secure_url;
-                handleUploadSuccess(imageUrl, type);
+                
+                if (type === 'product') {
+                    document.getElementById('cloudinaryImageUrl').value = imageUrl;
+                    document.getElementById('productImage').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRImageUrl').value = imageUrl;
+                    document.getElementById('qrCodeImageUrl').value = imageUrl;
+                    
+                    const preview = document.getElementById('cloudinaryQRImagePreview');
+                    preview.src = imageUrl;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('cloudinaryQRImageInfo').style.display = 'block';
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
+                
+                showToast('✅ Image uploaded successfully!', 'success');
             }
             
             if (result && result.event === "close") {
-                hideUploadStatus(type);
+                if (type === 'product') {
+                    document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                } else {
+                    document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                }
             }
         }
 
-        // Open Cloudinary uploader for desktop
+        // Open Cloudinary uploader for product
         function openCloudinaryUploader() {
-            if (isMobileApp || isMobile) {
-                // Use custom upload for mobile
-                currentUploadType = 'product';
-                showCustomUploadModal('product');
-                return;
-            }
-            
             if (!cloudinaryWidget) {
-                showToast('Uploader not initialized. Please refresh page.', 'error');
+                showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
                 return;
             }
             
             try {
-                showUploadStatus('product', 'uploading', 'Opening uploader...');
+                document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryImageInfo').style.display = 'none';
+                
                 cloudinaryWidget.open();
             } catch (error) {
-                console.error('Error opening uploader:', error);
-                showToast('Cannot open uploader. Using enhanced upload.', 'error');
-                currentUploadType = 'product';
-                showCustomUploadModal('product');
+                console.error('Error opening Cloudinary widget:', error);
+                showToast('Cannot open uploader: ' + error.message, 'error');
             }
         }
 
         // Open Cloudinary uploader for QR code
         function openCloudinaryQRUploader() {
-            if (isMobileApp || isMobile) {
-                // Use custom upload for mobile
-                currentUploadType = 'qr';
-                showCustomUploadModal('qr');
-                return;
-            }
-            
             if (!cloudinaryQRWidget) {
                 showToast('QR Code uploader not initialized. Please refresh page.', 'error');
                 return;
             }
             
             try {
-                showUploadStatus('qr', 'uploading', 'Opening QR uploader...');
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+                
                 cloudinaryQRWidget.open();
             } catch (error) {
-                console.error('Error opening QR uploader:', error);
-                showToast('Cannot open QR uploader. Using enhanced upload.', 'error');
-                currentUploadType = 'qr';
-                showCustomUploadModal('qr');
-            }
-        }
-
-        // Setup WebView specific fixes
-        function setupWebViewFixes() {
-            if (isMobileApp) {
-                console.log('Applying WebView fixes for mobile APK');
-                
-                // Add webview-fix class to body
-                document.body.classList.add('webview-fix');
-                
-                // Prevent zoom on input focus for iOS
-                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                    document.addEventListener('focus', function(e) {
-                        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-                            document.body.style.fontSize = '16px';
-                        }
-                    }, true);
-                    
-                    document.addEventListener('blur', function(e) {
-                        document.body.style.fontSize = '';
-                    }, true);
-                }
-                
-                // Fix for file input clicks in WebView
-                document.querySelectorAll('input[type="file"]').forEach(input => {
-                    input.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                    });
-                });
+                console.error('Error opening Cloudinary QR widget:', error);
+                showToast('Cannot open QR uploader: ' + error.message, 'error');
             }
         }
 
@@ -3572,20 +3011,25 @@
         function switchQRImageTab(type) {
             currentQRImageTab = type;
             
-            document.querySelectorAll('#qrUrlTab, #qrCloudinaryTab').forEach(tab => {
+            document.querySelectorAll('.upload-tab[data-type^="qr"]').forEach(tab => {
                 tab.classList.remove('active');
+                if (tab.dataset.type === 'qr-' + type) {
+                    tab.classList.add('active');
+                }
             });
             
             document.getElementById('qrUrlTab').classList.toggle('active', type === 'url');
             document.getElementById('qrCloudinaryTab').classList.toggle('active', type === 'cloudinary');
             
-            // Update tab buttons
-            document.querySelectorAll('.upload-tab[data-type="url"], .upload-tab[data-type="cloudinary"]').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.dataset.type === type) {
-                    tab.classList.add('active');
-                }
-            });
+            if (type === 'url') {
+                document.getElementById('qrCodeImageUrl').value = '';
+                document.getElementById('qrUrlImagePreview').style.display = 'none';
+            } else {
+                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+                document.getElementById('cloudinaryQRUploadStatus').style.display = 'none';
+                document.getElementById('cloudinaryQRImageUrl').value = '';
+            }
         }
 
         function previewQRImageFromUrl() {
@@ -3601,42 +3045,6 @@
                 document.getElementById('cloudinaryQRImageUrl').value = url;
             }
         }
-
-        // Image Upload Functions
-        function switchImageTab(type) {
-            currentImageTab = type;
-            
-            document.querySelectorAll('#urlTab, #cloudinaryTab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById('urlTab').classList.toggle('active', type === 'url');
-            document.getElementById('cloudinaryTab').classList.toggle('active', type === 'cloudinary');
-            
-            // Update tab buttons
-            document.querySelectorAll('.upload-tab[data-type="url"], .upload-tab[data-type="cloudinary"]').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.dataset.type === type) {
-                    tab.classList.add('active');
-                }
-            });
-        }
-
-        function previewImageFromUrl() {
-            const url = document.getElementById('productImage').value;
-            if (url) {
-                const preview = document.getElementById('urlImagePreview');
-                preview.src = url;
-                preview.style.display = 'block';
-                preview.onerror = function() {
-                    showToast('Could not load image from URL', 'error');
-                    preview.style.display = 'none';
-                };
-                document.getElementById('cloudinaryImageUrl').value = url;
-            }
-        }
-
-        // ============ END OF CLOUDINARY UPLOAD FIXES ============
 
         // Setup push notifications
         async function setupPushNotifications() {
@@ -3783,6 +3191,45 @@
                 }
             } catch (error) {
                 console.log('Error playing notification sound:', error);
+            }
+        }
+
+        // Image Upload Functions
+        function switchImageTab(type) {
+            currentImageTab = type;
+            
+            document.querySelectorAll('.upload-tab[data-type="url"], .upload-tab[data-type="cloudinary"]').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            document.getElementById('urlTab').classList.toggle('active', type === 'url');
+            document.getElementById('cloudinaryTab').classList.toggle('active', type === 'cloudinary');
+            
+            if (type === 'url') {
+                document.getElementById('productImage').value = '';
+                document.getElementById('urlImagePreview').style.display = 'none';
+            } else {
+                document.getElementById('cloudinaryImagePreview').style.display = 'none';
+                document.getElementById('cloudinaryImageInfo').style.display = 'none';
+                document.getElementById('cloudinaryUploadStatus').style.display = 'none';
+                document.getElementById('cloudinaryImageUrl').value = '';
+            }
+        }
+
+        function previewImageFromUrl() {
+            const url = document.getElementById('productImage').value;
+            if (url) {
+                const preview = document.getElementById('urlImagePreview');
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    showToast('Could not load image from URL', 'error');
+                    preview.style.display = 'none';
+                };
+                document.getElementById('cloudinaryImageUrl').value = url;
             }
         }
 
@@ -4215,89 +3662,91 @@
 
         // SAVE UPI SETTINGS - COMPLETELY FIXED FOR REAL-TIME SYNC
         async function saveUPISettings() {
-            if (!currentShop) return;
-            
-            try {
-                showLoading(true);
-                
-                const upiId = document.getElementById('upiId').value.trim();
-                
-                // Get QR Code Image URL
-                let qrCodeImage = '';
-                if (currentQRImageTab === 'url') {
-                    qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
-                } else {
-                    qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
-                }
-                
-                // If empty, use default QR code
-                if (!qrCodeImage && upiId) {
-                    qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
-                }
-                
-                const upiSettings = {
-                    upiId: upiId,
-                    qrCodeImage: qrCodeImage,
-                    acceptedMethods: {
-                        cash: document.getElementById('acceptCash').checked,
-                        upi: document.getElementById('acceptUPI').checked
-                    }
-                };
-                
-                // 1. Save to shop_config (shop-specific)
-                await db.collection('shop_config').doc(currentShop.id).update({
-                    upiSettings: upiSettings,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
-                const shopUpdateData = {
-                    upiId: upiId,
-                    qrCodeImage: qrCodeImage,
-                    paymentMethods: {
-                        cash: document.getElementById('acceptCash').checked,
-                        upi: document.getElementById('acceptUPI').checked
-                    },
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
-                
-                // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
-                await db.collection('shop_config').doc('settings').set({
-                    upiId: upiId,
-                    qrCodeImage: qrCodeImage,
-                    paymentMethods: shopUpdateData.paymentMethods,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                
-                // 4. Update local variables
-                if (currentShopConfig) {
-                    currentShopConfig.upiSettings = upiSettings;
-                }
-                
-                if (currentShop) {
-                    currentShop.upiId = upiId;
-                    currentShop.qrCodeImage = qrCodeImage;
-                    currentShop.paymentMethods = upiSettings.acceptedMethods;
-                }
-                
-                showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
-                
-                // 5. Notify all customers (optional)
-                try {
-                    await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
-                } catch (notifyError) {
-                    console.log('Customer notification skipped:', notifyError);
-                }
-                
-            } catch (error) {
-                console.error('Error saving UPI settings:', error);
-                showToast('Error saving payment settings: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+    if (!currentShop) return;
+    
+    try {
+        showLoading(true);
+        
+        const upiId = document.getElementById('upiId').value.trim();
+        
+        // Get QR Code Image URL
+        let qrCodeImage = '';
+        if (currentQRImageTab === 'url') {
+            qrCodeImage = document.getElementById('qrCodeImageUrl').value.trim();
+        } else {
+            qrCodeImage = document.getElementById('cloudinaryQRImageUrl').value;
         }
+        
+        // If empty, use default QR code
+        if (!qrCodeImage && upiId) {
+            qrCodeImage = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiId)}`;
+        }
+        
+        const upiSettings = {
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            acceptedMethods: {
+                cash: document.getElementById('acceptCash').checked,
+                upi: document.getElementById('acceptUPI').checked
+            }
+        };
+        
+        // 1. Save to shop_config (shop-specific)
+        await db.collection('shop_config').doc(currentShop.id).update({
+            upiSettings: upiSettings,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // 2. UPDATE MAIN SHOP DOCUMENT FOR CUSTOMER APP
+        const shopUpdateData = {
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            paymentMethods: {
+                cash: document.getElementById('acceptCash').checked,
+                upi: document.getElementById('acceptUPI').checked
+            },
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('shops').doc(currentShop.id).update(shopUpdateData);
+        
+        // ======== ADD THIS ========
+        // 3. UPDATE GLOBAL SETTINGS FOR CUSTOMER APP REAL-TIME SYNC
+        await db.collection('shop_config').doc('settings').set({
+            upiId: upiId,
+            qrCodeImage: qrCodeImage,
+            paymentMethods: shopUpdateData.paymentMethods,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        // ======== END ADD ========
+        
+        // 4. Update local variables
+        if (currentShopConfig) {
+            currentShopConfig.upiSettings = upiSettings;
+        }
+        
+        if (currentShop) {
+            currentShop.upiId = upiId;
+            currentShop.qrCodeImage = qrCodeImage;
+            currentShop.paymentMethods = upiSettings.acceptedMethods;
+        }
+        
+        showSettingsSavedMessage('✅ Payment settings saved and synced with customer app!');
+        
+        // 5. Notify all customers (optional)
+        try {
+            await notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage);
+        } catch (notifyError) {
+            console.log('Customer notification skipped:', notifyError);
+        }
+        
+    } catch (error) {
+        console.error('Error saving UPI settings:', error);
+        showToast('Error saving payment settings: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         // Notify customers about payment update
         async function notifyCustomersAboutPaymentUpdate(upiId, qrCodeImage) {
@@ -4981,7 +4430,7 @@
             productsList.innerHTML = productsHtml;
         }
 
-        // Product Modal Functions - FIXED IMAGE PRESERVATION
+        // Product Modal Functions
         function showAddProductModal() {
             document.getElementById('productModalTitle').textContent = 'Add New Product';
             document.getElementById('productForm').reset();
@@ -5036,22 +4485,17 @@
                 document.getElementById('customCategoryInput').style.display = 'block';
             }
             
-            // FIXED: Preserve existing image when editing
             if (product.image) {
-                // Store the original image URL in both fields
-                document.getElementById('productImage').value = product.image;
-                document.getElementById('cloudinaryImageUrl').value = product.image;
-                
-                // Show appropriate tab based on image source
                 if (product.image.includes('cloudinary.com') || product.image.includes('res.cloudinary.com')) {
+                    document.getElementById('cloudinaryImageUrl').value = product.image;
                     switchImageTab('cloudinary');
                     const preview = document.getElementById('cloudinaryImagePreview');
                     preview.src = product.image;
                     preview.style.display = 'block';
                     document.getElementById('cloudinaryImageInfo').style.display = 'block';
-                    document.getElementById('cloudinaryImageInfo').innerHTML = '<i class="fas fa-check-circle text-success"></i><span>Current product image</span>';
                 } else {
                     switchImageTab('url');
+                    document.getElementById('productImage').value = product.image;
                     const preview = document.getElementById('urlImagePreview');
                     preview.src = product.image;
                     preview.style.display = 'block';
@@ -5106,38 +4550,18 @@
                 }
             }
             
-            // FIXED: Preserve existing image if no new image is provided
             let imageUrl = '';
-            if (productId) {
-                // For existing product, check if new image was uploaded
-                const currentProduct = products.find(p => p.id === productId);
-                const cloudinaryImageUrl = document.getElementById('cloudinaryImageUrl').value;
-                const urlImage = document.getElementById('productImage').value;
-                
-                if (cloudinaryImageUrl && cloudinaryImageUrl !== currentProduct.image) {
-                    // New Cloudinary image uploaded
-                    imageUrl = cloudinaryImageUrl;
-                } else if (urlImage && urlImage !== currentProduct.image) {
-                    // New URL image entered
-                    imageUrl = urlImage;
-                } else {
-                    // No new image, keep existing image
-                    imageUrl = currentProduct.image || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
-                }
-            } else {
-                // For new product
-                if (currentImageTab === 'url') {
-                    imageUrl = document.getElementById('productImage').value.trim();
-                    if (!imageUrl) {
-                        imageUrl = document.getElementById('cloudinaryImageUrl').value;
-                    }
-                } else {
+            if (currentImageTab === 'url') {
+                imageUrl = document.getElementById('productImage').value.trim();
+                if (!imageUrl) {
                     imageUrl = document.getElementById('cloudinaryImageUrl').value;
                 }
-                
-                if (!imageUrl) {
-                    imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
-                }
+            } else {
+                imageUrl = document.getElementById('cloudinaryImageUrl').value;
+            }
+            
+            if (!imageUrl) {
+                imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
             }
             
             const refundAvailable = document.getElementById('productRefundAvailable').checked;
@@ -5507,50 +4931,17 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // IMPROVED ADDRESS EXTRACTION - FIXED TO SHOW FULL ADDRESS
+                    // IMPROVED ADDRESS EXTRACTION
                     let customerAddress = 'N/A';
                     
-                    // Check for structured address first
-                    if (order.shippingAddress && typeof order.shippingAddress === 'object') {
-                        const addr = order.shippingAddress;
-                        const parts = [];
-                        if (addr.address) parts.push(addr.address);
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
-                    }
-                    else if (order.address && typeof order.address === 'object') {
-                        const addr = order.address;
-                        const parts = [];
-                        if (addr.address) parts.push(addr.address);
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
-                    }
-                    else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
-                        customerAddress = order.shippingAddress;
-                    }
-                    else if (order.address && typeof order.address === 'string') {
-                        customerAddress = order.address;
-                    }
-                    else if (order.customerAddress && typeof order.customerAddress === 'string') {
-                        customerAddress = order.customerAddress;
-                    }
-                    else if (order.user && order.user.address) {
-                        if (typeof order.user.address === 'string') {
-                            customerAddress = order.user.address;
-                        } else if (typeof order.user.address === 'object') {
-                            const addr = order.user.address;
+                    // Try different address fields with better extraction
+                    if (order.shippingAddress) {
+                        if (typeof order.shippingAddress === 'string') {
+                            customerAddress = order.shippingAddress;
+                        } else if (typeof order.shippingAddress === 'object') {
+                            // Handle structured address object
+                            const addr = order.shippingAddress;
                             const parts = [];
-                            if (addr.address) parts.push(addr.address);
                             if (addr.street) parts.push(addr.street);
                             if (addr.area) parts.push(addr.area);
                             if (addr.city) parts.push(addr.city);
@@ -5558,8 +4949,48 @@
                             if (addr.pincode) parts.push(addr.pincode);
                             if (parts.length > 0) customerAddress = parts.join(', ');
                         }
-                    }
-                    else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
+                    } else if (order.address) {
+                        if (typeof order.address === 'string') {
+                            customerAddress = order.address;
+                        } else if (typeof order.address === 'object') {
+                            const addr = order.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
+                    } else if (order.customerAddress && typeof order.customerAddress === 'string') {
+                        customerAddress = order.customerAddress;
+                    } else if (order.user && order.user.address) {
+                        if (typeof order.user.address === 'string') {
+                            customerAddress = order.user.address;
+                        } else if (typeof order.user.address === 'object') {
+                            const addr = order.user.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
+                    } else if (order.customer && order.customer.address) {
+                        if (typeof order.customer.address === 'string') {
+                            customerAddress = order.customer.address;
+                        } else if (typeof order.customer.address === 'object') {
+                            const addr = order.customer.address;
+                            const parts = [];
+                            if (addr.street) parts.push(addr.street);
+                            if (addr.area) parts.push(addr.area);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.state) parts.push(addr.state);
+                            if (addr.pincode) parts.push(addr.pincode);
+                            if (parts.length > 0) customerAddress = parts.join(', ');
+                        }
+                    } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                         customerAddress = order.deliveryAddress;
                     }
                     
@@ -5613,7 +5044,6 @@
                     
                     const hasRefund = order.refundStatus && order.refundStatus !== 'none';
                     
-                    // FIXED: Show refund option for rejected orders
                     if (order.status === 'pending') {
                         actionButtons = `
                             <div class="action-buttons">
@@ -5683,7 +5113,6 @@
                             actionButtons = `<span class="text-success"><i class="fas fa-check-circle"></i> Completed</span>`;
                         }
                         
-                        // FIXED: Refund option for rejected/cancelled orders
                         if (!hasRefund || order.refundStatus === 'none') {
                             actionButtons += `
                                 <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
@@ -5693,15 +5122,6 @@
                         }
                     } else if (order.status === 'cancelled' || order.status === 'rejected') {
                         actionButtons = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-                        
-                        // FIXED: Add refund option for rejected/cancelled orders
-                        if (!hasRefund || order.refundStatus === 'none') {
-                            actionButtons += `
-                                <button class="action-btn btn-warning mt-1" onclick="showInitiateRefundModal('${firestoreId}')">
-                                    <i class="fas fa-exchange-alt"></i> Initiate Refund
-                                </button>
-                            `;
-                        }
                     }
                     
                     if (order.status === 'preparing' || order.status === 'packed') {
@@ -5923,7 +5343,7 @@
             }
         }
 
-        // View Order Details - FIXED: Full address display and action buttons
+        // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
             const order = orders.find(o => o.firestoreId === orderId);
             if (!order) {
@@ -5954,59 +5374,68 @@
                                     (order.customer && order.customer.phone) || 
                                     'N/A';
                 
-                // FIXED: COMPREHENSIVE ADDRESS EXTRACTION FOR ORDER DETAILS - FULL ADDRESS
+                // IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
                 let customerAddress = 'N/A';
                 
-                // Check for structured address first
-                if (order.shippingAddress && typeof order.shippingAddress === 'object') {
-                    const addr = order.shippingAddress;
-                    const parts = [];
-                    if (addr.address) parts.push(addr.address);
-                    if (addr.street) parts.push(addr.street);
-                    if (addr.area) parts.push(addr.area);
-                    if (addr.city) parts.push(addr.city);
-                    if (addr.state) parts.push(addr.state);
-                    if (addr.pincode) parts.push(addr.pincode);
-                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                    if (parts.length > 0) customerAddress = parts.join(', ');
-                }
-                else if (order.address && typeof order.address === 'object') {
-                    const addr = order.address;
-                    const parts = [];
-                    if (addr.address) parts.push(addr.address);
-                    if (addr.street) parts.push(addr.street);
-                    if (addr.area) parts.push(addr.area);
-                    if (addr.city) parts.push(addr.city);
-                    if (addr.state) parts.push(addr.state);
-                    if (addr.pincode) parts.push(addr.pincode);
-                    if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                    if (parts.length > 0) customerAddress = parts.join(', ');
-                }
-                else if (order.shippingAddress && typeof order.shippingAddress === 'string') {
-                    customerAddress = order.shippingAddress;
-                }
-                else if (order.address && typeof order.address === 'string') {
-                    customerAddress = order.address;
-                }
-                else if (order.customerAddress && typeof order.customerAddress === 'string') {
-                    customerAddress = order.customerAddress;
-                }
-                else if (order.user && order.user.address) {
-                    if (typeof order.user.address === 'string') {
-                        customerAddress = order.user.address;
-                    } else if (typeof order.user.address === 'object') {
-                        const addr = order.user.address;
+                if (order.shippingAddress) {
+                    if (typeof order.shippingAddress === 'string') {
+                        customerAddress = order.shippingAddress;
+                    } else if (typeof order.shippingAddress === 'object') {
+                        const addr = order.shippingAddress;
                         const parts = [];
-                        if (addr.address) parts.push(addr.address);
                         if (addr.street) parts.push(addr.street);
                         if (addr.area) parts.push(addr.area);
                         if (addr.city) parts.push(addr.city);
                         if (addr.state) parts.push(addr.state);
                         if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
                         if (parts.length > 0) customerAddress = parts.join(', ');
                     }
-                }
-                else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
+                } else if (order.address) {
+                    if (typeof order.address === 'string') {
+                        customerAddress = order.address;
+                    } else if (typeof order.address === 'object') {
+                        const addr = order.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                } else if (order.customerAddress && typeof order.customerAddress === 'string') {
+                    customerAddress = order.customerAddress;
+                } else if (order.user && order.user.address) {
+                    if (typeof order.user.address === 'string') {
+                        customerAddress = order.user.address;
+                    } else if (typeof order.user.address === 'object') {
+                        const addr = order.user.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                } else if (order.customer && order.customer.address) {
+                    if (typeof order.customer.address === 'string') {
+                        customerAddress = order.customer.address;
+                    } else if (typeof order.customer.address === 'object') {
+                        const addr = order.customer.address;
+                        const parts = [];
+                        if (addr.street) parts.push(addr.street);
+                        if (addr.area) parts.push(addr.area);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.state) parts.push(addr.state);
+                        if (addr.pincode) parts.push(addr.pincode);
+                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
+                        if (parts.length > 0) customerAddress = parts.join(', ');
+                    }
+                } else if (order.deliveryAddress && typeof order.deliveryAddress === 'string') {
                     customerAddress = order.deliveryAddress;
                 }
                 
@@ -6339,93 +5768,6 @@
                     `;
                 }
                 
-                // FIXED: Include all action buttons inside order details
-                let actionButtonsHtml = '';
-                
-                if (order.status === 'pending') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'confirmed')">
-                            <i class="fas fa-check"></i> Accept All
-                        </button>
-                        <button class="action-btn btn-warning" onclick="showPartialOrderModal('${order.firestoreId}')">
-                            <i class="fas fa-check-double"></i> Accept Partial
-                        </button>
-                        <button class="action-btn btn-danger" onclick="updateOrderStatus('${order.firestoreId}', 'rejected')">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                    `;
-                } else if (order.status === 'confirmed') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-info" onclick="updateOrderStatus('${order.firestoreId}', 'preparing')">
-                            <i class="fas fa-utensils"></i> Start Preparing
-                        </button>
-                    `;
-                } else if (order.status === 'preparing' && currentShop.deliveryType === 'pickup_only') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'packed')">
-                            <i class="fas fa-box"></i> Mark as Packed
-                        </button>
-                    `;
-                } else if (order.status === 'preparing' && currentShop.deliveryType !== 'pickup_only') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'dispatched')">
-                            <i class="fas fa-shipping-fast"></i> Mark as Dispatched
-                        </button>
-                    `;
-                } else if (order.status === 'packed') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'ready_for_pickup')">
-                            <i class="fas fa-check-circle"></i> Ready for Pickup
-                        </button>
-                    `;
-                } else if (order.status === 'ready_for_pickup') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'picked_up')">
-                            <i class="fas fa-check-circle"></i> Mark as Picked Up
-                        </button>
-                    `;
-                } else if (order.status === 'dispatched') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'out_for_delivery')">
-                            <i class="fas fa-truck"></i> Out for Delivery
-                        </button>
-                    `;
-                } else if (order.status === 'out_for_delivery') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
-                            <i class="fas fa-check-circle"></i> Mark as Delivered
-                        </button>
-                    `;
-                } else if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
-                    actionButtonsHtml = `
-                        <button class="action-btn btn-success" onclick="markAsPaid('${order.firestoreId}', ${orderAmount})">
-                            <i class="fas fa-money-bill-wave"></i> Mark as Paid
-                        </button>
-                    `;
-                } else if (order.status === 'cancelled' || order.status === 'rejected') {
-                    actionButtonsHtml = `<span class="text-danger"><i class="fas fa-ban"></i> ${order.status === 'cancelled' ? 'Cancelled' : 'Rejected'}</span>`;
-                }
-                
-                // Add refund option for appropriate statuses
-                if ((order.status === 'delivered' || order.status === 'picked_up' || 
-                     order.status === 'cancelled' || order.status === 'rejected') && 
-                    (!order.refundStatus || order.refundStatus === 'none')) {
-                    actionButtonsHtml += `
-                        <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
-                            <i class="fas fa-exchange-alt"></i> Initiate Refund
-                        </button>
-                    `;
-                }
-                
-                // Add item management option for preparing/packed orders
-                if (order.status === 'preparing' || order.status === 'packed') {
-                    actionButtonsHtml += `
-                        <button class="action-btn btn-info" onclick="showOrderItemsModal('${order.firestoreId}')">
-                            <i class="fas fa-clipboard-list"></i> Manage Items Status
-                        </button>
-                    `;
-                }
-                
                 const detailsHtml = `
                     <div class="order-details">
                         <!-- Order Information -->
@@ -6467,7 +5809,7 @@
                         
                         ${timestampsHtml}
                         
-                        <!-- Customer Information - WITH FIXED FULL ADDRESS -->
+                        <!-- Customer Information - WITH IMPROVED ADDRESS -->
                         <div class="order-section">
                             <h4><i class="fas fa-user"></i> Customer Information</h4>
                             <div class="order-grid">
@@ -6485,9 +5827,7 @@
                                 </div>
                                 <div class="order-info-item">
                                     <div class="order-info-label">Address:</div>
-                                    <div class="order-info-value" style="white-space: pre-wrap; line-height: 1.6; max-width: 100%; overflow-wrap: break-word;">
-                                        ${customerAddress || 'Address not available'}
-                                    </div>
+                                    <div class="order-info-value" style="white-space: pre-wrap;">${customerAddress}</div>
                                 </div>
                             </div>
                         </div>
@@ -6542,11 +5882,81 @@
                             </div>
                         ` : ''}
                         
-                        <!-- Action Buttons - WITH ALL OPTIONS -->
+                        <!-- Action Buttons -->
                         <div class="order-section">
                             <h4><i class="fas fa-cogs"></i> Actions</h4>
                             <div class="action-buttons">
-                                ${actionButtonsHtml}
+                                ${order.status === 'pending' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'confirmed')">
+                                        <i class="fas fa-check"></i> Accept All
+                                    </button>
+                                    <button class="action-btn btn-warning" onclick="showPartialOrderModal('${order.firestoreId}')">
+                                        <i class="fas fa-check-double"></i> Accept Partial
+                                    </button>
+                                    <button class="action-btn btn-danger" onclick="updateOrderStatus('${order.firestoreId}', 'rejected')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'confirmed' ? `
+                                    <button class="action-btn btn-info" onclick="updateOrderStatus('${order.firestoreId}', 'preparing')">
+                                        <i class="fas fa-utensils"></i> Start Preparing
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'preparing' && currentShop.deliveryType === 'pickup_only' ? `
+                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'packed')">
+                                        <i class="fas fa-box"></i> Mark as Packed
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'preparing' && currentShop.deliveryType !== 'pickup_only' ? `
+                                    <button class="action-btn btn-warning" onclick="updateOrderStatus('${order.firestoreId}', 'dispatched')">
+                                        <i class="fas fa-shipping-fast"></i> Mark as Dispatched
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'packed' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'ready_for_pickup')">
+                                        <i class="fas fa-check-circle"></i> Ready for Pickup
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'ready_for_pickup' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'picked_up')">
+                                        <i class="fas fa-check-circle"></i> Mark as Picked Up
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'dispatched' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'out_for_delivery')">
+                                        <i class="fas fa-truck"></i> Out for Delivery
+                                    </button>
+                                ` : ''}
+                                
+                                ${order.status === 'out_for_delivery' ? `
+                                    <button class="action-btn btn-success" onclick="updateOrderStatus('${order.firestoreId}', 'delivered')">
+                                        <i class="fas fa-check-circle"></i> Mark as Delivered
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending' ? `
+                                    <button class="action-btn btn-success" onclick="markAsPaid('${order.firestoreId}', ${orderAmount})">
+                                        <i class="fas fa-money-bill-wave"></i> Mark as Paid
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'delivered' || order.status === 'picked_up') && (!order.refundStatus || order.refundStatus === 'none') ? `
+                                    <button class="action-btn btn-warning" onclick="showInitiateRefundModal('${order.firestoreId}')">
+                                        <i class="fas fa-exchange-alt"></i> Initiate Refund
+                                    </button>
+                                ` : ''}
+                                
+                                ${(order.status === 'preparing' || order.status === 'packed') ? `
+                                    <button class="action-btn btn-info" onclick="showOrderItemsModal('${order.firestoreId}')">
+                                        <i class="fas fa-clipboard-list"></i> Manage Items Status
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -7958,46 +7368,425 @@
                 }
                 .btn-warning:hover {
                     background: linear-gradient(135deg, #e0a800, #d39e00);
+                    transform: translateY(-2px);
                 }
             `;
             document.head.appendChild(style);
+            
+            // Reset unsaved changes indicator when saved
+            window.addEventListener('settingsSaved', function() {
+                document.querySelectorAll('.settings-card').forEach(card => {
+                    card.classList.remove('unsaved-changes');
+                    const saveBtn = card.querySelector('.btn-primary, .btn-warning');
+                    if (saveBtn) {
+                        saveBtn.classList.remove('btn-warning');
+                        saveBtn.classList.add('btn-primary');
+                    }
+                });
+            });
         }
 
-        // Check for updates
-        function checkForUpdates() {
-            if (currentShop) {
-                loadOrders();
-                loadRefunds();
+        // Check for updates periodically
+        async function checkForUpdates() {
+            if (!currentShop || !isOnline) return;
+            
+            try {
+                // Check for new orders
+                const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
+                const newPendingOrders = await getNewPendingOrdersCount();
+                
+                if (newPendingOrders > pendingOrdersCount) {
+                    showNotification('📦 New Orders', `You have ${newPendingOrders - pendingOrdersCount} new pending orders!`);
+                    playNotificationSound();
+                    loadOrders();
+                }
+                
+                // Check for new refunds
+                const pendingRefundsCount = refunds.filter(r => r.status === 'pending').length;
+                const newPendingRefunds = await getNewPendingRefundsCount();
+                
+                if (newPendingRefunds > pendingRefundsCount) {
+                    showNotification('🔄 New Refunds', `You have ${newPendingRefunds - pendingRefundsCount} new refund requests!`);
+                    loadRefunds();
+                }
+                
+                // Update dashboard
+                loadDashboardData();
+                
+            } catch (error) {
+                console.log('Update check error:', error);
+            }
+        }
+
+        async function getNewPendingOrdersCount() {
+            try {
+                const snapshot = await db.collection('orders')
+                    .where('shopId', '==', currentShop.id)
+                    .where('status', '==', 'pending')
+                    .get();
+                return snapshot.size;
+            } catch (error) {
+                return orders.filter(o => o.status === 'pending').length;
+            }
+        }
+
+        async function getNewPendingRefundsCount() {
+            try {
+                const snapshot = await db.collection('refunds')
+                    .where('shopId', '==', currentShop.id)
+                    .where('status', '==', 'pending')
+                    .get();
+                return snapshot.size;
+            } catch (error) {
+                return refunds.filter(r => r.status === 'pending').length;
             }
         }
 
         // Setup keyboard shortcuts
         function setupKeyboardShortcuts() {
             document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + S to save
+                // Ctrl/Cmd + S to save current form
                 if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                     e.preventDefault();
+                    
+                    // Check which page is active
                     const activePage = document.querySelector('.content-page.active');
-                    if (activePage) {
-                        const activeId = activePage.id;
-                        if (activeId === 'productsPage') {
-                            // Check if product modal is open
-                            if (document.getElementById('productModal').classList.contains('active')) {
+                    if (!activePage) return;
+                    
+                    const pageId = activePage.id;
+                    
+                    switch(pageId) {
+                        case 'productsPage':
+                            const productModal = document.getElementById('productModal');
+                            if (productModal.classList.contains('active')) {
                                 saveProduct();
                             }
-                        }
+                            break;
+                            
+                        case 'settingsPage':
+                            // Find which settings card has unsaved changes
+                            const unsavedCard = document.querySelector('.settings-card.unsaved-changes');
+                            if (unsavedCard) {
+                                const saveBtn = unsavedCard.querySelector('.btn-primary, .btn-warning');
+                                if (saveBtn) {
+                                    saveBtn.click();
+                                }
+                            }
+                            break;
+                            
+                        case 'profilePage':
+                            document.getElementById('profileForm').dispatchEvent(new Event('submit'));
+                            break;
                     }
                 }
                 
-                // Escape to close modals
+                // Escape key to close modals
                 if (e.key === 'Escape') {
-                    const activeModals = document.querySelectorAll('.modal.active, .custom-upload-modal.active, .order-details-fullscreen.active');
-                    activeModals.forEach(modal => {
-                        modal.classList.remove('active');
-                    });
+                    const activeModals = document.querySelectorAll('.modal.active, .order-details-fullscreen.active');
+                    if (activeModals.length > 0) {
+                        e.preventDefault();
+                        activeModals.forEach(modal => {
+                            const closeBtn = modal.querySelector('.close-modal');
+                            if (closeBtn) closeBtn.click();
+                        });
+                    }
+                }
+                
+                // F5 to refresh current page data
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    const activePage = document.querySelector('.content-page.active');
+                    if (activePage) {
+                        const pageId = activePage.id;
+                        switch(pageId) {
+                            case 'dashboardPage':
+                                loadDashboardData();
+                                showToast('Dashboard refreshed', 'info');
+                                break;
+                            case 'productsPage':
+                                loadProducts();
+                                showToast('Products refreshed', 'info');
+                                break;
+                            case 'ordersPage':
+                                loadOrders();
+                                showToast('Orders refreshed', 'info');
+                                break;
+                            case 'refundsPage':
+                                loadRefunds();
+                                showToast('Refunds refreshed', 'info');
+                                break;
+                        }
+                    }
                 }
             });
         }
+
+        // Helper function to trigger settings saved event
+        function triggerSettingsSaved() {
+            window.dispatchEvent(new Event('settingsSaved'));
+        }
+
+        // Modified save functions to trigger event
+        const originalSaveUPISettings = saveUPISettings;
+        saveUPISettings = async function() {
+            await originalSaveUPISettings();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveCouponSettings = saveCouponSettings;
+        saveCouponSettings = async function() {
+            await originalSaveCouponSettings();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveRestrictions = saveRestrictions;
+        saveRestrictions = async function() {
+            await originalSaveRestrictions();
+            triggerSettingsSaved();
+        };
+
+        const originalSaveOrderSettings = saveOrderSettings;
+        saveOrderSettings = async function() {
+            await originalSaveOrderSettings();
+            triggerSettingsSaved();
+        };
+
+        // Initialize the app when page loads
+        window.addEventListener('load', function() {
+            // Check if user is returning to the page
+            const returnToPage = localStorage.getItem('returnToPage');
+            if (returnToPage && auth.currentUser) {
+                navigateToPage(returnToPage);
+                localStorage.removeItem('returnToPage');
+            }
+            
+            // Save current page when navigating
+            document.querySelectorAll('.nav-links a, .quick-action-btn').forEach(link => {
+                link.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        localStorage.setItem('returnToPage', page);
+                    }
+                });
+            });
+            
+            // Initialize the main app
+            initApp();
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Add offline capabilities
+        function setupOfflineCapabilities() {
+            // Cache important resources
+            const cacheName = 'shopkeeper-panel-v1';
+            const urlsToCache = [
+                '/',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+                'https://cdn-icons-png.flaticon.com/512/3082/3082383.png'
+            ];
+
+            self.addEventListener('install', function(event) {
+                event.waitUntil(
+                    caches.open(cacheName)
+                        .then(function(cache) {
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(function(response) {
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request);
+                        })
+                );
+            });
+        }
+
+        // Enhanced showToast function with persistence
+        const originalShowToast = showToast;
+        showToast = function(message, type = 'success', duration = 5000) {
+            originalShowToast(message, type);
+            
+            // Store toast in localStorage for persistence
+            const toasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
+            toasts.push({ message, type, timestamp: Date.now() });
+            localStorage.setItem('pendingToasts', JSON.stringify(toasts.slice(-10))); // Keep last 10 toasts
+        };
+
+        // Show pending toasts on load
+        window.addEventListener('load', function() {
+            const pendingToasts = JSON.parse(localStorage.getItem('pendingToasts') || '[]');
+            const currentTime = Date.now();
+            
+            pendingToasts.forEach(toast => {
+                // Show toasts from last 5 minutes
+                if (currentTime - toast.timestamp < 300000) {
+                    setTimeout(() => {
+                        originalShowToast(toast.message, toast.type);
+                    }, 100);
+                }
+            });
+            
+            localStorage.removeItem('pendingToasts');
+        });
+
+        // Export shop data with more options
+        async function exportShopDataWithOptions() {
+            if (!currentShop) return;
+            
+            const exportType = prompt('Select export type:\n1. Full Data (All)\n2. Products Only\n3. Orders Only\n4. Refunds Only', '1');
+            
+            if (!exportType) return;
+            
+            try {
+                showLoading(true);
+                
+                let exportData = {};
+                
+                switch(exportType) {
+                    case '1':
+                    case 'All':
+                        exportData = {
+                            shop: currentShop,
+                            config: currentShopConfig,
+                            products: products,
+                            orders: orders,
+                            refunds: refunds,
+                            exportType: 'full',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '2':
+                    case 'Products':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            products: products,
+                            exportType: 'products',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '3':
+                    case 'Orders':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            orders: orders,
+                            exportType: 'orders',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    case '4':
+                    case 'Refunds':
+                        exportData = {
+                            shop: { id: currentShop.id, name: currentShop.name },
+                            refunds: refunds,
+                            exportType: 'refunds',
+                            exportDate: new Date().toISOString()
+                        };
+                        break;
+                    default:
+                        showToast('Invalid export type selected', 'error');
+                        return;
+                }
+                
+                const jsonData = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `shop_export_${exportData.exportType}_${currentShop.id}_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showSettingsSavedMessage(`✅ ${exportData.exportType} data exported successfully!`);
+                
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showToast('Error exporting data: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Replace original export function with enhanced version
+        window.exportShopData = exportShopDataWithOptions;
+
+        // Add confirmation before resetting settings
+        const originalResetSettings = resetSettings;
+        resetSettings = async function() {
+            const confirmation = confirm('⚠️ WARNING: This will reset ALL settings to defaults.\n\nThis includes:\n• Payment Settings\n• Coupon Settings\n• Shop Restrictions\n• Order Management Settings\n\nAre you absolutely sure? This cannot be undone.');
+            
+            if (!confirmation) return;
+            
+            const secondConfirmation = confirm('FINAL WARNING: This action will delete all your custom settings.\n\nType "RESET" to confirm:');
+            
+            if (!secondConfirmation) return;
+            
+            const userInput = prompt('Please type "RESET" (all caps) to confirm:');
+            if (userInput !== 'RESET') {
+                showToast('Reset cancelled', 'info');
+                return;
+            }
+            
+            await originalResetSettings();
+        };
+
+        // Enhanced logout with confirmation
+        const originalLogout = logout;
+        logout = function() {
+            if (confirm('Are you sure you want to logout?\n\nYou will need to login again to access your shop.')) {
+                // Save current page for return
+                const activePage = document.querySelector('.content-page.active');
+                if (activePage) {
+                    const pageId = activePage.id.replace('Page', '');
+                    localStorage.setItem('lastPage', pageId);
+                }
+                
+                originalLogout();
+            }
+        };
+
+        // Auto-logout after 30 minutes of inactivity
+        let logoutTimer;
+        function resetLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(() => {
+                if (auth.currentUser) {
+                    if (confirm('You have been inactive for 30 minutes. Would you like to stay logged in?')) {
+                        resetLogoutTimer();
+                    } else {
+                        logout();
+                    }
+                }
+            }, 30 * 60 * 1000); // 30 minutes
+        }
+
+        // Reset timer on user activity
+        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+            document.addEventListener(event, resetLogoutTimer);
+        });
+
+        // Initialize logout timer
+        resetLogoutTimer();
     </script>
 </body>
 </html>

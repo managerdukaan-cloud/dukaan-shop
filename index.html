@@ -2799,23 +2799,33 @@
 
         // Mobile fallback function for Cloudinary upload
 function openMobileFileUploader(type) {
+    console.log('Opening mobile file uploader for:', type);
+    
     // Create a hidden file input
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.style.display = 'none';
     
+    // IMPORTANT: For mobile WebView compatibility
+    fileInput.setAttribute('capture', 'environment'); // Allows camera
+    fileInput.setAttribute('multiple', 'false');
+    
     fileInput.onchange = function(e) {
+        console.log('File selected in mobile app');
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file) {
+            showToast('No file selected', 'info');
+            return;
+        }
         
         showToast('Uploading image...', 'info');
         
         // Create FormData for upload
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-        formData.append('cloud_name', cloudinaryConfig.cloudName);
+        formData.append('upload_preset', 'dukaan-platform');
+        formData.append('cloud_name', 'db1rbtgpe');
         formData.append('folder', type === 'product' ? 'shop_products' : 'shop_qr_codes');
         
         // Show upload progress
@@ -2825,13 +2835,21 @@ function openMobileFileUploader(type) {
             document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
         }
         
+        console.log('Uploading to Cloudinary...');
+        
         // Upload directly to Cloudinary
-        fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/upload`, {
+        fetch(`https://api.cloudinary.com/v1_1/db1rbtgpe/upload`, {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(result => {
+            console.log('Cloudinary upload result:', result);
             if (result.secure_url) {
                 const imageUrl = result.secure_url;
                 
@@ -2859,7 +2877,7 @@ function openMobileFileUploader(type) {
                 
                 showToast('✅ Image uploaded successfully via mobile fallback!', 'success');
             } else {
-                throw new Error('Upload failed');
+                throw new Error('No secure URL returned from Cloudinary');
             }
         })
         .catch(error => {
@@ -2874,10 +2892,44 @@ function openMobileFileUploader(type) {
         });
     };
     
-    // Trigger file selection
+    // For mobile WebView - add event listener for when file dialog closes
+    fileInput.addEventListener('cancel', function() {
+        console.log('File selection cancelled');
+        showToast('File selection cancelled', 'info');
+        // Cleanup
+        if (fileInput.parentNode) {
+            fileInput.parentNode.removeChild(fileInput);
+        }
+    });
+    
+    // Append to body and trigger
     document.body.appendChild(fileInput);
-    fileInput.click();
-    document.body.removeChild(fileInput);
+    
+    // Try different methods for mobile compatibility
+    try {
+        // Method 1: Direct click
+        fileInput.click();
+    } catch (error1) {
+        console.log('Method 1 failed:', error1);
+        try {
+            // Method 2: Using label
+            const label = document.createElement('label');
+            label.style.display = 'none';
+            label.appendChild(fileInput);
+            document.body.appendChild(label);
+            label.click();
+        } catch (error2) {
+            console.log('Method 2 failed:', error2);
+            showToast('Cannot open file picker. Please use URL upload instead.', 'error');
+        }
+    }
+    
+    // Cleanup after a delay
+    setTimeout(() => {
+        if (fileInput.parentNode) {
+            fileInput.parentNode.removeChild(fileInput);
+        }
+    }, 5000);
 }
 
         // Initialize Firebase
@@ -3050,7 +3102,10 @@ function initializeCloudinaryWidgets() {
     
     try {
         // Mobile app compatibility check
-        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+    && (window.matchMedia('(display-mode: standalone)').matches 
+        || window.navigator.standalone 
+        || document.referrer.includes('android-app://'));
         
         if (isMobileApp) {
             // Mobile app के लिए special handling

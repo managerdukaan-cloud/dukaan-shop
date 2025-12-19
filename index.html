@@ -3154,12 +3154,13 @@ function initializeCloudinaryWidgets() {
             document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
             
             // Small delay for mobile optimization
-            setTimeout(() => {
+                        setTimeout(() => {
                 try {
                     cloudinaryQRWidget.open();
                 } catch (mobileError) {
                     console.error('Mobile Cloudinary QR open error:', mobileError);
-                    showToast('Using mobile fallback upload', 'info');
+                    // Fallback to native file input for mobile
+                    openMobileFileUploader('qr');
                 }
             }, 300);
         } else {

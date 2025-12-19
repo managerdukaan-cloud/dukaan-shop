@@ -3110,14 +3110,17 @@ function initializeCloudinaryWidgets() {
         if (isMobileApp) {
             // Mobile app के लिए special handling
             console.log('Opening Cloudinary for mobile app...');
-                           console.error('Mobile Cloudinary QR open error:', mobileError);
-     
+            
+            // Show loading state
+            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+            document.getElementById('cloudinaryImagePreview').style.display = 'none';
+            document.getElementById('cloudinaryImageInfo').style.display = 'none';
+            
             // Small delay for mobile optimization
-                        setTimeout(() => {
+            setTimeout(() => {
                 try {
                     cloudinaryWidget.open();
                 } catch (mobileError) {
-                                    } catch (mobileError) {
                     console.error('Mobile Cloudinary open error:', mobileError);
                     // Fallback to native file input for mobile
                     openMobileFileUploader('product');

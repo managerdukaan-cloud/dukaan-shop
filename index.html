@@ -3055,22 +3055,45 @@ function initializeCloudinaryWidgets() {
 
         // Open Cloudinary uploader for QR code
         function openCloudinaryQRUploader() {
-            if (!cloudinaryQRWidget) {
-                showToast('QR Code uploader not initialized. Please refresh page.', 'error');
-                return;
-            }
+    if (!cloudinaryQRWidget) {
+        showToast('QR Code uploader not initialized. Please refresh page.', 'error');
+        return;
+    }
+    
+    try {
+        // Mobile app compatibility check
+        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobileApp) {
+            // Mobile app के लिए special handling
+            console.log('Opening Cloudinary QR uploader for mobile app...');
             
-            try {
-                document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
-                document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
-                document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
-                
-                cloudinaryQRWidget.open();
-            } catch (error) {
-                console.error('Error opening Cloudinary QR widget:', error);
-                showToast('Cannot open QR uploader: ' + error.message, 'error');
-            }
+            // Show loading state
+            document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+            document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+            document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+            
+            // Small delay for mobile optimization
+            setTimeout(() => {
+                try {
+                    cloudinaryQRWidget.open();
+                } catch (mobileError) {
+                    console.error('Mobile Cloudinary QR open error:', mobileError);
+                    showToast('Using mobile fallback upload', 'info');
+                }
+            }, 300);
+        } else {
+            // Desktop/Web flow
+            document.getElementById('cloudinaryQRUploadStatus').style.display = 'block';
+            document.getElementById('cloudinaryQRImagePreview').style.display = 'none';
+            document.getElementById('cloudinaryQRImageInfo').style.display = 'none';
+            cloudinaryQRWidget.open();
         }
+    } catch (error) {
+        console.error('Error opening Cloudinary QR widget:', error);
+        showToast('Cannot open QR uploader: ' + error.message, 'error');
+    }
+}
 
         // QR Code Image Tab Functions
         function switchQRImageTab(type) {

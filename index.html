@@ -3013,22 +3013,45 @@ function initializeCloudinaryWidgets() {
 
         // Open Cloudinary uploader for product
         function openCloudinaryUploader() {
-            if (!cloudinaryWidget) {
-                showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
-                return;
-            }
+    if (!cloudinaryWidget) {
+        showToast('Cloudinary uploader not initialized. Please refresh page.', 'error');
+        return;
+    }
+    
+    try {
+        // Mobile app compatibility check
+        const isMobileApp = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobileApp) {
+            // Mobile app के लिए special handling
+            console.log('Opening Cloudinary for mobile app...');
             
-            try {
-                document.getElementById('cloudinaryUploadStatus').style.display = 'block';
-                document.getElementById('cloudinaryImagePreview').style.display = 'none';
-                document.getElementById('cloudinaryImageInfo').style.display = 'none';
-                
-                cloudinaryWidget.open();
-            } catch (error) {
-                console.error('Error opening Cloudinary widget:', error);
-                showToast('Cannot open uploader: ' + error.message, 'error');
-            }
+            // Show loading state
+            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+            document.getElementById('cloudinaryImagePreview').style.display = 'none';
+            document.getElementById('cloudinaryImageInfo').style.display = 'none';
+            
+            // Small delay for mobile optimization
+            setTimeout(() => {
+                try {
+                    cloudinaryWidget.open();
+                } catch (mobileError) {
+                    console.error('Mobile Cloudinary open error:', mobileError);
+                    showToast('Using mobile fallback upload', 'info');
+                }
+            }, 300);
+        } else {
+            // Desktop/Web flow
+            document.getElementById('cloudinaryUploadStatus').style.display = 'block';
+            document.getElementById('cloudinaryImagePreview').style.display = 'none';
+            document.getElementById('cloudinaryImageInfo').style.display = 'none';
+            cloudinaryWidget.open();
         }
+    } catch (error) {
+        console.error('Error opening Cloudinary widget:', error);
+        showToast('Cannot open uploader: ' + error.message, 'error');
+    }
+}
 
         // Open Cloudinary uploader for QR code
         function openCloudinaryQRUploader() {

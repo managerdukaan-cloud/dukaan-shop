@@ -1830,6 +1830,15 @@
             margin-bottom: 0.25rem;
             color: #495057;
         }
+
+       @media (max-width: 768px) {
+  .nav-links a[href*="refund"],
+  .nav-links a[href*="order"],
+  .nav-links a[href*="profile"] {
+    display: none !important;
+  }
+}
+
     </style>
 </head>
 <body>
@@ -4921,37 +4930,22 @@
                                         (order.customer && order.customer.phone) || 
                                         'N/A';
                     
-                    // IMPROVED ADDRESS EXTRACTION
-                    let customerAddress = 'N/A';
+                                        // IMPROVED ADDRESS EXTRACTION
+                                        let customerAddress = 'N/A';
                     
-                    // Try different address fields with better extraction
-                    if (order.shippingAddress) {
-                        if (typeof order.shippingAddress === 'string') {
-                            customerAddress = order.shippingAddress;
-                        } else if (typeof order.shippingAddress === 'object') {
-                            // Handle structured address object
-                            const addr = order.shippingAddress;
-                            const parts = [];
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
+                    if (order.address && typeof order.address === 'object') {
+                        const addr = order.address;
+                        const parts = [];
+                    
+                        if (addr.details) parts.push(addr.details);
+                        if (addr.landmark) parts.push(addr.landmark);
+                        if (addr.city) parts.push(addr.city);
+                        if (addr.pincode) parts.push(addr.pincode);
+                    
+                        if (parts.length > 0) {
+                            customerAddress = parts.join(', ');
                         }
-                    } else if (order.address) {
-                        if (typeof order.address === 'string') {
-                            customerAddress = order.address;
-                        } else if (typeof order.address === 'object') {
-                            const addr = order.address;
-                            const parts = [];
-                            if (addr.street) parts.push(addr.street);
-                            if (addr.area) parts.push(addr.area);
-                            if (addr.city) parts.push(addr.city);
-                            if (addr.state) parts.push(addr.state);
-                            if (addr.pincode) parts.push(addr.pincode);
-                            if (parts.length > 0) customerAddress = parts.join(', ');
-                        }
+
                     } else if (order.customerAddress && typeof order.customerAddress === 'string') {
                         customerAddress = order.customerAddress;
                     } else if (order.user && order.user.address) {
@@ -5366,35 +5360,20 @@
                 
                 // IMPROVED ADDRESS EXTRACTION FOR ORDER DETAILS
                 let customerAddress = 'N/A';
-                
-                if (order.shippingAddress) {
-                    if (typeof order.shippingAddress === 'string') {
-                        customerAddress = order.shippingAddress;
-                    } else if (typeof order.shippingAddress === 'object') {
-                        const addr = order.shippingAddress;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
-                    }
-                } else if (order.address) {
-                    if (typeof order.address === 'string') {
-                        customerAddress = order.address;
-                    } else if (typeof order.address === 'object') {
-                        const addr = order.address;
-                        const parts = [];
-                        if (addr.street) parts.push(addr.street);
-                        if (addr.area) parts.push(addr.area);
-                        if (addr.city) parts.push(addr.city);
-                        if (addr.state) parts.push(addr.state);
-                        if (addr.pincode) parts.push(addr.pincode);
-                        if (addr.landmark) parts.push(`Landmark: ${addr.landmark}`);
-                        if (parts.length > 0) customerAddress = parts.join(', ');
-                    }
+
+                        if (order.address && typeof order.address === 'object') {
+                            const addr = order.address;
+                            const parts = [];
+                        
+                            if (addr.details) parts.push(addr.details);
+                            if (addr.landmark) parts.push(addr.landmark);
+                            if (addr.city) parts.push(addr.city);
+                            if (addr.pincode) parts.push(addr.pincode);
+                        
+                            if (parts.length > 0) {
+                                customerAddress = parts.join(', ');
+                            }
+
                 } else if (order.customerAddress && typeof order.customerAddress === 'string') {
                     customerAddress = order.customerAddress;
                 } else if (order.user && order.user.address) {
@@ -5456,7 +5435,7 @@
                     
                     orderItems.forEach((item, index) => {
                         const itemTotal = (item.price || 0) * (item.quantity || 1);
-                        const itemStatus = item.status || 'pending';
+                        const itemStatus = item.status || order.status || 'pending';
                         let statusClass = '';
                         let statusText = '';
                         
@@ -5464,6 +5443,10 @@
                             case 'pending':
                                 statusClass = 'order-item-status pending';
                                 statusText = 'Pending';
+                                break;
+                            case 'confirmed':
+                                statusClass = 'order-item-status confirmed';
+                                statusText = 'Confirmed';
                                 break;
                             case 'preparing':
                                 statusClass = 'order-item-status preparing';
@@ -5473,9 +5456,21 @@
                                 statusClass = 'order-item-status packed';
                                 statusText = 'Packed';
                                 break;
-                            case 'ready':
+                            case 'ready_for_pickup':
                                 statusClass = 'order-item-status ready';
-                                statusText = 'Ready';
+                                statusText = 'Ready for Pickup';
+                                break;
+                            case 'picked_up':
+                                statusClass = 'order-item-status delivered';
+                                statusText = 'Picked Up';
+                                break;
+                            case 'dispatched':
+                                statusClass = 'order-item-status dispatched';
+                                statusText = 'Dispatched';
+                                break;
+                            case 'out_for_delivery':
+                                statusClass = 'order-item-status out_for_delivery';
+                                statusText = 'Out for Delivery';
                                 break;
                             case 'delivered':
                                 statusClass = 'order-item-status delivered';
@@ -5485,10 +5480,15 @@
                                 statusClass = 'order-item-status cancelled';
                                 statusText = 'Cancelled';
                                 break;
+                            case 'rejected':
+                                statusClass = 'order-item-status rejected';
+                                statusText = 'Rejected';
+                                break;
                             default:
                                 statusClass = 'order-item-status pending';
                                 statusText = itemStatus;
                         }
+
                         
                         itemsHtml += `
                             <tr>

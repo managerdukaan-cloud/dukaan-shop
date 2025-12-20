@@ -1879,14 +1879,20 @@
   }
 
   @media (max-width: 768px) {
+
+  body.app-view .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;          /* 👈 width badhegi */
+    padding: 0 2px !important;    /* 👈 width badhegi */
+  }
+
   body.app-view .product-card {
-    min-height: unset !important;
+    padding: 6px !important;
     height: auto !important;
-    padding: 8px !important;
   }
 
   body.app-view .product-image-container {
-    height: 90px !important;
+    height: 80px !important;      /* 👈 height kam */
     margin-bottom: 4px !important;
   }
 
@@ -1897,14 +1903,20 @@
   }
 
   body.app-view .product-card button {
-    padding: 6px 0 !important;
-    font-size: 13px !important;
+    padding: 5px 0 !important;
+    font-size: 12px !important;
   }
 }
 
 @media (max-width: 480px) {
+
+  body.app-view .products-grid {
+    gap: 4px !important;
+    padding: 0 2px !important;
+  }
+
   body.app-view .product-image-container {
-    height: 80px !important;
+    height: 70px !important;
   }
 }
 

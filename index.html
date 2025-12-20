@@ -1882,44 +1882,23 @@
 
   body.app-view .products-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;          /* 👈 width badhegi */
-    padding: 0 2px !important;    /* 👈 width badhegi */
+    gap: 14px !important;
+    padding: 0 10px !important;
   }
 
   body.app-view .product-card {
-    padding: 6px !important;
-    height: auto !important;
+    padding: 8px !important;
+    min-height: auto !important;
   }
 
   body.app-view .product-image-container {
-    height: 80px !important;      /* 👈 height kam */
-    margin-bottom: 4px !important;
+    height: 120px !important;
   }
 
-  body.app-view .product-card h3,
-  body.app-view .product-card h4 {
-    font-size: 12px !important;
-    margin: 2px 0 !important;
-  }
-
-  body.app-view .product-card button {
-    padding: 5px 0 !important;
-    font-size: 12px !important;
+  body.app-view .product-card * {
+    line-height: 1.2 !important;
   }
 }
-
-@media (max-width: 480px) {
-
-  body.app-view .products-grid {
-    gap: 4px !important;
-    padding: 0 2px !important;
-  }
-
-  body.app-view .product-image-container {
-    height: 70px !important;
-  }
-}
-
     </style>
 </head>
 <body class="app-view">

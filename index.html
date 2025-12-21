@@ -4667,12 +4667,14 @@ main {
                             
                             if (!orders.find(o => o.firestoreId === doc.id)) {
                                 orders.push({ 
-                                    id: orderIdFromCustomer,
-                                    firestoreId: doc.id,
-                                    customerId: customerId,
-                                    ...data,
-                                    shortId: generateShortOrderId(orderIdFromCustomer)
-                                });
+                                id: orderIdFromCustomer,
+                                firestoreId: doc.id,
+                                customerId: customerId,
+                                ...data,
+                                utrNumber: data.utrNumber || '',
+                                shortId: generateShortOrderId(orderIdFromCustomer)
+                            });
+
                             }
                         }
                     });
@@ -4692,12 +4694,14 @@ main {
                                 
                                 if (!orders.find(o => o.firestoreId === doc.id)) {
                                     orders.push({ 
-                                        id: orderIdFromCustomer,
-                                        firestoreId: doc.id,
-                                        customerId: customerId,
-                                        ...data,
-                                        shortId: generateShortOrderId(orderIdFromCustomer)
-                                    });
+                                    id: orderIdFromCustomer,
+                                    firestoreId: doc.id,
+                                    customerId: customerId,
+                                    ...data,
+                                    utrNumber: data.utrNumber || '',
+                                    shortId: generateShortOrderId(orderIdFromCustomer)
+                                });
+
                                 }
                             }
                         });

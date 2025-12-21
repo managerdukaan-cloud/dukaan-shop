@@ -5812,13 +5812,16 @@ main {
                                         <span class="${paymentStatusClass}">${paymentStatusText}</span>
                                     </div>
                                 </div>
-                                ${order.utrNumber
+                                ${(order.utrNumber || order.paymentUtr || order.paymentDetails?.utrNumber)
                                 ? `<div class="order-info-item">
                                        <div class="order-info-label">UTR Number:</div>
-                                       <div class="order-info-value">${order.utrNumber}</div>
+                                       <div class="order-info-value">
+                                           ${order.utrNumber || order.paymentUtr || order.paymentDetails?.utrNumber}
+                                       </div>
                                    </div>`
                                 : ''
-                            }
+                                }
+
                             
 
                                 <div class="order-info-item">

@@ -5590,6 +5590,9 @@ main {
                 
                 const paymentMethod = order.paymentMethod || 'cod';
                 const paymentStatus = order.paymentStatus || 'pending';
+                // ========== YEH LINE ADD KARO ==========
+                const utrNumber = order.utrNumber || order.utr || order.utr_no || '';
+                // ========== ADDED LINE ==========
                 
                 let paymentMethodText = '';
                 switch(paymentMethod) {

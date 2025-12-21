@@ -4504,62 +4504,128 @@
         }
 
         async function saveProduct() {
-            if (!currentShop || !currentShop.name) {
-                showToast('Shop information not loaded. Please refresh page.', 'error');
-                return;
-            }
-            
-            const productId = document.getElementById('editProductId').value;
-            const productName = document.getElementById('productName').value.trim();
-            const productPrice = parseFloat(document.getElementById('productPrice').value);
-            const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
-            const productStock = parseInt(document.getElementById('productStock').value);
-            
-            if (!productName) {
-                showToast('Product name is required', 'error');
-                return;
-            }
-            
-            if (isNaN(productPrice) || productPrice < 0) {
-                showToast('Please enter a valid price', 'error');
-                return;
-            }
-            
-            if (isNaN(productStock) || productStock < 0) {
-                showToast('Please enter a valid stock quantity', 'error');
-                return;
-            }
-            
-            let category = document.getElementById('productCategory').value;
-            if (category === 'other') {
-                const customCategory = document.getElementById('customCategoryName').value.trim();
-                if (!customCategory) {
-                    showToast('Please enter custom category name', 'error');
-                    return;
-                }
-                
-                const success = await addNewCategory(customCategory);
-                if (success) {
-                    category = customCategory.toLowerCase().replace(/\s+/g, '_');
-                } else {
-                    category = 'other';
-                }
-            }
-            
-            let imageUrl = '';
-            if (currentImageTab === 'url') {
-                imageUrl = document.getElementById('productImage').value.trim();
-                if (!imageUrl) {
-                    imageUrl = document.getElementById('cloudinaryImageUrl').value;
-                }
-            } else {
-                imageUrl = document.getElementById('cloudinaryImageUrl').value;
-            }
-            
-            if (!imageUrl) {
-                imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
-                }
-            }
+    if (!currentShop || !currentShop.name) {
+        showToast('Shop information not loaded. Please refresh page.', 'error');
+        return;
+    }
+    
+    const productId = document.getElementById('editProductId').value;
+    const productName = document.getElementById('productName').value.trim();
+    const productPrice = parseFloat(document.getElementById('productPrice').value);
+    const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
+    const productStock = parseInt(document.getElementById('productStock').value);
+    
+    if (!productName) {
+        showToast('Product name is required', 'error');
+        return;
+    }
+    
+    if (isNaN(productPrice) || productPrice < 0) {
+        showToast('Please enter a valid price', 'error');
+        return;
+    }
+    
+    if (isNaN(productStock) || productStock < 0) {
+        showToast('Please enter a valid stock quantity', 'error');
+        return;
+    }
+    
+    let category = document.getElementById('productCategory').value;
+    if (category === 'other') {
+        const customCategory = document.getElementById('customCategoryName').value.trim();
+        if (!customCategory) {
+            showToast('Please enter custom category name', 'error');
+            return;
+        }
+        
+        const success = await addNewCategory(customCategory);
+        if (success) {
+            category = customCategory.toLowerCase().replace(/\s+/g, '_');
+        } else {
+            category = 'other';
+        }
+    }
+    
+    // ========== CRITICAL FIX: IMAGE URL LOGIC ==========
+    let imageUrl = '';
+    
+    // Pehle check karo: Kya user ne Cloudinary se nayi image upload ki hai?
+    const cloudinaryUrlInput = document.getElementById('cloudinaryImageUrl').value;
+    const cloudinaryPreview = document.getElementById('cloudinaryImagePreview');
+    
+    // Agar Cloudinary tab active hai AUR uska preview visible hai (matlab nayi image hai)
+    if (currentImageTab === 'cloudinary' && cloudinaryPreview.style.display === 'block' && cloudinaryUrlInput) {
+        imageUrl = cloudinaryUrlInput; // NAYI Cloudinary image use karo
+        console.log("Using NEW Cloudinary image:", imageUrl);
+    }
+    // Agar URL tab active hai AUR URL field mein kuch hai
+    else if (currentImageTab === 'url' && document.getElementById('productImage').value.trim()) {
+        imageUrl = document.getElementById('productImage').value.trim();
+        console.log("Using URL image:", imageUrl);
+    }
+    // Agar edit mode hai AUR koi nayi image nahi upload ki
+    else if (productId) {
+        // Original product ki image preserve karo
+        const originalProduct = products.find(p => p.id === productId);
+        if (originalProduct && originalProduct.image) {
+            imageUrl = originalProduct.image;
+            console.log("Preserving ORIGINAL image:", imageUrl);
+        }
+    }
+    
+    // Agar abhi bhi imageUrl empty hai (new product hai)
+    if (!imageUrl) {
+        imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+        console.log("Using DEFAULT image");
+    }
+    // ========== FIX END ==========
+    
+    const refundAvailable = document.getElementById('productRefundAvailable').checked;
+    const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
+    const refundType = document.getElementById('productRefundType').value;
+    const refundConditions = document.getElementById('productRefundConditions').value.trim();
+    
+    const productData = {
+        name: productName,
+        category: category,
+        price: productPrice,
+        mrp: productMrp,
+        stock: productStock,
+        description: document.getElementById('productDescription').value.trim(),
+        image: imageUrl,
+        shopId: currentShop.id,
+        shopName: currentShop.name,
+        refundAvailable: refundAvailable,
+        refundPeriod: refundAvailable ? refundPeriod : null,
+        refundType: refundAvailable ? refundType : null,
+        refundConditions: refundAvailable ? refundConditions : '',
+        isAvailable: true,
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    try {
+        showLoading(true);
+        if (productId) {
+            await db.collection('products').doc(productId).update(productData);
+            showToast('Product updated successfully!', 'success');
+        } else {
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('products').add(productData);
+            showToast('Product added successfully!', 'success');
+        }
+        
+        closeProductModal();
+        await loadProducts();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showToast('Error saving product: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
                 
 function editProduct(productId) {
     const product = products.find(p => p.id === productId);

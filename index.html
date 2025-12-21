@@ -5001,6 +5001,7 @@ main {
                     let paymentText = '';
                     const paymentMethod = order.paymentMethod || 'cod';
                     let paymentStatus = order.paymentStatus || 'pending';
+                    const paymentUTR = order.paymentUTR || order.utrNumber || '';
                     
                     if ((order.status === 'delivered' || order.status === 'picked_up') && paymentStatus === 'pending') {
                         paymentStatus = 'paid';
@@ -5014,13 +5015,18 @@ main {
                         }
                     } else if (paymentMethod === 'qr' || paymentMethod === 'online') {
                         if (paymentStatus === 'paid') {
-                            if (order.utrNumber) {
-                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${order.utrNumber}</span>`;
+                            if (paymentUTR) {
+                                paymentText = `<span class="payment-text payment-online-paid">QR - UTR: ${paymentUTR}</span>`;
                             } else {
                                 paymentText = `<span class="payment-text payment-online-paid">QR - PAID</span>`;
                             }
                         } else {
-                            paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                            // For unpaid QR orders, also show UTR if customer entered it
+                            if (paymentUTR) {
+                                paymentText = `<span class="payment-text payment-online-unpaid">QR - UTR: ${paymentUTR} (UNPAID)</span>`;
+                            } else {
+                                paymentText = `<span class="payment-text payment-online-unpaid">QR - UNPAID</span>`;
+                            }
                         }
                     } else {
                         if (paymentStatus === 'paid') {
@@ -5366,7 +5372,7 @@ main {
                 utrNumber: data.utrNumber || data.utr || data.utr_no || ''
             };
 
-            console.log("order.utrNumber:", order.utrNumber);
+            console.log("order.paymentUTR:", order.paymentUTR);
             console.log("=== DEBUG END ===");
             // ========== DEBUG END ==========
 
@@ -5602,7 +5608,7 @@ main {
                 const paymentMethod = order.paymentMethod || 'cod';
                 const paymentStatus = order.paymentStatus || 'pending';
                 // ========== YEH LINE ADD KARO ==========
-                const utrNumber = order.utrNumber || order.utr || order.utr_no || '';
+                const utrNumber = order.paymentUTR || order.utrNumber || order.utr || order.utr_no || '';
                 // ========== ADDED LINE ==========
                 
                 let paymentMethodText = '';
@@ -5863,14 +5869,14 @@ let paymentDetailsHtml = `
                                         <span class="${paymentStatusClass}">${paymentStatusText}</span>
                                     </div>
                                 </div>
-                                ${(order.utrNumber || order.paymentUtr || order.paymentDetails?.utrNumber)
-                                ? `<div class="order-info-item">
-                                       <div class="order-info-label">UTR Number:</div>
-                                       <div class="order-info-value">
-                                           ${order.utrNumber || order.paymentUtr || order.paymentDetails?.utrNumber}
-                                       </div>
-                                   </div>`
-                                : ''
+                                ${(order.utrNumber || order.paymentUTR || order.paymentUtr || order.paymentDetails?.utrNumber)
+                                    ? `<div class="order-info-item">
+                                           <div class="order-info-label">UTR Number:</div>
+                                           <div class="order-info-value">
+                                               ${order.utrNumber || order.paymentUTR || order.paymentUtr || order.paymentDetails?.utrNumber}
+                                           </div>
+                                       </div>`
+                                    : ''
                                 }
 
                             

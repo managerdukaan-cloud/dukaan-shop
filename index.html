@@ -4558,55 +4558,183 @@
             
             if (!imageUrl) {
                 imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+function editProduct(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    document.getElementById('productModalTitle').textContent = 'Edit Product';
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('productName').value = product.name;
+    document.getElementById('productCategory').value = product.category || 'groceries';
+    document.getElementById('productPrice').value = product.price;
+    document.getElementById('productMrp').value = product.mrp || '';
+    document.getElementById('productStock').value = product.stock;
+    document.getElementById('productDescription').value = product.description || '';
+    
+    const refundAvailable = product.refundAvailable !== undefined ? product.refundAvailable : true;
+    document.getElementById('productRefundAvailable').checked = refundAvailable;
+    document.getElementById('productRefundPeriod').value = product.refundPeriod || 7;
+    document.getElementById('productRefundType').value = product.refundType || 'use_shop_default';
+    document.getElementById('productRefundConditions').value = product.refundConditions || '';
+    document.getElementById('productRefundDetails').style.display = refundAvailable ? 'block' : 'none';
+    
+    const category = product.category || 'groceries';
+    if (!shopCategories.includes(category) && category !== 'other') {
+        document.getElementById('productCategory').value = 'other';
+        document.getElementById('customCategoryName').value = category;
+        document.getElementById('customCategoryInput').style.display = 'block';
+    }
+    
+    // FIX: Ensure Cloudinary image preview shows when image exists
+    if (product.image) {
+        if (product.image.includes('cloudinary.com') || product.image.includes('res.cloudinary.com')) {
+            document.getElementById('cloudinaryImageUrl').value = product.image;
+            switchImageTab('cloudinary');
+            const preview = document.getElementById('cloudinaryImagePreview');
+            preview.src = product.image;
+            preview.style.display = 'block';
+            document.getElementById('cloudinaryImageInfo').style.display = 'block';
+            // ALSO SET URL TAB INPUT FOR BACKUP
+            document.getElementById('productImage').value = product.image;
+            const urlPreview = document.getElementById('urlImagePreview');
+            if (urlPreview) {
+                urlPreview.src = product.image;
+                urlPreview.style.display = 'block';
             }
-            
-            const refundAvailable = document.getElementById('productRefundAvailable').checked;
-            const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
-            const refundType = document.getElementById('productRefundType').value;
-            const refundConditions = document.getElementById('productRefundConditions').value.trim();
-            
-            const productData = {
-                name: productName,
-                category: category,
-                price: productPrice,
-                mrp: productMrp,
-                stock: productStock,
-                description: document.getElementById('productDescription').value.trim(),
-                image: imageUrl,
-                shopId: currentShop.id,
-                shopName: currentShop.name,
-                refundAvailable: refundAvailable,
-                refundPeriod: refundAvailable ? refundPeriod : null,
-                refundType: refundAvailable ? refundType : null,
-                refundConditions: refundAvailable ? refundConditions : '',
-                isAvailable: true,
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                showLoading(true);
-                if (productId) {
-                    await db.collection('products').doc(productId).update(productData);
-                    showToast('Product updated successfully!', 'success');
-                } else {
-                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    await db.collection('products').add(productData);
-                    showToast('Product added successfully!', 'success');
-                }
-                
-                closeProductModal();
-                await loadProducts();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error saving product:', error);
-                showToast('Error saving product: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+        } else {
+            switchImageTab('url');
+            document.getElementById('productImage').value = product.image;
+            const preview = document.getElementById('urlImagePreview');
+            preview.src = product.image;
+            preview.style.display = 'block';
+            // ALSO SET CLOUDINARY INPUT FOR BACKUP
+            document.getElementById('cloudinaryImageUrl').value = product.image;
         }
+    } else {
+        switchImageTab('url');
+    }
+    
+    document.getElementById('productModal').classList.add('active');
+}
 
+async function saveProduct() {
+    if (!currentShop || !currentShop.name) {
+        showToast('Shop information not loaded. Please refresh page.', 'error');
+        return;
+    }
+    
+    const productId = document.getElementById('editProductId').value;
+    const productName = document.getElementById('productName').value.trim();
+    const productPrice = parseFloat(document.getElementById('productPrice').value);
+    const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
+    const productStock = parseInt(document.getElementById('productStock').value);
+    
+    if (!productName) {
+        showToast('Product name is required', 'error');
+        return;
+    }
+    
+    if (isNaN(productPrice) || productPrice < 0) {
+        showToast('Please enter a valid price', 'error');
+        return;
+    }
+    
+    if (isNaN(productStock) || productStock < 0) {
+        showToast('Please enter a valid stock quantity', 'error');
+        return;
+    }
+    
+    let category = document.getElementById('productCategory').value;
+    if (category === 'other') {
+        const customCategory = document.getElementById('customCategoryName').value.trim();
+        if (!customCategory) {
+            showToast('Please enter custom category name', 'error');
+            return;
+        }
+        
+        const success = await addNewCategory(customCategory);
+        if (success) {
+            category = customCategory.toLowerCase().replace(/\s+/g, '_');
+        } else {
+            category = 'other';
+        }
+    }
+    
+    // FIX: Handle image URL properly for edit mode
+    let imageUrl = '';
+    const isEditMode = !!productId;
+    
+    if (isEditMode) {
+        // In edit mode, first try to preserve existing image
+        const originalProduct = products.find(p => p.id === productId);
+        if (originalProduct && originalProduct.image) {
+            imageUrl = originalProduct.image; // Preserve original image
+        }
+    }
+    
+    // If no original image or new product, use current form values
+    if (!imageUrl) {
+        if (currentImageTab === 'url') {
+            imageUrl = document.getElementById('productImage').value.trim();
+            if (!imageUrl) {
+                imageUrl = document.getElementById('cloudinaryImageUrl').value;
+            }
+        } else {
+            imageUrl = document.getElementById('cloudinaryImageUrl').value;
+        }
+        
+        // Only use default for NEW products, not when editing
+        if (!imageUrl && !isEditMode) {
+            imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+        }
+    }
+    
+    const refundAvailable = document.getElementById('productRefundAvailable').checked;
+    const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
+    const refundType = document.getElementById('productRefundType').value;
+    const refundConditions = document.getElementById('productRefundConditions').value.trim();
+    
+    const productData = {
+        name: productName,
+        category: category,
+        price: productPrice,
+        mrp: productMrp,
+        stock: productStock,
+        description: document.getElementById('productDescription').value.trim(),
+        image: imageUrl,
+        shopId: currentShop.id,
+        shopName: currentShop.name,
+        refundAvailable: refundAvailable,
+        refundPeriod: refundAvailable ? refundPeriod : null,
+        refundType: refundAvailable ? refundType : null,
+        refundConditions: refundAvailable ? refundConditions : '',
+        isAvailable: true,
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    try {
+        showLoading(true);
+        if (productId) {
+            await db.collection('products').doc(productId).update(productData);
+            showToast('Product updated successfully!', 'success');
+        } else {
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('products').add(productData);
+            showToast('Product added successfully!', 'success');
+        }
+        
+        closeProductModal();
+        await loadProducts();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showToast('Error saving product: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
         async function deleteProduct(productId) {
             if (!confirm('Are you sure you want to delete this product?')) return;
             

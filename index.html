@@ -5349,7 +5349,9 @@ main {
 
         // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
-            const order = orders.find(o => o.firestoreId === orderId);
+            const orderDoc = await db.collection('orders').doc(orderId).get();
+            const order = { firestoreId: orderId, ...orderDoc.data() };
+
             if (!order) {
                 showToast('Order not found', 'error');
                 return;

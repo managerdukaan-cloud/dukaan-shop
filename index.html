@@ -4558,6 +4558,7 @@
             
             if (!imageUrl) {
                 imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+                
 function editProduct(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -4660,7 +4661,7 @@ async function saveProduct() {
         }
     }
     
-    // FIX: Handle image URL properly for edit mode
+    // FIX: Handle image URL properly
     let imageUrl = '';
     const isEditMode = !!productId;
     

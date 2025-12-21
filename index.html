@@ -5806,6 +5806,14 @@ main {
                                         <span class="${paymentStatusClass}">${paymentStatusText}</span>
                                     </div>
                                 </div>
+                                ${(order.paymentMethod === 'qr' || order.paymentMethod === 'upi' || order.paymentMethod === 'online') && order.utrNumber
+                                    ? `<div class="order-info-item">
+                                           <div class="order-info-label">UTR Number:</div>
+                                           <div class="order-info-value">${order.utrNumber}</div>
+                                       </div>`
+                                    : ''
+                                }
+
                                 <div class="order-info-item">
                                     <div class="order-info-label">Total Amount:</div>
                                     <div class="order-info-value"><strong>₹${orderAmount.toFixed(2)}</strong></div>

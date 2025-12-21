@@ -5349,8 +5349,16 @@ main {
 
         // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
+            // ========== DEBUG START ==========
+            console.log("=== DEBUG UTR ===");
+            console.log("Order ID:", orderId);
+            
             const orderDoc = await db.collection('orders').doc(orderId).get();
             const data = orderDoc.data() || {};
+            
+            console.log("Firestore Data:", data);
+            console.log("data.utrNumber:", data.utrNumber);
+            console.log("All Fields in data:", Object.keys(data));
             
             const order = {
                 firestoreId: orderId,
@@ -5358,6 +5366,9 @@ main {
                 utrNumber: data.utrNumber || data.utr || data.utr_no || ''
             };
 
+            console.log("order.utrNumber:", order.utrNumber);
+            console.log("=== DEBUG END ===");
+            // ========== DEBUG END ==========
 
             if (!order) {
                 showToast('Order not found', 'error');

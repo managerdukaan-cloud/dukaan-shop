@@ -5350,7 +5350,14 @@ main {
         // View Order Details - FULL SCREEN
         async function viewOrderDetails(orderId) {
             const orderDoc = await db.collection('orders').doc(orderId).get();
-            const order = { firestoreId: orderId, ...orderDoc.data() };
+            const data = orderDoc.data() || {};
+            
+            const order = {
+                firestoreId: orderId,
+                ...data,
+                utrNumber: data.utrNumber || data.utr || data.utr_no || ''
+            };
+
 
             if (!order) {
                 showToast('Order not found', 'error');

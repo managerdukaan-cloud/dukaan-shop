@@ -1860,20 +1860,26 @@ main {
         <i class="fas fa-wifi-slash"></i> No Internet Connection
     </div>
 
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🏪 Raashanmart Shop</div>
-                <div class="nav-links">
-                    <a href="#" data-page="dashboard">Dashboard</a>
-                    <a href="#" data-page="products">Products</a>
-                    <a href="#" data-page="settings">Settings</a>
-                    <button class="btn btn-outline" onclick="logout()">Logout</button>
-                </div>
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">🏪 Raashanmart Shop</div>
+            <div class="nav-links">
+                <a href="#" data-page="dashboard">Dashboard</a>
+                <a href="#" data-page="products">Products</a>
+
+                <!-- Desktop-only menu items -->
+                <a href="#" data-page="orders" class="desktop-only">Orders</a>
+                <a href="#" data-page="refunds" class="desktop-only">Refunds</a>
+                <a href="#" data-page="profile" class="desktop-only">Profile</a>
+
+                <a href="#" data-page="settings">Settings</a>
+                <button class="btn btn-outline" onclick="logout()">Logout</button>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- Main Content -->
     <main>

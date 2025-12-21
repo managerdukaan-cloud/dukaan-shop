@@ -4504,108 +4504,108 @@
         }
 
         async function saveProduct() {
-            if (!currentShop || !currentShop.name) {
-                showToast('Shop information not loaded. Please refresh page.', 'error');
-                return;
-            }
-            
-            const productId = document.getElementById('editProductId').value;
-            const productName = document.getElementById('productName').value.trim();
-            const productPrice = parseFloat(document.getElementById('productPrice').value);
-            const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
-            const productStock = parseInt(document.getElementById('productStock').value);
-            
-            if (!productName) {
-                showToast('Product name is required', 'error');
-                return;
-            }
-            
-            if (isNaN(productPrice) || productPrice < 0) {
-                showToast('Please enter a valid price', 'error');
-                return;
-            }
-            
-            if (isNaN(productStock) || productStock < 0) {
-                showToast('Please enter a valid stock quantity', 'error');
-                return;
-            }
-            
-            let category = document.getElementById('productCategory').value;
-            if (category === 'other') {
-                const customCategory = document.getElementById('customCategoryName').value.trim();
-                if (!customCategory) {
-                    showToast('Please enter custom category name', 'error');
-                    return;
-                }
-                
-                const success = await addNewCategory(customCategory);
-                if (success) {
-                    category = customCategory.toLowerCase().replace(/\s+/g, '_');
-                } else {
-                    category = 'other';
-                }
-            }
-            
-            let imageUrl = '';
-            if (currentImageTab === 'url') {
-                imageUrl = document.getElementById('productImage').value.trim();
-                if (!imageUrl) {
-                    imageUrl = document.getElementById('cloudinaryImageUrl').value;
-                }
-            } else {
-                imageUrl = document.getElementById('cloudinaryImageUrl').value;
-            }
-            
-            if (!imageUrl) {
-                imageUrl = 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
-            }
-            
-            const refundAvailable = document.getElementById('productRefundAvailable').checked;
-            const refundPeriod = parseInt(document.getElementById('productRefundPeriod').value) || 7;
-            const refundType = document.getElementById('productRefundType').value;
-            const refundConditions = document.getElementById('productRefundConditions').value.trim();
-            
-            const productData = {
-                name: productName,
-                category: category,
-                price: productPrice,
-                mrp: productMrp,
-                stock: productStock,
-                description: document.getElementById('productDescription').value.trim(),
-                image: imageUrl,
-                shopId: currentShop.id,
-                shopName: currentShop.name,
-                refundAvailable: refundAvailable,
-                refundPeriod: refundAvailable ? refundPeriod : null,
-                refundType: refundAvailable ? refundType : null,
-                refundConditions: refundAvailable ? refundConditions : '',
-                isAvailable: true,
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            try {
-                showLoading(true);
-                if (productId) {
-                    await db.collection('products').doc(productId).update(productData);
-                    showToast('Product updated successfully!', 'success');
-                } else {
-                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                    await db.collection('products').add(productData);
-                    showToast('Product added successfully!', 'success');
-                }
-                
-                closeProductModal();
-                await loadProducts();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error saving product:', error);
-                showToast('Error saving product: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+    if (!currentShop || !currentShop.name) {
+        showToast('Shop information not loaded. Please refresh page.', 'error');
+        return;
+    }
+
+    const productId = document.getElementById('editProductId').value;
+    const productName = document.getElementById('productName').value.trim();
+    const productPrice = parseFloat(document.getElementById('productPrice').value);
+    const productMrp = parseFloat(document.getElementById('productMrp').value) || productPrice;
+    const productStock = parseInt(document.getElementById('productStock').value);
+
+    if (!productName) {
+        showToast('Product name is required', 'error');
+        return;
+    }
+
+    if (isNaN(productPrice) || productPrice < 0) {
+        showToast('Please enter a valid price', 'error');
+        return;
+    }
+
+    if (isNaN(productStock) || productStock < 0) {
+        showToast('Please enter a valid stock quantity', 'error');
+        return;
+    }
+
+    let category = document.getElementById('productCategory').value;
+    if (category === 'other') {
+        const customCategory = document.getElementById('customCategoryName').value.trim();
+        if (!customCategory) {
+            showToast('Please enter custom category name', 'error');
+            return;
         }
+
+        const success = await addNewCategory(customCategory);
+        category = success
+            ? customCategory.toLowerCase().replace(/\s+/g, '_')
+            : 'other';
+    }
+
+    // 🔥 IMAGE LOGIC — FIXED
+    let imageUrl = null;
+    const urlInput = document.getElementById('productImage').value.trim();
+    const cloudinaryUrl = document.getElementById('cloudinaryImageUrl').value.trim();
+
+    if (currentImageTab === 'url' && urlInput) {
+        imageUrl = urlInput;
+    }
+
+    if (currentImageTab === 'cloudinary' && cloudinaryUrl) {
+        imageUrl = cloudinaryUrl;
+    }
+
+    const refundAvailable = document.getElementById('productRefundAvailable').checked;
+
+    const productData = {
+        name: productName,
+        category: category,
+        price: productPrice,
+        mrp: productMrp,
+        stock: productStock,
+        description: document.getElementById('productDescription').value.trim(),
+        shopId: currentShop.id,
+        shopName: currentShop.name,
+        refundAvailable: refundAvailable,
+        refundPeriod: refundAvailable ? parseInt(document.getElementById('productRefundPeriod').value) || 7 : null,
+        refundType: refundAvailable ? document.getElementById('productRefundType').value : null,
+        refundConditions: refundAvailable ? document.getElementById('productRefundConditions').value.trim() : '',
+        isAvailable: true,
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // ✅ ONLY update image if user actually changed it
+    if (imageUrl) {
+        productData.image = imageUrl;
+    }
+
+    try {
+        showLoading(true);
+
+        if (productId) {
+            await db.collection('products').doc(productId).update(productData);
+            showToast('Product updated successfully!', 'success');
+        } else {
+            productData.image = imageUrl || 'https://cdn-icons-png.flaticon.com/512/3148/3148829.png';
+            productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('products').add(productData);
+            showToast('Product added successfully!', 'success');
+        }
+
+        closeProductModal();
+        await loadProducts();
+        await loadDashboardData();
+
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showToast('Error saving product: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         async function deleteProduct(productId) {
             if (!confirm('Are you sure you want to delete this product?')) return;

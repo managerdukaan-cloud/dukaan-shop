@@ -5631,6 +5631,36 @@ main {
                         </div>
                     `;
                 }
+
+                // ========== YEH SECTION ADD KARO ==========
+let paymentDetailsHtml = `
+    <div class="order-section">
+        <h4><i class="fas fa-credit-card"></i> Payment Details</h4>
+        <div class="order-grid">
+            <div class="order-info-item">
+                <div class="order-info-label">Payment Method:</div>
+                <div class="order-info-value">${paymentMethodText}</div>
+            </div>
+            
+            ${utrNumber ? `
+            <div class="order-info-item">
+                <div class="order-info-label">UTR Number:</div>
+                <div class="order-info-value" style="font-family: monospace; font-weight: 600; color: #0F2C59;">
+                    ${utrNumber}
+                </div>
+            </div>
+            ` : ''}
+            
+            <div class="order-info-item">
+                <div class="order-info-label">Payment Status:</div>
+                <div class="order-info-value">
+                    <span class="${paymentStatusClass}">${paymentStatusText}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+// ========== ADDED SECTION END ==========
                 
                 let partialInfoHtml = '';
                 if (order.isPartialOrder) {

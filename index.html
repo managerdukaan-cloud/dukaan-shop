@@ -6839,155 +6839,194 @@ let paymentDetailsHtml = `
 
         // ==================== PARTIAL ORDER FUNCTIONS ====================
         
-        function showPartialOrderModal(orderId) {
-            const order = orders.find(o => o.firestoreId === orderId);
-            if (!order) {
-                showToast('Order not found', 'error');
-                return;
-            }
+function showPartialOrderModal(orderId) {
+    const order = orders.find(o => o.firestoreId === orderId);
+    if (!order) {
+        showToast('Order not found', 'error');
+        return;
+    }
+    
+    currentPartialOrderId = orderId;
+    
+    // IMPORTANT FIX: Initialize selectedQuantity properly
+    const rawItems = order.items || [];
+    partialOrderItems = rawItems.map(item => {
+        const quantity = item.quantity || 1;
+        return {
+            ...item,
+            selectedQuantity: quantity // Initialize with full quantity
+        };
+    });
+    
+    console.log('Partial order items initialized:', partialOrderItems);
+    
+    const itemsContainer = document.getElementById('partialOrderItems');
+    let itemsHtml = '<p>Adjust quantities of items you can fulfill:</p>';
+    
+    if (partialOrderItems.length === 0) {
+        itemsHtml += '<p>No items found in this order</p>';
+    } else {
+        partialOrderItems.forEach((item, index) => {
+            const maxQuantity = item.quantity || 1;
+            const currentQuantity = item.selectedQuantity || maxQuantity;
             
-            currentPartialOrderId = orderId;
-            partialOrderItems = JSON.parse(JSON.stringify(order.items || []));
+            // Debug log
+            console.log(`Item ${index}: max=${maxQuantity}, current=${currentQuantity}`);
             
-            const itemsContainer = document.getElementById('partialOrderItems');
-            let itemsHtml = '<p>Adjust quantities of items you can fulfill:</p>';
-            
-            if (partialOrderItems.length === 0) {
-                itemsHtml += '<p>No items found in this order</p>';
-            } else {
-                partialOrderItems.forEach((item, index) => {
-                    const maxQuantity = item.quantity || 1;
-                    itemsHtml += `
-                        <div class="item-quantity-control">
-                            <div class="item-info">
-                                <div class="item-name">${item.name || 'Product'}</div>
-                                <div class="item-price">₹${(item.price || 0).toFixed(2)} each</div>
-                            </div>
-                            <div class="quantity-controls">
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${item.selectedQuantity <= 1 ? 'disabled' : ''}>-</button>
-                                <span class="quantity-display">${item.selectedQuantity || maxQuantity}</span>
-                                <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)" ${(item.selectedQuantity || maxQuantity) >= maxQuantity ? 'disabled' : ''}>+</button>
-                            </div>
-                        </div>
-                        <div class="max-quantity">Max available: ${maxQuantity}</div>
-                    `;
-                    
-                    if (!item.selectedQuantity) {
-                        item.selectedQuantity = maxQuantity;
-                    }
-                });
-            }
-            
-            itemsContainer.innerHTML = itemsHtml;
-            updatePartialOrderTotal();
-            
-            document.getElementById('partialOrderModal').classList.add('active');
-        }
+            itemsHtml += `
+                <div class="item-quantity-control">
+                    <div class="item-info">
+                        <div class="item-name">${item.name || 'Product'}</div>
+                        <div class="item-price">₹${(item.price || 0).toFixed(2)} each</div>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, -1)" ${currentQuantity <= 1 ? 'disabled' : ''}>-</button>
+                        <span class="quantity-display" id="qtyDisplay${index}">${currentQuantity}</span>
+                        <button class="quantity-btn" onclick="changePartialQuantity(${index}, 1)" ${currentQuantity >= maxQuantity ? 'disabled' : ''}>+</button>
+                    </div>
+                </div>
+                <div class="max-quantity">Max available: ${maxQuantity}</div>
+            `;
+        });
+    }
+    
+    itemsContainer.innerHTML = itemsHtml;
+    updatePartialOrderTotal();
+    
+    // Show modal
+    document.getElementById('partialOrderModal').classList.add('active');
+    console.log('Partial order modal opened');
+}
 
-        function changePartialQuantity(index, change) {
-            if (!partialOrderItems[index]) return;
-            
-            const maxQuantity = partialOrderItems[index].quantity || 1;
-            let newQuantity = (partialOrderItems[index].selectedQuantity || maxQuantity) + change;
-            
-            newQuantity = Math.max(0, Math.min(newQuantity, maxQuantity));
-            
-            partialOrderItems[index].selectedQuantity = newQuantity;
-            
-            const quantityDisplay = document.querySelectorAll('.quantity-display')[index];
-            if (quantityDisplay) {
-                quantityDisplay.textContent = newQuantity;
-            }
-            
-            const minusBtn = document.querySelectorAll('.quantity-btn')[index * 2];
-            const plusBtn = document.querySelectorAll('.quantity-btn')[index * 2 + 1];
-            
-            if (minusBtn) minusBtn.disabled = newQuantity <= 1;
-            if (plusBtn) plusBtn.disabled = newQuantity >= maxQuantity;
-            
-            updatePartialOrderTotal();
-        }
+function changePartialQuantity(index, change) {
+    if (!partialOrderItems || !partialOrderItems[index]) {
+        console.error('partialOrderItems not found at index', index);
+        return;
+    }
+    
+    const item = partialOrderItems[index];
+    const maxQuantity = item.quantity || 1;
+    const currentQuantity = item.selectedQuantity || maxQuantity;
+    let newQuantity = currentQuantity + change;
+    
+    // Ensure quantity stays within bounds
+    newQuantity = Math.max(0, Math.min(newQuantity, maxQuantity));
+    
+    // Update the item
+    partialOrderItems[index].selectedQuantity = newQuantity;
+    
+    // Update display
+    const quantityDisplay = document.getElementById(`qtyDisplay${index}`);
+    if (quantityDisplay) {
+        quantityDisplay.textContent = newQuantity;
+    }
+    
+    // Update all buttons (for safety)
+    const allButtons = document.querySelectorAll('.quantity-btn');
+    const minusBtnIndex = index * 2;
+    const plusBtnIndex = index * 2 + 1;
+    
+    if (allButtons[minusBtnIndex]) {
+        allButtons[minusBtnIndex].disabled = newQuantity <= 1;
+    }
+    if (allButtons[plusBtnIndex]) {
+        allButtons[plusBtnIndex].disabled = newQuantity >= maxQuantity;
+    }
+    
+    updatePartialOrderTotal();
+}
 
-        function updatePartialOrderTotal() {
-            let total = 0;
-            partialOrderItems.forEach(item => {
-                const quantity = item.selectedQuantity || item.quantity || 0;
-                const price = item.price || 0;
-                total += quantity * price;
-            });
-            
-            document.getElementById('partialOrderTotalAmount').textContent = total.toFixed(2);
-        }
+function updatePartialOrderTotal() {
+    let total = 0;
+    if (partialOrderItems && partialOrderItems.length > 0) {
+        partialOrderItems.forEach(item => {
+            const quantity = item.selectedQuantity || item.quantity || 0;
+            const price = item.price || 0;
+            total += quantity * price;
+        });
+    }
+    
+    const totalElement = document.getElementById('partialOrderTotalAmount');
+    if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+    }
+}
 
-        function closePartialOrderModal() {
-            document.getElementById('partialOrderModal').classList.remove('active');
-            currentPartialOrderId = null;
-            partialOrderItems = [];
-        }
+function closePartialOrderModal() {
+    document.getElementById('partialOrderModal').classList.remove('active');
+    currentPartialOrderId = null;
+    partialOrderItems = [];
+}
 
-        async function confirmPartialOrder() {
-            if (!currentPartialOrderId) return;
-            
-            const acceptedItems = [];
-            const rejectedItems = [];
-            let acceptedTotal = 0;
-            
-            partialOrderItems.forEach(item => {
-                const originalQuantity = item.quantity || 1;
-                const acceptedQuantity = item.selectedQuantity || 0;
-                
-                if (acceptedQuantity > 0) {
-                    const acceptedItem = { ...item };
-                    acceptedItem.quantity = acceptedQuantity;
-                    acceptedItem.totalPrice = acceptedQuantity * (item.price || 0);
-                    acceptedItems.push(acceptedItem);
-                    acceptedTotal += acceptedItem.totalPrice;
-                }
-                
-                if (acceptedQuantity < originalQuantity) {
-                    const rejectedItem = { ...item };
-                    rejectedItem.quantity = originalQuantity - acceptedQuantity;
-                    rejectedItem.totalPrice = rejectedItem.quantity * (item.price || 0);
-                    rejectedItems.push(rejectedItem);
-                }
-            });
-            
-            if (acceptedItems.length === 0) {
-                showToast('Please accept at least one item', 'error');
-                return;
-            }
-            
-            if (!confirm(`Confirm partial order?\n\nAccepted: ${acceptedItems.length} items (₹${acceptedTotal.toFixed(2)})\nRejected: ${rejectedItems.length} items`)) {
-                return;
-            }
-            
-            try {
-                showLoading(true);
-                
-                const updateData = {
-                    status: 'confirmed',
-                    isPartialOrder: true,
-                    acceptedItems: acceptedItems,
-                    rejectedItems: rejectedItems,
-                    acceptedTotal: acceptedTotal,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                await db.collection('orders').doc(currentPartialOrderId).update(updateData);
-                
-                closePartialOrderModal();
-                showToast('Partial order accepted!', 'success');
-                await loadOrders();
-                await loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error confirming partial order:', error);
-                showToast('Error confirming partial order: ' + error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+async function confirmPartialOrder() {
+    if (!currentPartialOrderId || !partialOrderItems || partialOrderItems.length === 0) {
+        showToast('No items to process', 'error');
+        return;
+    }
+    
+    const acceptedItems = [];
+    const rejectedItems = [];
+    let acceptedTotal = 0;
+    
+    partialOrderItems.forEach(item => {
+        const originalQuantity = item.quantity || 1;
+        const acceptedQuantity = item.selectedQuantity || 0;
+        
+        if (acceptedQuantity > 0) {
+            const acceptedItem = { 
+                ...item,
+                quantity: acceptedQuantity,
+                totalPrice: acceptedQuantity * (item.price || 0)
+            };
+            acceptedItems.push(acceptedItem);
+            acceptedTotal += acceptedItem.totalPrice;
         }
-
+        
+        if (acceptedQuantity < originalQuantity) {
+            const rejectedItem = { 
+                ...item,
+                quantity: originalQuantity - acceptedQuantity,
+                totalPrice: (originalQuantity - acceptedQuantity) * (item.price || 0)
+            };
+            rejectedItems.push(rejectedItem);
+        }
+    });
+    
+    if (acceptedItems.length === 0) {
+        showToast('Please accept at least one item', 'error');
+        return;
+    }
+    
+    if (!confirm(`Confirm partial order?\n\nAccepted: ${acceptedItems.length} items (₹${acceptedTotal.toFixed(2)})\nRejected: ${rejectedItems.length} items`)) {
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        const updateData = {
+            status: 'confirmed',
+            isPartialOrder: true,
+            acceptedItems: acceptedItems,
+            rejectedItems: rejectedItems,
+            acceptedTotal: acceptedTotal,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('orders').doc(currentPartialOrderId).update(updateData);
+        
+        closePartialOrderModal();
+        showToast('Partial order accepted!', 'success');
+        await loadOrders();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error confirming partial order:', error);
+        showToast('Error confirming partial order: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
         // ==================== PROFILE MANAGEMENT FUNCTIONS ====================
         
         // Update profile form with current shop data
